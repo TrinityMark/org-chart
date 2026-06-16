@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Org Chart Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        .tbl-input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .tbl-input:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+
+        .tbl-select {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .tbl-select:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+
+        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #15397F; }
+
+        .chart-outer {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            min-height: 220px;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            color: #9ca3af;
+            font-size: 14px;
+            text-align: center;
+            padding: 32px;
+        }
+
+        .table-outer {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-amber {
+            background-color: #F7AC08;
+            color: #111827;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 9px 16px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color .15s;
+            white-space: nowrap;
+        }
+        .btn-amber:hover { background-color: #e09a06; }
+
+        .btn-amber-sm {
+            background-color: #F7AC08;
+            color: #111827;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 7px 13px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color .15s;
+            white-space: nowrap;
+        }
+        .btn-amber-sm:hover { background-color: #e09a06; }
+
+        .field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
+
+        #validation-msg {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #b91c1c;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-[#15397F] text-white shadow-lg">
+        <div class="max-w-full px-5 sm:px-8 py-7 sm:py-8 flex justify-between items-start">
+            <div class="flex-1">
+                <h1 class="text-3xl sm:text-4xl font-bold">Org Chart Builder</h1>
+                <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Build your current and future organisation charts. Add your team members below, tick which charts they appear in, and the charts update automatically as you fill in the details.</p>
+            </div>
+            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.2</span>
+        </div>
+    </header>
+
+    <main class="max-w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+
+        <!-- Business Details -->
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-semibold text-gray-900">Business Details</h2>
+                <button id="clear-btn" onclick="clearAll()"
+                    class="hidden text-sm text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Clear and start again
+                </button>
+            </div>
+            <div id="validation-msg"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Your name <span class="text-red-500">*</span></label>
+                    <input id="your-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                        placeholder="Your full name">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Your email <span class="text-red-500">*</span></label>
+                    <input id="your-email" type="email" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                        placeholder="you@example.com">
+                    <p class="text-xs text-blue-400 mt-1">We'll send you a notification when your PDF is ready.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Business name <span class="text-red-500">*</span></label>
+                    <input id="company-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                        placeholder="Your business name">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Advisor name <span class="text-red-500">*</span></label>
+                    <select id="advisor-name" onchange="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F] bg-white cursor-pointer">
+                        <option value="">Select your advisor...</option>
+                        <!-- Update this list with Trinity Advisory advisor names -->
+                        <option value="Mark Nixey">Mark Nixey</option>
+                        <option value="Sarah Thompson">Sarah Thompson</option>
+                        <option value="James Wilson">James Wilson</option>
+                        <option value="Emily Chen">Emily Chen</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Date <span class="text-red-500">*</span></label>
+                    <input id="chart-date" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                        placeholder="Eg. June 2025">
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Members -->
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                <h2 class="font-semibold text-gray-900">Team Members</h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="uploadCSV()" class="btn-amber-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        Upload CSV
+                    </button>
+                    <button onclick="downloadCSV()" class="btn-amber-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download CSV
+                    </button>
+                    <button onclick="addPerson()" class="btn-amber">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Person
+                    </button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV with Name, Role, Outline Responsibilities columns.</p>
+
+            <div class="table-outer">
+                <table class="w-full" style="min-width:980px">
+                    <thead>
+                        <tr>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Name</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role / Title</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Level</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Reports To</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:25%">Outline Responsibilities</th>
+                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">
+                                <span class="block">Current</span>
+                                <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
+                            </th>
+                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">
+                                <span class="block">Future</span>
+                                <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
+                            </th>
+                            <th style="width:4%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="people-tbody">
+                        <tr>
+                            <td colspan="8" class="py-10 text-center text-sm text-gray-400">
+                                Click "Add Person" to start building your org chart
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Current Chart -->
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex justify-between items-center mb-1">
+                <h2 class="font-semibold text-gray-900">Current Organisation Chart</h2>
+                <button onclick="downloadChart('current-chart')" class="btn-amber-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Chart
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Team members with "Current" ticked</p>
+            <div class="chart-outer" id="current-chart">
+                <div class="empty-state">Tick "Current" for team members to see them appear here</div>
+            </div>
+        </div>
+
+        <!-- Future Chart -->
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex justify-between items-center mb-1">
+                <h2 class="font-semibold text-gray-900">Future Organisation Chart</h2>
+                <button onclick="downloadChart('future-chart')" class="btn-amber-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Chart
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Team members with "Future" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
+            <div class="chart-outer" id="future-chart">
+                <div class="empty-state">Tick "Future" for team members to see them appear here</div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let STATE = { people: [] };
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function trunc(s, n) {
+    s = String(s || '');
+    return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+function slugify(s) {
+    return String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+}
+
+// ── Validation ─────────────────────────────────────────────────────────────
+const REQUIRED_FIELDS = [
+    { id: 'your-name',    label: 'Your name' },
+    { id: 'your-email',   label: 'Your email' },
+    { id: 'company-name', label: 'Business name' },
+    { id: 'advisor-name', label: 'Advisor name' },
+    { id: 'chart-date',   label: 'Date' }
+];
+
+function clearFieldError(el) {
+    el.classList.remove('field-error');
+}
+
+function validateForDownload() {
+    const missing = REQUIRED_FIELDS.filter(f => !document.getElementById(f.id).value.trim());
+    const msgEl   = document.getElementById('validation-msg');
+
+    // Clear previous highlights
+    REQUIRED_FIELDS.forEach(f => document.getElementById(f.id).classList.remove('field-error'));
+
+    if (missing.length === 0) {
+        msgEl.style.display = 'none';
+        return true;
+    }
+
+    // Highlight empty fields
+    missing.forEach(f => document.getElementById(f.id).classList.add('field-error'));
+
+    // Show banner
+    msgEl.style.display = 'block';
+    msgEl.innerHTML = `<strong>Please complete the required fields before downloading:</strong> ${missing.map(f => f.label).join(', ')}.`;
+
+    // Scroll to Business Details
+    document.getElementById('validation-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+}
+
+function parseCSVLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+            else inQ = !inQ;
+        } else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else cur += ch;
+    }
+    result.push(cur.trim());
+    return result;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────
+function addPerson() {
+    STATE.people.push({
+        id: Date.now(),
+        name: '', role: '', responsibilities: '', level: 1,
+        reportsToId: null, current: true, future: false
+    });
+    renderTable();
+    updateCharts();
+    saveToStorage();
+    checkClearBtn();
+}
+
+function removePerson(id) {
+    STATE.people.forEach(p => { if (p.reportsToId === id) p.reportsToId = null; });
+    STATE.people = STATE.people.filter(p => p.id !== id);
+    renderTable();
+    updateCharts();
+    saveToStorage();
+    checkClearBtn();
+}
+
+function onField(id, field, value) {
+    const p = STATE.people.find(p => p.id === id);
+    if (!p) return;
+    if (field === 'level')            p.level       = Number(value);
+    else if (field === 'reportsToId') p.reportsToId = value ? Number(value) : null;
+    else if (field === 'current' || field === 'future') p[field] = Boolean(value);
+    else p[field] = value;
+    if (field === 'name') refreshReportsToSelects();
+    updateCharts();
+    saveToStorage();
+    checkClearBtn();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('people-tbody');
+    if (STATE.people.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
+        return;
+    }
+    tbody.innerHTML = STATE.people.map(p => `
+        <tr class="border-t border-gray-100" data-pid="${p.id}">
+            <td class="py-2 pr-3">
+                <input type="text" class="tbl-input" value="${esc(p.name)}" placeholder="Full name"
+                    oninput="onField(${p.id},'name',this.value)">
+            </td>
+            <td class="py-2 pr-3">
+                <input type="text" class="tbl-input" value="${esc(p.role)}" placeholder="Role or title"
+                    oninput="onField(${p.id},'role',this.value)">
+            </td>
+            <td class="py-2 pr-3">
+                <select class="tbl-select" onchange="onField(${p.id},'level',this.value)">
+                    ${[1,2,3,4,5,6,7,8].map(l =>
+                        `<option value="${l}"${p.level===l?' selected':''}>Level ${l}</option>`
+                    ).join('')}
+                </select>
+            </td>
+            <td class="py-2 pr-3">
+                <select class="tbl-select" data-pid="${p.id}" data-f="reportsToId"
+                    onchange="onField(${p.id},'reportsToId',this.value)">
+                    <option value="">— None —</option>
+                    ${STATE.people
+                        .filter(o => o.id !== p.id && o.name.trim())
+                        .map(o => `<option value="${o.id}"${p.reportsToId===o.id?' selected':''}>${esc(o.name)}</option>`)
+                        .join('')}
+                </select>
+            </td>
+            <td class="py-2 pr-3">
+                <input type="text" class="tbl-input" value="${esc(p.responsibilities||'')}" placeholder="Brief outline of responsibilities"
+                    oninput="onField(${p.id},'responsibilities',this.value)">
+            </td>
+            <td class="py-2 pr-2 text-center">
+                <input type="checkbox" ${p.current?'checked':''}
+                    onchange="onField(${p.id},'current',this.checked)">
+            </td>
+            <td class="py-2 pr-2 text-center">
+                <input type="checkbox" ${p.future?'checked':''}
+                    onchange="onField(${p.id},'future',this.checked)">
+            </td>
+            <td class="py-2 text-center">
+                <button onclick="removePerson(${p.id})"
+                    class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function refreshReportsToSelects() {
+    STATE.people.forEach(p => {
+        const sel = document.querySelector(`select[data-pid="${p.id}"][data-f="reportsToId"]`);
+        if (!sel) return;
+        const cur = String(p.reportsToId || '');
+        sel.innerHTML = `<option value="">— None —</option>` +
+            STATE.people
+                .filter(o => o.id !== p.id && o.name.trim())
+                .map(o => `<option value="${o.id}"${String(o.id)===cur?' selected':''}>${esc(o.name)}</option>`)
+                .join('');
+    });
+}
+
+// ── CSV Import / Export ────────────────────────────────────────────────────
+function uploadCSV() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = evt => {
+            const lines = evt.target.result.split(/\r?\n/).filter(l => l.trim());
+            if (lines.length < 2) { alert('CSV appears empty.'); return; }
+            const hdrs = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g,'').trim().toLowerCase());
+            const ni = hdrs.findIndex(h => h === 'name');
+            const ri = hdrs.findIndex(h => h === 'role');
+            const rsi = hdrs.findIndex(h => h.includes('responsibilit'));
+            if (ni < 0) { alert('CSV must have a "Name" column.'); return; }
+            const now = Date.now();
+            const incoming = lines.slice(1).map((line, i) => {
+                const c = parseCSVLine(line);
+                const get = idx => idx >= 0 ? (c[idx]||'').replace(/^"|"$/g,'') : '';
+                return { id: now + i + 1, name: get(ni), role: get(ri), responsibilities: get(rsi), level: 1, reportsToId: null, current: true, future: false };
+            }).filter(p => p.name.trim());
+            if (!incoming.length) { alert('No valid rows found in CSV.'); return; }
+            if (STATE.people.length > 0 && !confirm(`Add ${incoming.length} people from CSV to the existing ${STATE.people.length}?`)) return;
+            STATE.people.push(...incoming);
+            renderTable();
+            updateCharts();
+            saveToStorage();
+            checkClearBtn();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function downloadCSV() {
+    if (!validateForDownload()) return;
+    if (!STATE.people.length) { alert('No team members to download.'); return; }
+    const business = document.getElementById('company-name').value.trim();
+    const date     = document.getElementById('chart-date').value.trim();
+    const hdrs = ['Name','Role','Outline Responsibilities','Level','Reports To','Current Chart','Future Chart'];
+    const rows = STATE.people.map(p => {
+        const rTo = STATE.people.find(o => o.id === p.reportsToId)?.name || '';
+        return [p.name, p.role, p.responsibilities||'', p.level, rTo, p.current?'Yes':'No', p.future?'Yes':'No'];
+    });
+    const csv = [hdrs,...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+    a.download = `${slugify(business)}-${slugify(date)}-team-members.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── Org Chart ─────────────────────────────────────────────────────────────
+const BW = 180, BH = 74, HG = 44, VG = 70;
+const UW = BW + HG;
+const UH = BH + VG;
+
+function buildTree(people) {
+    const map = {};
+    people.forEach(p => { map[p.id] = { ...p, children: [] }; });
+    const childIds = new Set();
+    people.forEach(p => {
+        const pid = p.reportsToId;
+        if (pid && map[pid] && pid !== p.id) {
+            map[pid].children.push(map[p.id]);
+            childIds.add(p.id);
+        }
+    });
+    return { roots: people.filter(p => !childIds.has(p.id)).map(p => map[p.id]) };
+}
+
+function layoutTree(roots) {
+    let ctr = 0;
+    const seen = new Set();
+    function measure(n) {
+        if (seen.has(n.id)) { n._lf = ctr++; return; }
+        seen.add(n.id);
+        if (!n.children.length) { n._lf = ctr++; }
+        else {
+            n.children.forEach(c => measure(c));
+            n._lf = (n.children[0]._lf + n.children[n.children.length-1]._lf) / 2;
+        }
+    }
+    function setDepth(n, d) { n._d = d; n.children.forEach(c => setDepth(c, d+1)); }
+    roots.forEach(r => measure(r));
+    roots.forEach(r => setDepth(r, 0));
+}
+
+function collectAll(roots) {
+    const nodes = [], edges = [];
+    const seen = new Set();
+    function walk(n, par) {
+        if (seen.has(n.id)) return;
+        seen.add(n.id); nodes.push(n);
+        if (par) edges.push([par, n]);
+        n.children.forEach(c => walk(c, n));
+    }
+    roots.forEach(r => walk(r, null));
+    return { nodes, edges };
+}
+
+function renderChart(containerId, people) {
+    const el = document.getElementById(containerId);
+    const filtId = 'ds-' + containerId;
+
+    if (!people.length) {
+        const label = containerId === 'current-chart' ? 'Current' : 'Future';
+        el.innerHTML = `<div class="empty-state">Tick "${label}" for team members to see them appear here</div>`;
+        return;
+    }
+
+    const { roots } = buildTree(people);
+    layoutTree(roots);
+    const { nodes, edges } = collectAll(roots);
+    if (!nodes.length) { el.innerHTML = `<div class="empty-state">No people to display</div>`; return; }
+
+    const pad = 40;
+    const maxLf = Math.max(...nodes.map(n => n._lf));
+    const maxD  = Math.max(...nodes.map(n => n._d));
+    const W = (maxLf + 1) * UW + pad * 2;
+    const H = (maxD  + 1) * UH + pad * 2;
+
+    nodes.forEach(n => {
+        n._cx = pad + n._lf * UW + BW / 2;
+        n._cy = pad + n._d  * UH + BH / 2;
+    });
+
+    const rootIds = new Set(roots.map(r => r.id));
+
+    const edgeSvg = edges.map(([fr, to]) => {
+        const x1 = fr._cx, y1 = fr._cy + BH/2;
+        const x2 = to._cx, y2 = to._cy - BH/2;
+        const my = (y1 + y2) / 2;
+        return `<path d="M${x1},${y1} V${my} H${x2} V${y2}" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+    }).join('');
+
+    const nodeSvg = nodes.map(n => {
+        const x = n._cx - BW/2, y = n._cy - BH/2;
+        const isRoot     = rootIds.has(n.id);
+        const futureOnly = !!n._futureOnly;
+
+        let fill, stroke, tc1, tc2, tc3;
+        if (isRoot && !futureOnly) {
+            fill = '#15397F'; stroke = '#0f2f69';
+            tc1 = 'white'; tc2 = '#bfdbfe'; tc3 = '#93c5fd';
+        } else if (futureOnly) {
+            fill = '#FCF6E9'; stroke = '#F8C558';
+            tc1 = '#111827'; tc2 = '#6b7280'; tc3 = '#9ca3af';
+        } else {
+            fill = 'white'; stroke = '#15397F';
+            tc1 = '#111827'; tc2 = '#6b7280'; tc3 = '#9ca3af';
+        }
+
+        return `<g>
+<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="8"
+    fill="${fill}" stroke="${stroke}" stroke-width="2" filter="url(#${filtId})"/>
+<text x="${n._cx}" y="${n._cy-12}" text-anchor="middle"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="13" font-weight="600" fill="${tc1}">${esc(trunc(n.name,22))}</text>
+<text x="${n._cx}" y="${n._cy+6}" text-anchor="middle"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="11" fill="${tc2}">${esc(trunc(n.role,26))}</text>
+<text x="${n._cx}" y="${n._cy+23}" text-anchor="middle"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="10" fill="${tc3}">Level ${n.level}</text>
+</g>`;
+    }).join('');
+
+    el.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="${filtId}" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.08)"/>
+</filter></defs>
+${edgeSvg}
+${nodeSvg}
+</svg>`;
+}
+
+function updateCharts() {
+    const currentPeople = STATE.people.filter(p => p.current && p.name.trim());
+    const futurePeople  = STATE.people.filter(p => p.future && p.name.trim())
+        .map(p => ({ ...p, _futureOnly: !p.current }));
+    renderChart('current-chart', currentPeople);
+    renderChart('future-chart',  futurePeople);
+}
+
+// ── Download Chart ─────────────────────────────────────────────────────────
+function downloadChart(containerId) {
+    if (!validateForDownload()) return;
+    const svg = document.querySelector(`#${containerId} svg`);
+    if (!svg) { alert('No chart to download yet.'); return; }
+
+    const business   = document.getElementById('company-name').value.trim();
+    const date       = document.getElementById('chart-date').value.trim();
+    const isCurrent  = containerId === 'current-chart';
+    const chartTitle = isCurrent ? 'Current Organisation Chart' : 'Future Organisation Chart';
+    const fileLabel  = isCurrent ? 'current-org-chart' : 'future-org-chart';
+    const filename   = `${slugify(business)}-${slugify(date)}-${fileLabel}.png`;
+
+    const titleH = 72;
+    const svgW   = svg.width.baseVal.value;
+    const svgH   = svg.height.baseVal.value;
+
+    const titleSvg = `<svg width="${svgW}" height="${svgH + titleH}" xmlns="http://www.w3.org/2000/svg">
+<rect width="${svgW}" height="${svgH + titleH}" fill="#f9fafb"/>
+<rect width="${svgW}" height="${titleH}" fill="#15397F"/>
+<text x="20" y="26" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15" font-weight="700" fill="white">${esc(business)}</text>
+<text x="20" y="46" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12" fill="#bfdbfe">${esc(chartTitle)}</text>
+<text x="20" y="63" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="11" fill="#93c5fd">${esc(date)}</text>
+<g transform="translate(0,${titleH})">${svg.innerHTML}</g>
+</svg>`;
+
+    const blob = new Blob([titleSvg], { type: 'image/svg+xml;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const img  = new Image();
+
+    img.onload = () => {
+        const scale  = 2;
+        const totalH = svgH + titleH;
+        const canvas = document.createElement('canvas');
+        canvas.width  = svgW   * scale;
+        canvas.height = totalH * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+        ctx.fillStyle = '#f9fafb';
+        ctx.fillRect(0, 0, svgW, totalH);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(b);
+            a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }, 'image/png');
+    };
+    img.onerror = () => {
+        const a = document.createElement('a');
+        a.href = url; a.download = filename.replace('.png', '.svg');
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+    img.src = url;
+}
+
+// ── Persistence ───────────────────────────────────────────────────────────
+function saveToStorage() {
+    localStorage.setItem('oc-your-name',  document.getElementById('your-name').value);
+    localStorage.setItem('oc-your-email', document.getElementById('your-email').value);
+    localStorage.setItem('oc-company',    document.getElementById('company-name').value);
+    localStorage.setItem('oc-advisor',    document.getElementById('advisor-name').value);
+    localStorage.setItem('oc-date',       document.getElementById('chart-date').value);
+    localStorage.setItem('oc-people',     JSON.stringify(STATE.people));
+}
+
+function loadFromStorage() {
+    const set = (id, key) => { const v = localStorage.getItem(key); if (v) document.getElementById(id).value = v; };
+    set('your-name',    'oc-your-name');
+    set('your-email',   'oc-your-email');
+    set('company-name', 'oc-company');
+    set('advisor-name', 'oc-advisor');
+    set('chart-date',   'oc-date');
+    try {
+        const raw = JSON.parse(localStorage.getItem('oc-people') || '[]');
+        if (Array.isArray(raw) && raw.length) {
+            STATE.people = raw.map(p => ({
+                ...p,
+                id: Number(p.id),
+                reportsToId: p.reportsToId ? Number(p.reportsToId) : null,
+                responsibilities: p.responsibilities || ''
+            }));
+        }
+    } catch {}
+    renderTable();
+    updateCharts();
+    checkClearBtn();
+}
+
+function checkClearBtn() {
+    const has = STATE.people.length > 0 ||
+        document.getElementById('your-name').value ||
+        document.getElementById('company-name').value ||
+        document.getElementById('chart-date').value;
+    document.getElementById('clear-btn').classList.toggle('hidden', !has);
+}
+
+function clearAll() {
+    if (!confirm('Clear everything and start again?')) return;
+    STATE.people = [];
+    ['your-name','your-email','company-name','advisor-name','chart-date'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    ['oc-your-name','oc-your-email','oc-company','oc-advisor','oc-date','oc-people'].forEach(k => localStorage.removeItem(k));
+    renderTable();
+    updateCharts();
+    checkClearBtn();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadFromStorage);
+</script>
+</body>
+</html>
