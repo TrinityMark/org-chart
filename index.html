@@ -33,7 +33,62 @@
         }
         .tbl-select:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
-        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #15397F; }
+        /* Multi-select dropdown */
+        .ms-btn {
+            width: 100%;
+            padding: 7px 28px 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            color: #374151;
+            transition: border-color .15s, box-shadow .15s;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ms-btn::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #6b7280;
+            pointer-events: none;
+        }
+        .ms-btn:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+
+        .ms-dropdown {
+            position: fixed;
+            z-index: 9999;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.14);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .ms-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #374151;
+            user-select: none;
+        }
+        .ms-option:hover { background: #f3f4f6; }
+        .ms-option input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
+        .ms-empty { padding: 10px 14px; font-size: 13px; color: #9ca3af; }
+
+        input[type="checkbox"] { accent-color: #15397F; cursor: pointer; }
 
         .chart-outer {
             overflow: auto;
@@ -43,7 +98,6 @@
             border-radius: 8px;
             min-height: 220px;
         }
-
         .empty-state {
             display: flex;
             align-items: center;
@@ -54,57 +108,41 @@
             text-align: center;
             padding: 32px;
         }
-
         .table-outer {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .btn-amber {
-            background-color: #F7AC08;
-            color: #111827;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 9px 16px;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: background-color .15s;
-            white-space: nowrap;
+            background-color: #F7AC08; color: #111827;
+            border-radius: 6px; font-weight: 600; font-size: 14px;
+            padding: 9px 16px; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: background-color .15s; white-space: nowrap;
         }
         .btn-amber:hover { background-color: #e09a06; }
-
         .btn-amber-sm {
-            background-color: #F7AC08;
-            color: #111827;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 13px;
-            padding: 7px 13px;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: background-color .15s;
-            white-space: nowrap;
+            background-color: #F7AC08; color: #111827;
+            border-radius: 6px; font-weight: 600; font-size: 13px;
+            padding: 7px 13px; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 5px;
+            transition: background-color .15s; white-space: nowrap;
         }
         .btn-amber-sm:hover { background-color: #e09a06; }
 
-        .field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
+        /* Drag and drop */
+        .drag-handle { color: #d1d5db; cursor: grab; padding: 4px 6px; display: flex; align-items: center; user-select: none; }
+        .drag-handle:hover { color: #9ca3af; }
+        tr.dragging { opacity: 0.35; }
+        tr.drag-over-top    { box-shadow: inset 0  3px 0 #15397F; }
+        tr.drag-over-bottom { box-shadow: inset 0 -3px 0 #15397F; }
 
+        .field-error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
         #validation-msg {
             display: none;
-            background: #fef2f2;
-            border: 1px solid #fca5a5;
-            border-radius: 6px;
-            padding: 10px 14px;
-            color: #b91c1c;
-            font-size: 13px;
-            margin-bottom: 12px;
+            background: #fef2f2; border: 1px solid #fca5a5;
+            border-radius: 6px; padding: 10px 14px;
+            color: #b91c1c; font-size: 13px; margin-bottom: 12px;
         }
     </style>
 </head>
@@ -118,7 +156,7 @@
                 <h1 class="text-3xl sm:text-4xl font-bold">Org Chart Builder</h1>
                 <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Build your current and future organisation charts. Add your team members below, tick which charts they appear in, and the charts update automatically as you fill in the details.</p>
             </div>
-            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.2</span>
+            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.5</span>
         </div>
     </header>
 
@@ -203,17 +241,18 @@
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV with Name, Role, Outline Responsibilities columns.</p>
+            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV with Name, Role, Outline Responsibilities columns. Reports To supports multiple selections.</p>
 
             <div class="table-outer">
                 <table class="w-full" style="min-width:980px">
                     <thead>
                         <tr>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Name</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role / Title</th>
+                            <th style="width:3%"></th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Name</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Role / Title</th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Level</th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Reports To</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:25%">Outline Responsibilities</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:24%">Outline Responsibilities</th>
                             <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">
                                 <span class="block">Current</span>
                                 <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
@@ -227,7 +266,7 @@
                     </thead>
                     <tbody id="people-tbody">
                         <tr>
-                            <td colspan="8" class="py-10 text-center text-sm text-gray-400">
+                            <td colspan="9" class="py-10 text-center text-sm text-gray-400">
                                 Click "Add Person" to start building your org chart
                             </td>
                         </tr>
@@ -298,56 +337,128 @@ const REQUIRED_FIELDS = [
     { id: 'advisor-name', label: 'Advisor name' },
     { id: 'chart-date',   label: 'Date' }
 ];
-
-function clearFieldError(el) {
-    el.classList.remove('field-error');
-}
-
+function clearFieldError(el) { el.classList.remove('field-error'); }
 function validateForDownload() {
     const missing = REQUIRED_FIELDS.filter(f => !document.getElementById(f.id).value.trim());
-    const msgEl   = document.getElementById('validation-msg');
-
-    // Clear previous highlights
+    const msgEl = document.getElementById('validation-msg');
     REQUIRED_FIELDS.forEach(f => document.getElementById(f.id).classList.remove('field-error'));
-
-    if (missing.length === 0) {
-        msgEl.style.display = 'none';
-        return true;
-    }
-
-    // Highlight empty fields
+    if (!missing.length) { msgEl.style.display = 'none'; return true; }
     missing.forEach(f => document.getElementById(f.id).classList.add('field-error'));
-
-    // Show banner
     msgEl.style.display = 'block';
     msgEl.innerHTML = `<strong>Please complete the required fields before downloading:</strong> ${missing.map(f => f.label).join(', ')}.`;
-
-    // Scroll to Business Details
     document.getElementById('validation-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return false;
 }
 
-function parseCSVLine(line) {
-    const result = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-            if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-            else inQ = !inQ;
-        } else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
-        else cur += ch;
-    }
-    result.push(cur.trim());
-    return result;
+// ── Multi-Select (Reports To) ──────────────────────────────────────────────
+let openMsId = null;
+
+function msLabel(p) {
+    const ids  = p.reportsToIds || [];
+    if (!ids.length) return '— None —';
+    const names = ids.map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean);
+    if (!names.length) return '— None —';
+    const joined = names.join(', ');
+    return joined.length > 32 ? joined.slice(0, 30) + '…' : joined;
 }
+
+function openMs(event, personId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const dd  = document.getElementById(`ms-${personId}`);
+    if (!dd) return;
+
+    // Close any other open dropdown
+    if (openMsId && openMsId !== personId) {
+        const prev = document.getElementById(`ms-${openMsId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (dd.style.display !== 'none') {
+        dd.style.display = 'none';
+        openMsId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    const dropW = Math.max(rect.width, 230);
+    dd.style.width  = dropW + 'px';
+    dd.style.left   = rect.left + 'px';
+    dd.style.display = 'block';
+
+    // Flip up if too close to bottom
+    const afterBottom = rect.bottom + 2 + 220;
+    if (afterBottom > window.innerHeight && rect.top > 230) {
+        const h = Math.min(dd.scrollHeight, 220);
+        dd.style.top    = (rect.top - h - 4) + 'px';
+    } else {
+        dd.style.top = (rect.bottom + 2) + 'px';
+    }
+
+    openMsId = personId;
+}
+
+function toggleParent(personId, parentId, checked) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    const ids = p.reportsToIds || [];
+    if (checked) {
+        if (!ids.includes(parentId)) p.reportsToIds = [...ids, parentId];
+    } else {
+        p.reportsToIds = ids.filter(id => id !== parentId);
+    }
+    // Update button label without re-rendering whole table
+    const btn = document.querySelector(`button.ms-btn[data-pid="${personId}"]`);
+    if (btn) btn.textContent = msLabel(p);
+    updateCharts();
+    saveToStorage();
+}
+
+function refreshMsDropdowns() {
+    STATE.people.forEach(p => {
+        // Refresh label
+        const btn = document.querySelector(`button.ms-btn[data-pid="${p.id}"]`);
+        if (btn) btn.textContent = msLabel(p);
+        // Refresh options
+        const dd = document.getElementById(`ms-${p.id}`);
+        if (!dd) return;
+        const options = STATE.people.filter(o => o.id !== p.id && o.name.trim());
+        if (!options.length) {
+            dd.innerHTML = '<div class="ms-empty">No other people added yet</div>';
+        } else {
+            dd.innerHTML = options.map(o => `
+                <label class="ms-option">
+                    <input type="checkbox" style="width:16px;height:16px"
+                        ${(p.reportsToIds||[]).includes(o.id) ? 'checked' : ''}
+                        onchange="toggleParent(${p.id},${o.id},this.checked)">
+                    ${esc(o.name)}
+                </label>`).join('');
+        }
+    });
+}
+
+// Close dropdown on outside click or scroll
+document.addEventListener('click', () => {
+    if (openMsId) {
+        const dd = document.getElementById(`ms-${openMsId}`);
+        if (dd) dd.style.display = 'none';
+        openMsId = null;
+    }
+});
+window.addEventListener('scroll', () => {
+    if (openMsId) {
+        const dd = document.getElementById(`ms-${openMsId}`);
+        if (dd) dd.style.display = 'none';
+        openMsId = null;
+    }
+}, true);
 
 // ── Table ─────────────────────────────────────────────────────────────────
 function addPerson() {
     STATE.people.push({
         id: Date.now(),
         name: '', role: '', responsibilities: '', level: 1,
-        reportsToId: null, current: true, future: false
+        reportsToIds: [], current: true, future: false
     });
     renderTable();
     updateCharts();
@@ -356,7 +467,7 @@ function addPerson() {
 }
 
 function removePerson(id) {
-    STATE.people.forEach(p => { if (p.reportsToId === id) p.reportsToId = null; });
+    STATE.people.forEach(p => { p.reportsToIds = (p.reportsToIds||[]).filter(rid => rid !== id); });
     STATE.people = STATE.people.filter(p => p.id !== id);
     renderTable();
     updateCharts();
@@ -367,11 +478,10 @@ function removePerson(id) {
 function onField(id, field, value) {
     const p = STATE.people.find(p => p.id === id);
     if (!p) return;
-    if (field === 'level')            p.level       = Number(value);
-    else if (field === 'reportsToId') p.reportsToId = value ? Number(value) : null;
+    if (field === 'level')  p.level  = Number(value);
     else if (field === 'current' || field === 'future') p[field] = Boolean(value);
     else p[field] = value;
-    if (field === 'name') refreshReportsToSelects();
+    if (field === 'name') refreshMsDropdowns();
     updateCharts();
     saveToStorage();
     checkClearBtn();
@@ -379,12 +489,43 @@ function onField(id, field, value) {
 
 function renderTable() {
     const tbody = document.getElementById('people-tbody');
-    if (STATE.people.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
+    if (!STATE.people.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
         return;
     }
-    tbody.innerHTML = STATE.people.map(p => `
-        <tr class="border-t border-gray-100" data-pid="${p.id}">
+
+    tbody.innerHTML = STATE.people.map((p, idx) => {
+        const otherPeople = STATE.people.filter(o => o.id !== p.id && o.name.trim());
+        const optionsHtml = otherPeople.length
+            ? otherPeople.map(o => `
+                <label class="ms-option">
+                    <input type="checkbox" style="width:16px;height:16px"
+                        ${(p.reportsToIds||[]).includes(o.id) ? 'checked' : ''}
+                        onchange="toggleParent(${p.id},${o.id},this.checked)">
+                    ${esc(o.name)}
+                </label>`).join('')
+            : '<div class="ms-empty">No other people added yet</div>';
+
+        return `
+        <tr class="border-t border-gray-100" data-pid="${p.id}" data-idx="${idx}"
+            draggable="true"
+            ondragstart="onDragStart(event,${idx})"
+            ondragover="onDragOver(event)"
+            ondragleave="onDragLeave(event)"
+            ondrop="onDrop(event,${idx})"
+            ondragend="onDragEnd()">
+            <td class="py-2 pl-1">
+                <span class="drag-handle" title="Drag to reorder">
+                    <svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor">
+                        <circle cx="4" cy="4"  r="1.8"/>
+                        <circle cx="10" cy="4"  r="1.8"/>
+                        <circle cx="4" cy="10" r="1.8"/>
+                        <circle cx="10" cy="10" r="1.8"/>
+                        <circle cx="4" cy="16" r="1.8"/>
+                        <circle cx="10" cy="16" r="1.8"/>
+                    </svg>
+                </span>
+            </td>
             <td class="py-2 pr-3">
                 <input type="text" class="tbl-input" value="${esc(p.name)}" placeholder="Full name"
                     oninput="onField(${p.id},'name',this.value)">
@@ -400,26 +541,23 @@ function renderTable() {
                     ).join('')}
                 </select>
             </td>
-            <td class="py-2 pr-3">
-                <select class="tbl-select" data-pid="${p.id}" data-f="reportsToId"
-                    onchange="onField(${p.id},'reportsToId',this.value)">
-                    <option value="">— None —</option>
-                    ${STATE.people
-                        .filter(o => o.id !== p.id && o.name.trim())
-                        .map(o => `<option value="${o.id}"${p.reportsToId===o.id?' selected':''}>${esc(o.name)}</option>`)
-                        .join('')}
-                </select>
+            <td class="py-2 pr-3" style="position:relative">
+                <button type="button" class="ms-btn" data-pid="${p.id}"
+                    onclick="openMs(event,${p.id})">${esc(msLabel(p))}</button>
+                <div id="ms-${p.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
+                    ${optionsHtml}
+                </div>
             </td>
             <td class="py-2 pr-3">
                 <input type="text" class="tbl-input" value="${esc(p.responsibilities||'')}" placeholder="Brief outline of responsibilities"
                     oninput="onField(${p.id},'responsibilities',this.value)">
             </td>
             <td class="py-2 pr-2 text-center">
-                <input type="checkbox" ${p.current?'checked':''}
+                <input type="checkbox" style="width:20px;height:20px" ${p.current?'checked':''}
                     onchange="onField(${p.id},'current',this.checked)">
             </td>
             <td class="py-2 pr-2 text-center">
-                <input type="checkbox" ${p.future?'checked':''}
+                <input type="checkbox" style="width:20px;height:20px" ${p.future?'checked':''}
                     onchange="onField(${p.id},'future',this.checked)">
             </td>
             <td class="py-2 text-center">
@@ -431,31 +569,87 @@ function renderTable() {
                     </svg>
                 </button>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
-function refreshReportsToSelects() {
-    STATE.people.forEach(p => {
-        const sel = document.querySelector(`select[data-pid="${p.id}"][data-f="reportsToId"]`);
-        if (!sel) return;
-        const cur = String(p.reportsToId || '');
-        sel.innerHTML = `<option value="">— None —</option>` +
-            STATE.people
-                .filter(o => o.id !== p.id && o.name.trim())
-                .map(o => `<option value="${o.id}"${String(o.id)===cur?' selected':''}>${esc(o.name)}</option>`)
-                .join('');
-    });
+// ── Drag to Reorder ───────────────────────────────────────────────────────
+let dragSrcIdx = null;
+
+function onDragStart(event, idx) {
+    // Don't drag if the user clicked on an input, select, button, or the ms dropdown
+    if (['INPUT','SELECT','TEXTAREA','BUTTON','LABEL'].includes(event.target.tagName)) {
+        event.preventDefault();
+        return;
+    }
+    dragSrcIdx = idx;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', idx); // required for Firefox
+    requestAnimationFrame(() => event.currentTarget.classList.add('dragging'));
+}
+
+function onDragOver(event) {
+    if (dragSrcIdx === null) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const tr = event.currentTarget;
+    const mid = tr.getBoundingClientRect().top + tr.getBoundingClientRect().height / 2;
+    // Remove indicators from all rows first
+    document.querySelectorAll('#people-tbody tr').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+    tr.classList.add(event.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+}
+
+function onDragLeave(event) {
+    // Only clear if leaving the row entirely (not a child element)
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        event.currentTarget.classList.remove('drag-over-top','drag-over-bottom');
+    }
+}
+
+function onDrop(event, targetIdx) {
+    event.preventDefault();
+    if (dragSrcIdx === null) return;
+
+    const tr  = event.currentTarget;
+    const mid = tr.getBoundingClientRect().top + tr.getBoundingClientRect().height / 2;
+    const dropBefore = event.clientY < mid;
+
+    if (dragSrcIdx !== targetIdx) {
+        let insertAt = dropBefore ? targetIdx : targetIdx + 1;
+        if (dragSrcIdx < insertAt) insertAt--;          // account for removal shifting indices
+        const [moved] = STATE.people.splice(dragSrcIdx, 1);
+        STATE.people.splice(insertAt, 0, moved);
+        renderTable();
+        updateCharts();
+        saveToStorage();
+    }
+    dragSrcIdx = null;
+}
+
+function onDragEnd() {
+    dragSrcIdx = null;
+    document.querySelectorAll('#people-tbody tr').forEach(r =>
+        r.classList.remove('dragging','drag-over-top','drag-over-bottom')
+    );
 }
 
 // ── CSV Import / Export ────────────────────────────────────────────────────
+function parseCSVLine(line) {
+    const result = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else cur += ch;
+    }
+    result.push(cur.trim()); return result;
+}
+
 function uploadCSV() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv';
+    input.type = 'file'; input.accept = '.csv';
     input.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = evt => {
             const lines = evt.target.result.split(/\r?\n/).filter(l => l.trim());
@@ -469,15 +663,12 @@ function uploadCSV() {
             const incoming = lines.slice(1).map((line, i) => {
                 const c = parseCSVLine(line);
                 const get = idx => idx >= 0 ? (c[idx]||'').replace(/^"|"$/g,'') : '';
-                return { id: now + i + 1, name: get(ni), role: get(ri), responsibilities: get(rsi), level: 1, reportsToId: null, current: true, future: false };
+                return { id: now + i + 1, name: get(ni), role: get(ri), responsibilities: get(rsi), level: 1, reportsToIds: [], current: true, future: false };
             }).filter(p => p.name.trim());
             if (!incoming.length) { alert('No valid rows found in CSV.'); return; }
             if (STATE.people.length > 0 && !confirm(`Add ${incoming.length} people from CSV to the existing ${STATE.people.length}?`)) return;
             STATE.people.push(...incoming);
-            renderTable();
-            updateCharts();
-            saveToStorage();
-            checkClearBtn();
+            renderTable(); updateCharts(); saveToStorage(); checkClearBtn();
         };
         reader.readAsText(file);
     };
@@ -491,7 +682,7 @@ function downloadCSV() {
     const date     = document.getElementById('chart-date').value.trim();
     const hdrs = ['Name','Role','Outline Responsibilities','Level','Reports To','Current Chart','Future Chart'];
     const rows = STATE.people.map(p => {
-        const rTo = STATE.people.find(o => o.id === p.reportsToId)?.name || '';
+        const rTo = (p.reportsToIds||[]).map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean).join('; ');
         return [p.name, p.role, p.responsibilities||'', p.level, rTo, p.current?'Yes':'No', p.future?'Yes':'No'];
     });
     const csv = [hdrs,...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
@@ -508,16 +699,25 @@ const UH = BH + VG;
 
 function buildTree(people) {
     const map = {};
-    people.forEach(p => { map[p.id] = { ...p, children: [] }; });
-    const childIds = new Set();
+    people.forEach(p => { map[p.id] = { ...p, children: [], reportsToIds: p.reportsToIds || [] }; });
+
+    const childIds   = new Set(); // nodes that have a primary parent (for root detection)
+    const drawEdges  = [];        // { from, to, secondary } — ALL parent→child pairs for drawing
+
     people.forEach(p => {
-        const pid = p.reportsToId;
-        if (pid && map[pid] && pid !== p.id) {
-            map[pid].children.push(map[p.id]);
-            childIds.add(p.id);
-        }
+        const parentIds = (p.reportsToIds || []).filter(pid => map[pid] && pid !== p.id);
+        parentIds.forEach((pid, idx) => {
+            drawEdges.push({ from: map[pid], to: map[p.id], secondary: idx > 0 });
+            if (idx === 0) {
+                // Only the first parent governs tree position
+                map[pid].children.push(map[p.id]);
+                childIds.add(p.id);
+            }
+        });
     });
-    return { roots: people.filter(p => !childIds.has(p.id)).map(p => map[p.id]) };
+
+    const roots = people.filter(p => !childIds.has(p.id)).map(p => map[p.id]);
+    return { roots, map, drawEdges };
 }
 
 function layoutTree(roots) {
@@ -537,21 +737,19 @@ function layoutTree(roots) {
     roots.forEach(r => setDepth(r, 0));
 }
 
-function collectAll(roots) {
-    const nodes = [], edges = [];
-    const seen = new Set();
-    function walk(n, par) {
+function collectNodes(roots) {
+    const nodes = []; const seen = new Set();
+    function walk(n) {
         if (seen.has(n.id)) return;
         seen.add(n.id); nodes.push(n);
-        if (par) edges.push([par, n]);
-        n.children.forEach(c => walk(c, n));
+        n.children.forEach(c => walk(c));
     }
-    roots.forEach(r => walk(r, null));
-    return { nodes, edges };
+    roots.forEach(r => walk(r));
+    return nodes;
 }
 
 function renderChart(containerId, people) {
-    const el = document.getElementById(containerId);
+    const el     = document.getElementById(containerId);
     const filtId = 'ds-' + containerId;
 
     if (!people.length) {
@@ -560,12 +758,12 @@ function renderChart(containerId, people) {
         return;
     }
 
-    const { roots } = buildTree(people);
+    const { roots, drawEdges } = buildTree(people);
     layoutTree(roots);
-    const { nodes, edges } = collectAll(roots);
+    const nodes = collectNodes(roots);
     if (!nodes.length) { el.innerHTML = `<div class="empty-state">No people to display</div>`; return; }
 
-    const pad = 40;
+    const pad   = 40;
     const maxLf = Math.max(...nodes.map(n => n._lf));
     const maxD  = Math.max(...nodes.map(n => n._d));
     const W = (maxLf + 1) * UW + pad * 2;
@@ -578,7 +776,8 @@ function renderChart(containerId, people) {
 
     const rootIds = new Set(roots.map(r => r.id));
 
-    const edgeSvg = edges.map(([fr, to]) => {
+    // Draw edges — all reporting lines use the same solid style
+    const edgeSvg = drawEdges.map(({ from: fr, to }) => {
         const x1 = fr._cx, y1 = fr._cy + BH/2;
         const x2 = to._cx, y2 = to._cy - BH/2;
         const my = (y1 + y2) / 2;
@@ -663,23 +862,18 @@ function downloadChart(containerId) {
     const blob = new Blob([titleSvg], { type: 'image/svg+xml;charset=utf-8' });
     const url  = URL.createObjectURL(blob);
     const img  = new Image();
-
     img.onload = () => {
-        const scale  = 2;
-        const totalH = svgH + titleH;
+        const scale = 2, totalH = svgH + titleH;
         const canvas = document.createElement('canvas');
-        canvas.width  = svgW   * scale;
-        canvas.height = totalH * scale;
+        canvas.width = svgW * scale; canvas.height = totalH * scale;
         const ctx = canvas.getContext('2d');
         ctx.scale(scale, scale);
-        ctx.fillStyle = '#f9fafb';
-        ctx.fillRect(0, 0, svgW, totalH);
+        ctx.fillStyle = '#f9fafb'; ctx.fillRect(0, 0, svgW, totalH);
         ctx.drawImage(img, 0, 0);
         URL.revokeObjectURL(url);
         canvas.toBlob(b => {
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(b);
-            a.download = filename;
+            a.href = URL.createObjectURL(b); a.download = filename;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }, 'image/png');
     };
@@ -714,7 +908,10 @@ function loadFromStorage() {
             STATE.people = raw.map(p => ({
                 ...p,
                 id: Number(p.id),
-                reportsToId: p.reportsToId ? Number(p.reportsToId) : null,
+                // migrate old single reportsToId → reportsToIds array
+                reportsToIds: p.reportsToIds
+                    ? p.reportsToIds.map(Number)
+                    : (p.reportsToId ? [Number(p.reportsToId)] : []),
                 responsibilities: p.responsibilities || ''
             }));
         }
@@ -739,9 +936,7 @@ function clearAll() {
         document.getElementById(id).value = '';
     });
     ['oc-your-name','oc-your-email','oc-company','oc-advisor','oc-date','oc-people'].forEach(k => localStorage.removeItem(k));
-    renderTable();
-    updateCharts();
-    checkClearBtn();
+    renderTable(); updateCharts(); checkClearBtn();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
