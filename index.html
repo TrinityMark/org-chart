@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Org Chart Builder</title>
+    <title>Trinity Advisory Org Chart Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        #rotate-prompt {
+            display: none;
+            position: fixed; inset: 0; z-index: 9999;
+            background: #15397F; color: #fff;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 2rem;
+        }
+        @media (max-width: 768px) and (orientation: portrait) {
+            #rotate-prompt { display: flex; }
+        }
 
         .tbl-input {
             width: 100%;
@@ -147,16 +158,23 @@
     </style>
 </head>
 <body class="bg-gray-50">
+<div id="rotate-prompt">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#F7AC08" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1.5rem">
+        <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h5"/>
+    </svg>
+    <p class="text-xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-sm text-blue-200">This app works best in landscape mode.</p>
+</div>
 <div class="min-h-screen">
 
     <!-- Header -->
     <header class="bg-[#15397F] text-white shadow-lg">
         <div class="max-w-full px-5 sm:px-8 py-7 sm:py-8 flex justify-between items-start">
             <div class="flex-1">
-                <h1 class="text-3xl sm:text-4xl font-bold">Org Chart Builder</h1>
-                <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Build your current and future organisation charts. Add your team members below, tick which charts they appear in, and the charts update automatically as you fill in the details.</p>
+                <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory Org Chart Builder</h1>
+                <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Build your current and future organisation charts. Add your team members below and tick which charts they appear in.</p>
             </div>
-            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.5</span>
+            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.6</span>
         </div>
     </header>
 
@@ -187,7 +205,6 @@
                     <input id="your-email" type="email" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
                         placeholder="you@example.com">
-                    <p class="text-xs text-blue-400 mt-1">We'll send you a notification when your PDF is ready.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Business name <span class="text-red-500">*</span></label>
@@ -241,7 +258,7 @@
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV with Name, Role, Outline Responsibilities columns. Reports To supports multiple selections.</p>
+            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory, Role and Outline Responsibilities are optional.</p>
 
             <div class="table-outer">
                 <table class="w-full" style="min-width:980px">
@@ -249,7 +266,7 @@
                         <tr>
                             <th style="width:3%"></th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Name</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Role / Title</th>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Role</th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Level</th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Reports To</th>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:24%">Outline Responsibilities</th>
