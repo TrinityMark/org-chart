@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trinity Advisory Org Chart Builder</title>
+    <title>Trinity Advisory – Systemisation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -101,6 +101,67 @@
 
         input[type="checkbox"] { accent-color: #15397F; cursor: pointer; }
 
+        /* Strengths & Weaknesses pills */
+        .sw-stack { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+        .sw-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 999px;
+            font-size: 12px; font-weight: 500; line-height: 1.3;
+            max-width: 100%; word-break: break-word;
+        }
+        .sw-pill-strength { background: #e6f4ea; color: #1e7a34; border: 1px solid #9fd9b4; }
+        .sw-pill-weakness { background: #fdeceb; color: #b3261e; border: 1px solid #f3aba5; }
+        .sw-pill-x {
+            background: none; border: none; cursor: pointer; font-size: 14px; line-height: 1;
+            color: inherit; opacity: .6; padding: 0; margin-left: 2px;
+        }
+        .sw-pill-x:hover { opacity: 1; }
+        .sw-pill-editing { padding: 2px 4px 2px 10px; background: white; border: 1px dashed #9ca3af; }
+        .sw-pill-input { border: none; outline: none; font-size: 12px; width: 140px; background: transparent; }
+        .sw-add-row { position: relative; }
+        .sw-add-btn {
+            width: 24px; height: 24px; border-radius: 999px;
+            border: 1px dashed #9ca3af; background: white; color: #6b7280;
+            font-size: 15px; line-height: 1; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sw-add-btn:hover { border-color: #15397F; color: #15397F; }
+        .sw-menu {
+            position: fixed; z-index: 9999; background: white; border: 1px solid #d1d5db;
+            border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); overflow: hidden; min-width: 160px;
+        }
+        .sw-menu-item {
+            display: block; width: 100%; text-align: left; padding: 9px 14px; font-size: 13px;
+            background: none; border: none; cursor: pointer;
+        }
+        .sw-menu-item:hover { background: #f3f4f6; }
+        .sw-menu-strength { color: #1e7a34; }
+        .sw-menu-weakness { color: #b3261e; }
+
+        /* Outline Responsibilities pills */
+        .resp-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 999px;
+            font-size: 12px; font-weight: 500; line-height: 1.3;
+            background: white; color: #374151; border: 1px solid #d1d5db;
+            max-width: 100%; word-break: break-word;
+        }
+        .resp-pill-editing { padding: 2px 4px 2px 10px; border: 1px dashed #9ca3af; }
+
+        /* PC-only columns (hidden on phones, incl. landscape) */
+        @media (max-width: 900px) {
+            .pc-only-col { display: none; }
+        }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 12px 18px; font-size: 14px; font-weight: 600; color: #6b7280;
+            border: none; border-bottom: 3px solid transparent; background: none;
+            cursor: pointer; transition: color .15s, border-color .15s;
+        }
+        .tab-btn:hover { color: #15397F; }
+        .tab-btn-active { color: #15397F; border-bottom-color: #F7AC08; }
+
         .chart-outer {
             overflow: auto;
             -webkit-overflow-scrolling: touch;
@@ -171,10 +232,10 @@
     <header class="bg-[#15397F] text-white shadow-lg">
         <div class="max-w-full px-5 sm:px-8 py-7 sm:py-8 flex justify-between items-start">
             <div class="flex-1">
-                <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory Org Chart Builder</h1>
-                <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Build your current and future organisation charts. Add your team members below and tick which charts they appear in.</p>
+                <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory – Systemisation</h1>
+                <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Assess your current team, plan your future team, manage tasks and time effectively, identify skills gaps and future requirements.</p>
             </div>
-            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v1.6</span>
+            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v2.0</span>
         </div>
     </header>
 
@@ -183,52 +244,59 @@
         <!-- Business Details -->
         <div class="bg-white rounded-lg shadow p-5">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="font-semibold text-gray-900">Business Details</h2>
-                <button id="clear-btn" onclick="clearAll()"
+                <button type="button" onclick="toggleBizSection()" class="flex items-center gap-2">
+                    <svg id="biz-toggle-icon" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                    <h2 class="font-semibold text-gray-900">Business Details</h2>
+                </button>
+                <button id="clear-biz-btn" onclick="clearBizDetails()"
                     class="hidden text-sm text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
-                    Clear and start again
+                    Clear business details
                 </button>
             </div>
-            <div id="validation-msg"></div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Your name <span class="text-red-500">*</span></label>
-                    <input id="your-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
-                        placeholder="Your full name">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Your email <span class="text-red-500">*</span></label>
-                    <input id="your-email" type="email" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
-                        placeholder="you@example.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Business name <span class="text-red-500">*</span></label>
-                    <input id="company-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
-                        placeholder="Your business name">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Advisor name <span class="text-red-500">*</span></label>
-                    <select id="advisor-name" onchange="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F] bg-white cursor-pointer">
-                        <option value="">Select your advisor...</option>
-                        <!-- Update this list with Trinity Advisory advisor names -->
-                        <option value="Mark Nixey">Mark Nixey</option>
-                        <option value="Sarah Thompson">Sarah Thompson</option>
-                        <option value="James Wilson">James Wilson</option>
-                        <option value="Emily Chen">Emily Chen</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Date <span class="text-red-500">*</span></label>
-                    <input id="chart-date" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
-                        placeholder="Eg. June 2025">
+            <div id="biz-section-body">
+                <div id="validation-msg"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Your name <span class="text-red-500">*</span></label>
+                        <input id="your-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            placeholder="Your full name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Your email <span class="text-red-500">*</span></label>
+                        <input id="your-email" type="email" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Business name <span class="text-red-500">*</span></label>
+                        <input id="company-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            placeholder="Your business name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Advisor name <span class="text-red-500">*</span></label>
+                        <select id="advisor-name" onchange="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F] bg-white cursor-pointer">
+                            <option value="">Select your advisor...</option>
+                            <!-- Update this list with Trinity Advisory advisor names -->
+                            <option value="Mark Nixey">Mark Nixey</option>
+                            <option value="Sarah Thompson">Sarah Thompson</option>
+                            <option value="James Wilson">James Wilson</option>
+                            <option value="Emily Chen">Emily Chen</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Date <span class="text-red-500">*</span></label>
+                        <input id="chart-date" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            placeholder="Eg. June 2025">
+                    </div>
                 </div>
             </div>
         </div>
@@ -236,7 +304,12 @@
         <!-- Team Members -->
         <div class="bg-white rounded-lg shadow p-5">
             <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                <h2 class="font-semibold text-gray-900">Team Members</h2>
+                <button type="button" onclick="toggleTeamSection()" class="flex items-center gap-2">
+                    <svg id="team-toggle-icon" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                    <h2 class="font-semibold text-gray-900">Team Members</h2>
+                </button>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="uploadCSV()" class="btn-amber-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,73 +329,234 @@
                         </svg>
                         Add Person
                     </button>
+                    <button id="clear-team-btn" onclick="clearTeamMembers()"
+                        class="hidden text-sm text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Clear team members
+                    </button>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory, Role and Outline Responsibilities are optional.</p>
+            <div id="team-section-body">
+                <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory; Role, Level, Primary Reports To, Secondary Reports To, Outline Responsibilities, Current Chart and Future Chart are optional.</p>
 
-            <div class="table-outer">
-                <table class="w-full" style="min-width:980px">
-                    <thead>
-                        <tr>
-                            <th style="width:3%"></th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Name</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Role</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Level</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Reports To</th>
-                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:24%">Outline Responsibilities</th>
-                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">
-                                <span class="block">Current</span>
-                                <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
-                            </th>
-                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">
-                                <span class="block">Future</span>
-                                <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
-                            </th>
-                            <th style="width:4%"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="people-tbody">
-                        <tr>
-                            <td colspan="9" class="py-10 text-center text-sm text-gray-400">
-                                Click "Add Person" to start building your org chart
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-outer">
+                    <table class="w-full" style="min-width:1120px">
+                        <thead>
+                            <tr>
+                                <th style="width:3%"></th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Name</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:7%">Level</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Primary Reports To</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Secondary Reports To</th>
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:7%">
+                                    <span class="block">Current</span>
+                                    <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
+                                </th>
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:7%">
+                                    <span class="block">Future</span>
+                                    <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
+                                </th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3 pc-only-col" style="width:18%">Outline Responsibilities</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3 pc-only-col" style="width:18%">Strengths and Weaknesses</th>
+                                <th style="width:4%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="people-tbody">
+                            <tr>
+                                <td colspan="11" class="py-10 text-center text-sm text-gray-400">
+                                    Click "Add Person" to start building your org chart
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Current Chart -->
-        <div class="bg-white rounded-lg shadow p-5">
-            <div class="flex justify-between items-center mb-1">
-                <h2 class="font-semibold text-gray-900">Current Organisation Chart</h2>
-                <button onclick="downloadChart('current-chart')" class="btn-amber-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download Chart
-                </button>
+        <!-- Tabs -->
+        <div class="flex gap-1 border-b border-gray-200">
+            <button type="button" onclick="switchTab('orgcharts')" id="tab-btn-orgcharts" class="tab-btn tab-btn-active">Org Charts</button>
+            <button type="button" onclick="switchTab('taskdelegation')" id="tab-btn-taskdelegation" class="tab-btn">Owner/Leadership Task Delegation</button>
+            <button type="button" onclick="switchTab('rolesskills')" id="tab-btn-rolesskills" class="tab-btn">Roles and Skills Assessment</button>
+            <button type="button" onclick="switchTab('systemise')" id="tab-btn-systemise" class="tab-btn">Systemise (Delegated) Tasks</button>
+        </div>
+
+        <div id="tab-panel-orgcharts" class="space-y-6">
+            <!-- Current Chart -->
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex justify-between items-center mb-1">
+                    <h2 class="font-semibold text-gray-900">Current Organisation Chart</h2>
+                    <button onclick="downloadChart('current-chart')" class="btn-amber-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Chart
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Team members with "Current" ticked</p>
+                <div class="chart-outer" id="current-chart">
+                    <div class="empty-state">Tick "Current" for team members to see them appear here</div>
+                </div>
             </div>
-            <p class="text-xs text-gray-400 mb-4">Team members with "Current" ticked</p>
-            <div class="chart-outer" id="current-chart">
-                <div class="empty-state">Tick "Current" for team members to see them appear here</div>
+
+            <!-- Future Chart -->
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex justify-between items-center mb-1">
+                    <h2 class="font-semibold text-gray-900">Future Organisation Chart</h2>
+                    <button onclick="downloadChart('future-chart')" class="btn-amber-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Chart
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Team members with "Future" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
+                <div class="chart-outer" id="future-chart">
+                    <div class="empty-state">Tick "Future" for team members to see them appear here</div>
+                </div>
             </div>
         </div>
 
-        <!-- Future Chart -->
-        <div class="bg-white rounded-lg shadow p-5">
-            <div class="flex justify-between items-center mb-1">
-                <h2 class="font-semibold text-gray-900">Future Organisation Chart</h2>
-                <button onclick="downloadChart('future-chart')" class="btn-amber-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download Chart
-                </button>
+        <div id="tab-panel-taskdelegation" class="hidden space-y-6">
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h2 class="font-semibold text-gray-900">Owner/Leadership Task Delegation</h2>
+                    <button onclick="addTask()" class="btn-amber">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Task
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">List the tasks owners and leaders complete each week. Drag rows to reorder – Priority updates automatically based on position.</p>
+
+                <div class="table-outer">
+                    <table class="w-full" style="min-width:1080px">
+                        <thead>
+                            <tr>
+                                <th style="width:3%"></th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Task</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Hours</th>
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">Priority</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Completed By</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Pick Employee</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Readiness</th>
+                                <th style="width:4%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-tbody">
+                            <tr>
+                                <td colspan="8" class="py-10 text-center text-sm text-gray-400">
+                                    Click "Add Task" to start listing weekly tasks
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-5">
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Total Time Spent</div>
+                        <div id="task-total-hours" class="text-xl font-bold text-[#15397F] mt-1">0 hrs</div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Owner</div>
+                        <div id="task-total-owner-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
+                        <div id="task-total-owner-count" class="text-xs text-gray-500">0 jobs</div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Delegate</div>
+                        <div id="task-total-delegate-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
+                        <div id="task-total-delegate-count" class="text-xs text-gray-500">0 jobs</div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">AI</div>
+                        <div id="task-total-ai-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
+                        <div id="task-total-ai-count" class="text-xs text-gray-500">0 jobs</div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Waste of Time</div>
+                        <div id="task-total-wasteoftime-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
+                        <div id="task-total-wasteoftime-count" class="text-xs text-gray-500">0 jobs</div>
+                    </div>
+                </div>
             </div>
-            <p class="text-xs text-gray-400 mb-4">Team members with "Future" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
-            <div class="chart-outer" id="future-chart">
-                <div class="empty-state">Tick "Future" for team members to see them appear here</div>
+        </div>
+
+        <div id="tab-panel-rolesskills" class="hidden space-y-6">
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h2 class="font-semibold text-gray-900">Roles and Skills Assessment</h2>
+                    <button onclick="addRoleAssessment()" class="btn-amber">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Role
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">Roles and people picked from Team Members show green; anything added that isn't on the Team Members list shows red.</p>
+
+                <div class="table-outer">
+                    <table class="w-full" style="min-width:1340px">
+                        <thead>
+                            <tr>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Person Currently in This Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Outline Responsibilities</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Strengths and Weaknesses</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Additional Skills Required</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Role Alignment</th>
+                                <th style="width:4%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ra-tbody">
+                            <tr>
+                                <td colspan="7" class="py-10 text-center text-sm text-gray-400">
+                                    Click "Add Role" to start assessing roles and skills
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-panel-systemise" class="hidden space-y-6">
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h2 class="font-semibold text-gray-900">Systemise (Delegated) Tasks</h2>
+                    <button onclick="addSystemiseRow()" class="btn-amber">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Process
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">Tasks marked "Delegate" or "AI" in Task Delegation appear here automatically – add extra processes that aren't tracked as a task.</p>
+
+                <div class="table-outer">
+                    <table class="w-full" style="min-width:1200px">
+                        <thead>
+                            <tr>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:28%">Task / Process</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:16%">Responsible</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:24%">Process Documentation to Create</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Process Implementation Model</th>
+                                <th style="width:4%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="systemise-tbody">
+                            <tr>
+                                <td colspan="5" class="py-10 text-center text-sm text-gray-400">
+                                    Delegated or AI-assigned tasks from Task Delegation will appear here automatically
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -331,7 +565,24 @@
 
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
-let STATE = { people: [] };
+let STATE = { people: [], tasks: [], roleAssessments: [], systemise: [] };
+const READINESS_OPTIONS = ['Ready to go', 'Needs training', 'Process needs documenting', 'Checklist required'];
+const COMPLETED_BY_OPTIONS = ['Owner', 'Delegate', 'AI', 'Waste of Time'];
+const ALIGNMENT_OPTIONS = ['Does not align', 'Mostly aligns', 'Completely aligns'];
+const ALIGNMENT_COLORS = {
+    'Does not align':    'background:#fef2f2;border-color:#f87171;color:#b91c1c;',
+    'Mostly aligns':     'background:#fffbeb;border-color:#fbbf24;color:#92400e;',
+    'Completely aligns': 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
+};
+const DOC_OPTIONS = [
+    'Text instructions',
+    'Checklist',
+    'Video Instructions',
+    'Training Session',
+    'Not Sure',
+    'Already Documented'
+];
+const EFFICIENCY_OPTIONS = ['Human Following Process', 'AI Following Process'];
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function esc(s) {
@@ -360,6 +611,8 @@ function validateForDownload() {
     const msgEl = document.getElementById('validation-msg');
     REQUIRED_FIELDS.forEach(f => document.getElementById(f.id).classList.remove('field-error'));
     if (!missing.length) { msgEl.style.display = 'none'; return true; }
+    setBizSectionCollapsed(false);
+    localStorage.setItem('oc-biz-collapsed', '0');
     missing.forEach(f => document.getElementById(f.id).classList.add('field-error'));
     msgEl.style.display = 'block';
     msgEl.innerHTML = `<strong>Please complete the required fields before downloading:</strong> ${missing.map(f => f.label).join(', ')}.`;
@@ -372,9 +625,9 @@ let openMsId = null;
 
 function msLabel(p) {
     const ids  = p.reportsToIds || [];
-    if (!ids.length) return '— None —';
+    if (!ids.length) return '– None –';
     const names = ids.map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean);
-    if (!names.length) return '— None —';
+    if (!names.length) return '– None –';
     const joined = names.join(', ');
     return joined.length > 32 ? joined.slice(0, 30) + '…' : joined;
 }
@@ -452,6 +705,89 @@ function refreshMsDropdowns() {
                 </label>`).join('');
         }
     });
+    refreshMs2Dropdowns();
+}
+
+// ── Multi-Select (Secondary Reports To) ─────────────────────────────────────
+let openMs2Id = null;
+
+function msLabel2(p) {
+    const ids  = p.secondaryReportsToIds || [];
+    if (!ids.length) return '– None –';
+    const names = ids.map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean);
+    if (!names.length) return '– None –';
+    const joined = names.join(', ');
+    return joined.length > 32 ? joined.slice(0, 30) + '…' : joined;
+}
+
+function openMs2(event, personId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const dd  = document.getElementById(`ms2-${personId}`);
+    if (!dd) return;
+
+    if (openMs2Id && openMs2Id !== personId) {
+        const prev = document.getElementById(`ms2-${openMs2Id}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (dd.style.display !== 'none') {
+        dd.style.display = 'none';
+        openMs2Id = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    const dropW = Math.max(rect.width, 230);
+    dd.style.width  = dropW + 'px';
+    dd.style.left   = rect.left + 'px';
+    dd.style.display = 'block';
+
+    const afterBottom = rect.bottom + 2 + 220;
+    if (afterBottom > window.innerHeight && rect.top > 230) {
+        const h = Math.min(dd.scrollHeight, 220);
+        dd.style.top    = (rect.top - h - 4) + 'px';
+    } else {
+        dd.style.top = (rect.bottom + 2) + 'px';
+    }
+
+    openMs2Id = personId;
+}
+
+function toggleSecondaryParent(personId, parentId, checked) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    const ids = p.secondaryReportsToIds || [];
+    if (checked) {
+        if (!ids.includes(parentId)) p.secondaryReportsToIds = [...ids, parentId];
+    } else {
+        p.secondaryReportsToIds = ids.filter(id => id !== parentId);
+    }
+    const btn = document.querySelector(`button.ms-btn[data-pid2="${personId}"]`);
+    if (btn) btn.textContent = msLabel2(p);
+    updateCharts();
+    saveToStorage();
+}
+
+function refreshMs2Dropdowns() {
+    STATE.people.forEach(p => {
+        const btn = document.querySelector(`button.ms-btn[data-pid2="${p.id}"]`);
+        if (btn) btn.textContent = msLabel2(p);
+        const dd = document.getElementById(`ms2-${p.id}`);
+        if (!dd) return;
+        const options = STATE.people.filter(o => o.id !== p.id && o.name.trim());
+        if (!options.length) {
+            dd.innerHTML = '<div class="ms-empty">No other people added yet</div>';
+        } else {
+            dd.innerHTML = options.map(o => `
+                <label class="ms-option">
+                    <input type="checkbox" style="width:16px;height:16px"
+                        ${(p.secondaryReportsToIds||[]).includes(o.id) ? 'checked' : ''}
+                        onchange="toggleSecondaryParent(${p.id},${o.id},this.checked)">
+                    ${esc(o.name)}
+                </label>`).join('');
+        }
+    });
 }
 
 // Close dropdown on outside click or scroll
@@ -461,6 +797,16 @@ document.addEventListener('click', () => {
         if (dd) dd.style.display = 'none';
         openMsId = null;
     }
+    if (openMs2Id) {
+        const dd = document.getElementById(`ms2-${openMs2Id}`);
+        if (dd) dd.style.display = 'none';
+        openMs2Id = null;
+    }
+    if (openSwMenuId) {
+        const m = document.getElementById(`sw-menu-${openSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openSwMenuId = null;
+    }
 });
 window.addEventListener('scroll', () => {
     if (openMsId) {
@@ -468,26 +814,255 @@ window.addEventListener('scroll', () => {
         if (dd) dd.style.display = 'none';
         openMsId = null;
     }
+    if (openMs2Id) {
+        const dd = document.getElementById(`ms2-${openMs2Id}`);
+        if (dd) dd.style.display = 'none';
+        openMs2Id = null;
+    }
+    if (openSwMenuId) {
+        const m = document.getElementById(`sw-menu-${openSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openSwMenuId = null;
+    }
 }, true);
+
+// ── Strengths & Weaknesses pills ────────────────────────────────────────────
+let openSwMenuId = null;
+
+function renderSwPills(p) {
+    const items = p.swItems || [];
+    const pillsHtml = items.map(item => {
+        if (item.editing) {
+            return `
+                <span class="sw-pill sw-pill-${item.type} sw-pill-editing">
+                    <input type="text" class="sw-pill-input" data-sw-id="${item.id}" value="${esc(item.text)}"
+                        placeholder="${item.type === 'strength' ? 'Type a strength…' : 'Type a weakness…'}"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelSwItem(${p.id},'${item.id}');}"
+                        onblur="commitSwItem(${p.id},'${item.id}',this.value)">
+                </span>`;
+        }
+        return `
+            <span class="sw-pill sw-pill-${item.type}">
+                ${esc(item.text)}
+                <button type="button" class="sw-pill-x" onclick="removeSwItem(${p.id},'${item.id}')" title="Remove">&times;</button>
+            </span>`;
+    }).join('');
+
+    return `
+        <div class="sw-stack">
+            ${pillsHtml}
+            <div class="sw-add-row">
+                <button type="button" class="sw-add-btn" onclick="openSwMenu(event,${p.id})" title="Add strength or weakness">+</button>
+                <div id="sw-menu-${p.id}" class="sw-menu" style="display:none" onclick="event.stopPropagation()">
+                    <button type="button" class="sw-menu-item sw-menu-strength" onclick="startAddSw(${p.id},'strength')">+ Add Strength</button>
+                    <button type="button" class="sw-menu-item sw-menu-weakness" onclick="startAddSw(${p.id},'weakness')">+ Add Weakness</button>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderSwCell(personId) {
+    const p = STATE.people.find(p => p.id === personId);
+    const cell = document.getElementById(`sw-cell-${personId}`);
+    if (p && cell) cell.innerHTML = renderSwPills(p);
+}
+
+function openSwMenu(event, personId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const menu = document.getElementById(`sw-menu-${personId}`);
+    if (!menu) return;
+
+    if (openSwMenuId && openSwMenuId !== personId) {
+        const prev = document.getElementById(`sw-menu-${openSwMenuId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (menu.style.display !== 'none') {
+        menu.style.display = 'none';
+        openSwMenuId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    menu.style.left = rect.left + 'px';
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.display = 'block';
+    openSwMenuId = personId;
+}
+
+function startAddSw(personId, type) {
+    if (openSwMenuId) {
+        const m = document.getElementById(`sw-menu-${openSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openSwMenuId = null;
+    }
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.swItems = p.swItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    p.swItems.push({ id: tempId, type, text: '', editing: true });
+    renderSwCell(personId);
+    const input = document.querySelector(`#sw-cell-${personId} input[data-sw-id="${tempId}"]`);
+    if (input) input.focus();
+}
+
+function commitSwItem(personId, itemId, text) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    const item = (p.swItems || []).find(i => i.id === itemId);
+    if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+        p.swItems = p.swItems.filter(i => i.id !== itemId);
+    } else {
+        item.text = trimmed;
+        item.editing = false;
+    }
+    renderSwCell(personId);
+    refreshRaSwForPerson(personId);
+    saveToStorage();
+}
+
+function cancelSwItem(personId, itemId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.swItems = (p.swItems || []).filter(i => i.id !== itemId);
+    renderSwCell(personId);
+}
+
+function removeSwItem(personId, itemId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.swItems = (p.swItems || []).filter(i => i.id !== itemId);
+    renderSwCell(personId);
+    refreshRaSwForPerson(personId);
+    saveToStorage();
+}
+
+function refreshRaSwForPerson(personId) {
+    STATE.roleAssessments.forEach(r => {
+        if (r.personId === personId) renderRaSwCell(r.id);
+    });
+}
+
+// ── Outline Responsibilities pills ──────────────────────────────────────────
+function renderRespPills(p) {
+    const items = p.respItems || [];
+    const pillsHtml = items.map(item => {
+        if (item.editing) {
+            return `
+                <span class="resp-pill resp-pill-editing">
+                    <input type="text" class="sw-pill-input" data-resp-id="${item.id}" value="${esc(item.text)}"
+                        placeholder="Type a responsibility…"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRespItem(${p.id},'${item.id}');}"
+                        onblur="commitRespItem(${p.id},'${item.id}',this.value)">
+                </span>`;
+        }
+        return `
+            <span class="resp-pill">
+                ${esc(item.text)}
+                <button type="button" class="sw-pill-x" onclick="removeRespItem(${p.id},'${item.id}')" title="Remove">&times;</button>
+            </span>`;
+    }).join('');
+
+    return `
+        <div class="sw-stack">
+            ${pillsHtml}
+            <button type="button" class="sw-add-btn" onclick="startAddResp(${p.id})" title="Add a responsibility">+</button>
+        </div>`;
+}
+
+function renderRespCell(personId) {
+    const p = STATE.people.find(p => p.id === personId);
+    const cell = document.getElementById(`resp-cell-${personId}`);
+    if (p && cell) cell.innerHTML = renderRespPills(p);
+}
+
+function startAddResp(personId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.respItems = p.respItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    p.respItems.push({ id: tempId, text: '', editing: true });
+    renderRespCell(personId);
+    const input = document.querySelector(`#resp-cell-${personId} input[data-resp-id="${tempId}"]`);
+    if (input) input.focus();
+}
+
+function commitRespItem(personId, itemId, text) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    const item = (p.respItems || []).find(i => i.id === itemId);
+    if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+        p.respItems = p.respItems.filter(i => i.id !== itemId);
+    } else {
+        item.text = trimmed;
+        item.editing = false;
+    }
+    renderRespCell(personId);
+    refreshRaRespForPerson(personId);
+    saveToStorage();
+}
+
+function cancelRespItem(personId, itemId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.respItems = (p.respItems || []).filter(i => i.id !== itemId);
+    renderRespCell(personId);
+}
+
+function removeRespItem(personId, itemId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    p.respItems = (p.respItems || []).filter(i => i.id !== itemId);
+    renderRespCell(personId);
+    refreshRaRespForPerson(personId);
+    saveToStorage();
+}
+
+function refreshRaRespForPerson(personId) {
+    STATE.roleAssessments.forEach(r => {
+        if (r.personId === personId) renderRaRespCell(r.id);
+    });
+}
 
 // ── Table ─────────────────────────────────────────────────────────────────
 function addPerson() {
     STATE.people.push({
         id: Date.now(),
-        name: '', role: '', responsibilities: '', level: 1,
-        reportsToIds: [], current: true, future: false
+        name: '', role: '', level: 1,
+        reportsToIds: [], secondaryReportsToIds: [],
+        current: true, future: false, swItems: [], respItems: []
     });
     renderTable();
     updateCharts();
+    renderTasksTable();
+    renderRaTable();
+    renderSystemiseTable();
     saveToStorage();
     checkClearBtn();
 }
 
 function removePerson(id) {
-    STATE.people.forEach(p => { p.reportsToIds = (p.reportsToIds||[]).filter(rid => rid !== id); });
+    const removed = STATE.people.find(p => p.id === id);
+    STATE.people.forEach(p => {
+        p.reportsToIds = (p.reportsToIds||[]).filter(rid => rid !== id);
+        p.secondaryReportsToIds = (p.secondaryReportsToIds||[]).filter(rid => rid !== id);
+    });
     STATE.people = STATE.people.filter(p => p.id !== id);
+    STATE.tasks.forEach(t => { if (t.employeeId === id) t.employeeId = null; });
+    STATE.roleAssessments.forEach(r => {
+        if (r.personId === id) { r.personId = null; r.personCustomName = removed ? removed.name : ''; }
+    });
+    STATE.systemise.forEach(s => { if (s.responsibleId === id) s.responsibleId = null; });
     renderTable();
     updateCharts();
+    renderTasksTable();
+    renderRaTable();
+    renderSystemiseTable();
     saveToStorage();
     checkClearBtn();
 }
@@ -498,7 +1073,8 @@ function onField(id, field, value) {
     if (field === 'level')  p.level  = Number(value);
     else if (field === 'current' || field === 'future') p[field] = Boolean(value);
     else p[field] = value;
-    if (field === 'name') refreshMsDropdowns();
+    if (field === 'name') { refreshMsDropdowns(); renderTasksTable(); renderRaTable(); renderSystemiseTable(); }
+    if (field === 'role') renderRaTable();
     updateCharts();
     saveToStorage();
     checkClearBtn();
@@ -507,18 +1083,27 @@ function onField(id, field, value) {
 function renderTable() {
     const tbody = document.getElementById('people-tbody');
     if (!STATE.people.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
         return;
     }
 
     tbody.innerHTML = STATE.people.map((p, idx) => {
         const otherPeople = STATE.people.filter(o => o.id !== p.id && o.name.trim());
-        const optionsHtml = otherPeople.length
+        const primaryOptionsHtml = otherPeople.length
             ? otherPeople.map(o => `
                 <label class="ms-option">
                     <input type="checkbox" style="width:16px;height:16px"
                         ${(p.reportsToIds||[]).includes(o.id) ? 'checked' : ''}
                         onchange="toggleParent(${p.id},${o.id},this.checked)">
+                    ${esc(o.name)}
+                </label>`).join('')
+            : '<div class="ms-empty">No other people added yet</div>';
+        const secondaryOptionsHtml = otherPeople.length
+            ? otherPeople.map(o => `
+                <label class="ms-option">
+                    <input type="checkbox" style="width:16px;height:16px"
+                        ${(p.secondaryReportsToIds||[]).includes(o.id) ? 'checked' : ''}
+                        onchange="toggleSecondaryParent(${p.id},${o.id},this.checked)">
                     ${esc(o.name)}
                 </label>`).join('')
             : '<div class="ms-empty">No other people added yet</div>';
@@ -562,12 +1147,15 @@ function renderTable() {
                 <button type="button" class="ms-btn" data-pid="${p.id}"
                     onclick="openMs(event,${p.id})">${esc(msLabel(p))}</button>
                 <div id="ms-${p.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
-                    ${optionsHtml}
+                    ${primaryOptionsHtml}
                 </div>
             </td>
-            <td class="py-2 pr-3">
-                <input type="text" class="tbl-input" value="${esc(p.responsibilities||'')}" placeholder="Brief outline of responsibilities"
-                    oninput="onField(${p.id},'responsibilities',this.value)">
+            <td class="py-2 pr-3" style="position:relative">
+                <button type="button" class="ms-btn" data-pid2="${p.id}"
+                    onclick="openMs2(event,${p.id})">${esc(msLabel2(p))}</button>
+                <div id="ms2-${p.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
+                    ${secondaryOptionsHtml}
+                </div>
             </td>
             <td class="py-2 pr-2 text-center">
                 <input type="checkbox" style="width:20px;height:20px" ${p.current?'checked':''}
@@ -576,6 +1164,12 @@ function renderTable() {
             <td class="py-2 pr-2 text-center">
                 <input type="checkbox" style="width:20px;height:20px" ${p.future?'checked':''}
                     onchange="onField(${p.id},'future',this.checked)">
+            </td>
+            <td class="py-2 pr-3 pc-only-col" id="resp-cell-${p.id}" style="position:relative;min-width:220px">
+                ${renderRespPills(p)}
+            </td>
+            <td class="py-2 pr-3 pc-only-col" id="sw-cell-${p.id}" style="position:relative;min-width:190px">
+                ${renderSwPills(p)}
             </td>
             <td class="py-2 text-center">
                 <button onclick="removePerson(${p.id})"
@@ -672,20 +1266,62 @@ function uploadCSV() {
             const lines = evt.target.result.split(/\r?\n/).filter(l => l.trim());
             if (lines.length < 2) { alert('CSV appears empty.'); return; }
             const hdrs = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g,'').trim().toLowerCase());
-            const ni = hdrs.findIndex(h => h === 'name');
-            const ri = hdrs.findIndex(h => h === 'role');
+            const ni  = hdrs.findIndex(h => h === 'name');
+            const ri  = hdrs.findIndex(h => h === 'role');
             const rsi = hdrs.findIndex(h => h.includes('responsibilit'));
+            const li  = hdrs.findIndex(h => h === 'level');
+            const rti = hdrs.findIndex(h => h === 'reports to' || h === 'primary reports to');
+            const s2i = hdrs.findIndex(h => h === 'secondary reports to');
+            const cci = hdrs.findIndex(h => h.includes('current'));
+            const fci = hdrs.findIndex(h => h.includes('future'));
             if (ni < 0) { alert('CSV must have a "Name" column.'); return; }
             const now = Date.now();
+            const parseYesNo = (idx, c, fallback) => idx < 0 ? fallback : /^y/i.test((c[idx]||'').replace(/^"|"$/g,'').trim());
             const incoming = lines.slice(1).map((line, i) => {
                 const c = parseCSVLine(line);
                 const get = idx => idx >= 0 ? (c[idx]||'').replace(/^"|"$/g,'') : '';
-                return { id: now + i + 1, name: get(ni), role: get(ri), responsibilities: get(rsi), level: 1, reportsToIds: [], current: true, future: false };
+                const level = li >= 0 ? parseInt(get(li), 10) : 1;
+                const respItems = get(rsi).split(';').map(s => s.trim()).filter(Boolean)
+                    .map((text, j) => ({ id: `csv-${now}-${i}-${j}`, text }));
+                return {
+                    id: now + i + 1,
+                    name: get(ni), role: get(ri), respItems,
+                    level: (Number.isInteger(level) && level >= 1 && level <= 8) ? level : 1,
+                    reportsToIds: [], reportsToRaw: get(rti),
+                    secondaryReportsToIds: [], secondaryReportsToRaw: get(s2i),
+                    current: parseYesNo(cci, c, true), future: parseYesNo(fci, c, false),
+                    swItems: []
+                };
             }).filter(p => p.name.trim());
             if (!incoming.length) { alert('No valid rows found in CSV.'); return; }
             if (STATE.people.length > 0 && !confirm(`Add ${incoming.length} people from CSV to the existing ${STATE.people.length}?`)) return;
+
+            // Resolve "Reports To" names against incoming rows first, then existing people
+            const nameMap = new Map();
+            STATE.people.forEach(p => nameMap.set(p.name.trim().toLowerCase(), p.id));
+            incoming.forEach(p => nameMap.set(p.name.trim().toLowerCase(), p.id));
+            const unresolved = new Set();
+            const resolveNames = raw => {
+                const ids = [];
+                raw.split(';').map(n => n.trim()).filter(Boolean).forEach(n => {
+                    const id = nameMap.get(n.toLowerCase());
+                    if (id !== undefined) { if (!ids.includes(id)) ids.push(id); }
+                    else unresolved.add(n);
+                });
+                return ids;
+            };
+            incoming.forEach(p => {
+                if (p.reportsToRaw) p.reportsToIds = resolveNames(p.reportsToRaw);
+                if (p.secondaryReportsToRaw) p.secondaryReportsToIds = resolveNames(p.secondaryReportsToRaw);
+                delete p.reportsToRaw;
+                delete p.secondaryReportsToRaw;
+            });
+
             STATE.people.push(...incoming);
-            renderTable(); updateCharts(); saveToStorage(); checkClearBtn();
+            renderTable(); updateCharts(); renderTasksTable(); renderRaTable(); renderSystemiseTable(); saveToStorage(); checkClearBtn();
+            if (unresolved.size) {
+                alert(`Imported ${incoming.length} people. Could not match these "Reports To" names and skipped them: ${[...unresolved].join(', ')}`);
+            }
         };
         reader.readAsText(file);
     };
@@ -697,10 +1333,11 @@ function downloadCSV() {
     if (!STATE.people.length) { alert('No team members to download.'); return; }
     const business = document.getElementById('company-name').value.trim();
     const date     = document.getElementById('chart-date').value.trim();
-    const hdrs = ['Name','Role','Outline Responsibilities','Level','Reports To','Current Chart','Future Chart'];
+    const hdrs = ['Name','Role','Level','Primary Reports To','Secondary Reports To','Outline Responsibilities','Current Chart','Future Chart'];
+    const namesFor = ids => (ids||[]).map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean).join('; ');
     const rows = STATE.people.map(p => {
-        const rTo = (p.reportsToIds||[]).map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean).join('; ');
-        return [p.name, p.role, p.responsibilities||'', p.level, rTo, p.current?'Yes':'No', p.future?'Yes':'No'];
+        const resp = (p.respItems||[]).map(i => i.text).join('; ');
+        return [p.name, p.role, p.level, namesFor(p.reportsToIds), namesFor(p.secondaryReportsToIds), resp, p.current?'Yes':'No', p.future?'Yes':'No'];
     });
     const csv = [hdrs,...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
@@ -719,17 +1356,21 @@ function buildTree(people) {
     people.forEach(p => { map[p.id] = { ...p, children: [], reportsToIds: p.reportsToIds || [] }; });
 
     const childIds   = new Set(); // nodes that have a primary parent (for root detection)
-    const drawEdges  = [];        // { from, to, secondary } — ALL parent→child pairs for drawing
+    const drawEdges  = [];        // { from, to, dashed } – ALL parent→child pairs for drawing
 
     people.forEach(p => {
-        const parentIds = (p.reportsToIds || []).filter(pid => map[pid] && pid !== p.id);
-        parentIds.forEach((pid, idx) => {
-            drawEdges.push({ from: map[pid], to: map[p.id], secondary: idx > 0 });
+        const primaryIds = (p.reportsToIds || []).filter(pid => map[pid] && pid !== p.id);
+        primaryIds.forEach((pid, idx) => {
+            drawEdges.push({ from: map[pid], to: map[p.id], dashed: false });
             if (idx === 0) {
-                // Only the first parent governs tree position
+                // Only the first primary parent governs tree position
                 map[pid].children.push(map[p.id]);
                 childIds.add(p.id);
             }
+        });
+        const secondaryIds = (p.secondaryReportsToIds || []).filter(pid => map[pid] && pid !== p.id);
+        secondaryIds.forEach(pid => {
+            drawEdges.push({ from: map[pid], to: map[p.id], dashed: true });
         });
     });
 
@@ -793,12 +1434,15 @@ function renderChart(containerId, people) {
 
     const rootIds = new Set(roots.map(r => r.id));
 
-    // Draw edges — all reporting lines use the same solid style
-    const edgeSvg = drawEdges.map(({ from: fr, to }) => {
+    // Draw edges – primary reporting lines are solid grey, secondary lines are dotted yellow
+    const edgeSvg = drawEdges.map(({ from: fr, to, dashed }) => {
         const x1 = fr._cx, y1 = fr._cy + BH/2;
         const x2 = to._cx, y2 = to._cy - BH/2;
         const my = (y1 + y2) / 2;
-        return `<path d="M${x1},${y1} V${my} H${x2} V${y2}" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+        const strokeAttrs = dashed
+            ? 'stroke="#F7AC08" stroke-width="2.5" stroke-dasharray="1,7"'
+            : 'stroke="#cbd5e1" stroke-width="2"';
+        return `<path d="M${x1},${y1} V${my} H${x2} V${y2}" ${strokeAttrs} fill="none" stroke-linecap="round"/>`;
     }).join('');
 
     const nodeSvg = nodes.map(n => {
@@ -806,30 +1450,27 @@ function renderChart(containerId, people) {
         const isRoot     = rootIds.has(n.id);
         const futureOnly = !!n._futureOnly;
 
-        let fill, stroke, tc1, tc2, tc3;
+        let fill, stroke, tc1, tc2;
         if (isRoot && !futureOnly) {
             fill = '#15397F'; stroke = '#0f2f69';
-            tc1 = 'white'; tc2 = '#bfdbfe'; tc3 = '#93c5fd';
+            tc1 = 'white'; tc2 = '#bfdbfe';
         } else if (futureOnly) {
             fill = '#FCF6E9'; stroke = '#F8C558';
-            tc1 = '#111827'; tc2 = '#6b7280'; tc3 = '#9ca3af';
+            tc1 = '#111827'; tc2 = '#6b7280';
         } else {
             fill = 'white'; stroke = '#15397F';
-            tc1 = '#111827'; tc2 = '#6b7280'; tc3 = '#9ca3af';
+            tc1 = '#111827'; tc2 = '#6b7280';
         }
 
         return `<g>
 <rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="8"
     fill="${fill}" stroke="${stroke}" stroke-width="2" filter="url(#${filtId})"/>
-<text x="${n._cx}" y="${n._cy-12}" text-anchor="middle"
+<text x="${n._cx}" y="${n._cy-8}" text-anchor="middle"
     font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="13" font-weight="600" fill="${tc1}">${esc(trunc(n.name,22))}</text>
-<text x="${n._cx}" y="${n._cy+6}" text-anchor="middle"
+<text x="${n._cx}" y="${n._cy+12}" text-anchor="middle"
     font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="11" fill="${tc2}">${esc(trunc(n.role,26))}</text>
-<text x="${n._cx}" y="${n._cy+23}" text-anchor="middle"
-    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-    font-size="10" fill="${tc3}">Level ${n.level}</text>
 </g>`;
     }).join('');
 
@@ -910,6 +1551,9 @@ function saveToStorage() {
     localStorage.setItem('oc-advisor',    document.getElementById('advisor-name').value);
     localStorage.setItem('oc-date',       document.getElementById('chart-date').value);
     localStorage.setItem('oc-people',     JSON.stringify(STATE.people));
+    localStorage.setItem('oc-tasks',      JSON.stringify(STATE.tasks));
+    localStorage.setItem('oc-roleassessments', JSON.stringify(STATE.roleAssessments));
+    localStorage.setItem('oc-systemise', JSON.stringify(STATE.systemise));
 }
 
 function loadFromStorage() {
@@ -929,31 +1573,954 @@ function loadFromStorage() {
                 reportsToIds: p.reportsToIds
                     ? p.reportsToIds.map(Number)
                     : (p.reportsToId ? [Number(p.reportsToId)] : []),
-                responsibilities: p.responsibilities || ''
+                secondaryReportsToIds: (p.secondaryReportsToIds || []).map(Number),
+                swItems: (p.swItems || []).filter(i => !i.editing),
+                // migrate old free-text responsibilities into a single pill
+                respItems: p.respItems
+                    ? p.respItems.filter(i => !i.editing)
+                    : (p.responsibilities ? [{ id: 'mig-' + p.id, text: p.responsibilities }] : [])
+            }));
+        }
+    } catch {}
+    try {
+        const rawTasks = JSON.parse(localStorage.getItem('oc-tasks') || '[]');
+        if (Array.isArray(rawTasks)) {
+            STATE.tasks = rawTasks.map(t => ({
+                ...t,
+                id: Number(t.id),
+                hours: Number(t.hours) || 0,
+                employeeId: t.employeeId === null || t.employeeId === undefined ? null : Number(t.employeeId),
+                readiness: t.readiness || []
+            }));
+        }
+    } catch {}
+    try {
+        const rawRa = JSON.parse(localStorage.getItem('oc-roleassessments') || '[]');
+        if (Array.isArray(rawRa)) {
+            STATE.roleAssessments = rawRa.map(r => ({
+                ...r,
+                id: Number(r.id),
+                personId: r.personId === null || r.personId === undefined ? null : Number(r.personId),
+                customSwItems: (r.customSwItems || []).filter(i => !i.editing),
+                skillItems: (r.skillItems || []).filter(i => !i.editing)
+            }));
+        }
+    } catch {}
+    try {
+        const rawSys = JSON.parse(localStorage.getItem('oc-systemise') || '[]');
+        if (Array.isArray(rawSys)) {
+            STATE.systemise = rawSys.map(s => ({
+                ...s,
+                id: Number(s.id),
+                taskId: s.taskId === null || s.taskId === undefined ? null : Number(s.taskId),
+                responsibleId: s.responsibleId === null || s.responsibleId === undefined ? null : Number(s.responsibleId),
+                docTypes: s.docTypes || [],
+                dismissed: !!s.dismissed
             }));
         }
     } catch {}
     renderTable();
     updateCharts();
+    renderTasksTable();
+    renderRaTable();
+    renderSystemiseTable();
     checkClearBtn();
+    setBizSectionCollapsed(localStorage.getItem('oc-biz-collapsed') === '1');
+    setTeamSectionCollapsed(localStorage.getItem('oc-team-collapsed') === '1');
+    const savedTab = localStorage.getItem('oc-active-tab');
+    if (savedTab && TABS.includes(savedTab)) switchTab(savedTab);
 }
 
 function checkClearBtn() {
-    const has = STATE.people.length > 0 ||
-        document.getElementById('your-name').value ||
-        document.getElementById('company-name').value ||
-        document.getElementById('chart-date').value;
-    document.getElementById('clear-btn').classList.toggle('hidden', !has);
+    checkClearBizBtn();
+    checkClearTeamBtn();
 }
 
-function clearAll() {
-    if (!confirm('Clear everything and start again?')) return;
-    STATE.people = [];
+function checkClearBizBtn() {
+    const has = ['your-name','your-email','company-name','advisor-name','chart-date']
+        .some(id => document.getElementById(id).value);
+    document.getElementById('clear-biz-btn').classList.toggle('hidden', !has);
+}
+
+function checkClearTeamBtn() {
+    document.getElementById('clear-team-btn').classList.toggle('hidden', STATE.people.length === 0);
+}
+
+function clearBizDetails() {
+    if (!confirm('Clear business details and start again?')) return;
     ['your-name','your-email','company-name','advisor-name','chart-date'].forEach(id => {
         document.getElementById(id).value = '';
     });
-    ['oc-your-name','oc-your-email','oc-company','oc-advisor','oc-date','oc-people'].forEach(k => localStorage.removeItem(k));
-    renderTable(); updateCharts(); checkClearBtn();
+    ['oc-your-name','oc-your-email','oc-company','oc-advisor','oc-date'].forEach(k => localStorage.removeItem(k));
+    checkClearBtn();
+}
+
+function clearTeamMembers() {
+    if (!confirm('Clear all team members? This cannot be undone.')) return;
+    const byId = new Map(STATE.people.map(p => [p.id, p.name]));
+    STATE.people = [];
+    STATE.tasks.forEach(t => { t.employeeId = null; });
+    STATE.roleAssessments.forEach(r => {
+        if (r.personId !== null) { r.personCustomName = byId.get(r.personId) || ''; r.personId = null; }
+    });
+    STATE.systemise.forEach(s => { s.responsibleId = null; });
+    localStorage.removeItem('oc-people');
+    renderTable(); updateCharts(); renderTasksTable(); renderRaTable(); renderSystemiseTable(); checkClearBtn();
+}
+
+// ── Collapsible Business Details ────────────────────────────────────────────
+function setBizSectionCollapsed(collapsed) {
+    document.getElementById('biz-section-body').classList.toggle('hidden', collapsed);
+    document.getElementById('biz-toggle-icon').style.transform = collapsed ? 'rotate(-90deg)' : '';
+}
+
+function toggleBizSection() {
+    const collapsed = !document.getElementById('biz-section-body').classList.contains('hidden');
+    setBizSectionCollapsed(collapsed);
+    localStorage.setItem('oc-biz-collapsed', collapsed ? '1' : '0');
+}
+
+// ── Collapsible Team Members ────────────────────────────────────────────────
+function setTeamSectionCollapsed(collapsed) {
+    document.getElementById('team-section-body').classList.toggle('hidden', collapsed);
+    document.getElementById('team-toggle-icon').style.transform = collapsed ? 'rotate(-90deg)' : '';
+}
+
+function toggleTeamSection() {
+    const collapsed = !document.getElementById('team-section-body').classList.contains('hidden');
+    setTeamSectionCollapsed(collapsed);
+    localStorage.setItem('oc-team-collapsed', collapsed ? '1' : '0');
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────
+const TABS = ['orgcharts', 'taskdelegation', 'rolesskills', 'systemise'];
+
+function switchTab(tab) {
+    TABS.forEach(t => {
+        document.getElementById(`tab-panel-${t}`).classList.toggle('hidden', t !== tab);
+        document.getElementById(`tab-btn-${t}`).classList.toggle('tab-btn-active', t === tab);
+    });
+    localStorage.setItem('oc-active-tab', tab);
+}
+
+// ── Task Delegation ──────────────────────────────────────────────────────────
+function addTask() {
+    STATE.tasks.push({ id: Date.now(), text: '', hours: 0, completedBy: '', employeeId: null, readiness: [] });
+    renderTasksTable();
+    renderSystemiseTable();
+    saveToStorage();
+}
+
+function removeTask(id) {
+    STATE.tasks = STATE.tasks.filter(t => t.id !== id);
+    renderTasksTable();
+    renderSystemiseTable();
+    saveToStorage();
+}
+
+function onTaskField(id, field, value) {
+    const t = STATE.tasks.find(t => t.id === id);
+    if (!t) return;
+    if (field === 'hours') t.hours = value === '' ? 0 : Number(value);
+    else if (field === 'employeeId') t.employeeId = value === '' ? null : Number(value);
+    else t[field] = value;
+    if (field === 'hours' || field === 'completedBy') updateTaskTotals();
+    if (field === 'completedBy' || field === 'text') renderSystemiseTable();
+    if (field === 'employeeId') {
+        const s = STATE.systemise.find(s => s.taskId === id);
+        if (s) { s.responsibleId = t.employeeId; renderSystemiseTable(); }
+    }
+    saveToStorage();
+}
+
+function readinessLabel(t) {
+    const items = t.readiness || [];
+    if (!items.length) return '– None –';
+    const joined = items.join(', ');
+    return joined.length > 32 ? joined.slice(0, 30) + '…' : joined;
+}
+
+let openReadinessMsId = null;
+
+function openReadinessMs(event, taskId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const dd  = document.getElementById(`rms-${taskId}`);
+    if (!dd) return;
+
+    if (openReadinessMsId && openReadinessMsId !== taskId) {
+        const prev = document.getElementById(`rms-${openReadinessMsId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (dd.style.display !== 'none') {
+        dd.style.display = 'none';
+        openReadinessMsId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    const dropW = Math.max(rect.width, 230);
+    dd.style.width  = dropW + 'px';
+    dd.style.left   = rect.left + 'px';
+    dd.style.display = 'block';
+
+    const afterBottom = rect.bottom + 2 + 220;
+    if (afterBottom > window.innerHeight && rect.top > 230) {
+        const h = Math.min(dd.scrollHeight, 220);
+        dd.style.top = (rect.top - h - 4) + 'px';
+    } else {
+        dd.style.top = (rect.bottom + 2) + 'px';
+    }
+
+    openReadinessMsId = taskId;
+}
+
+function toggleReadiness(taskId, value, checked) {
+    const t = STATE.tasks.find(t => t.id === taskId);
+    if (!t) return;
+    const arr = t.readiness || [];
+    if (checked) {
+        if (!arr.includes(value)) t.readiness = [...arr, value];
+    } else {
+        t.readiness = arr.filter(v => v !== value);
+    }
+    const btn = document.querySelector(`button.ms-btn[data-tid="${taskId}"]`);
+    if (btn) btn.textContent = readinessLabel(t);
+    saveToStorage();
+}
+
+document.addEventListener('click', () => {
+    if (openReadinessMsId) {
+        const dd = document.getElementById(`rms-${openReadinessMsId}`);
+        if (dd) dd.style.display = 'none';
+        openReadinessMsId = null;
+    }
+});
+window.addEventListener('scroll', () => {
+    if (openReadinessMsId) {
+        const dd = document.getElementById(`rms-${openReadinessMsId}`);
+        if (dd) dd.style.display = 'none';
+        openReadinessMsId = null;
+    }
+}, true);
+
+function updateTaskTotals() {
+    const totalHours = STATE.tasks.reduce((sum, t) => sum + (Number(t.hours) || 0), 0);
+    document.getElementById('task-total-hours').textContent = `${totalHours} hrs`;
+
+    COMPLETED_BY_OPTIONS.forEach(label => {
+        const rows  = STATE.tasks.filter(t => t.completedBy === label);
+        const hours = rows.reduce((sum, t) => sum + (Number(t.hours) || 0), 0);
+        const key   = label.toLowerCase().replace(/[^a-z]/g, '');
+        const hoursEl = document.getElementById(`task-total-${key}-hours`);
+        const countEl = document.getElementById(`task-total-${key}-count`);
+        if (hoursEl) hoursEl.textContent = `${hours} hrs`;
+        if (countEl) countEl.textContent = `${rows.length} job${rows.length === 1 ? '' : 's'}`;
+    });
+}
+
+function renderTasksTable() {
+    const tbody = document.getElementById('tasks-tbody');
+    if (!STATE.tasks.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-sm text-gray-400">Click "Add Task" to start listing weekly tasks</td></tr>';
+        updateTaskTotals();
+        return;
+    }
+
+    const employees = STATE.people.filter(p => p.name.trim());
+
+    tbody.innerHTML = STATE.tasks.map((t, idx) => {
+        const readinessOptionsHtml = READINESS_OPTIONS.map(opt => `
+            <label class="ms-option">
+                <input type="checkbox" style="width:16px;height:16px"
+                    ${(t.readiness||[]).includes(opt) ? 'checked' : ''}
+                    onchange="toggleReadiness(${t.id},'${opt}',this.checked)">
+                ${opt}
+            </label>`).join('');
+
+        const employeeOptionsHtml = employees.map(p =>
+            `<option value="${p.id}"${Number(t.employeeId)===p.id?' selected':''}>${esc(p.name)}</option>`
+        ).join('');
+
+        return `
+        <tr class="border-t border-gray-100" data-tid="${t.id}" data-idx="${idx}"
+            draggable="true"
+            ondragstart="onTaskDragStart(event,${idx})"
+            ondragover="onTaskDragOver(event)"
+            ondragleave="onTaskDragLeave(event)"
+            ondrop="onTaskDrop(event,${idx})"
+            ondragend="onTaskDragEnd()">
+            <td class="py-2 pl-1">
+                <span class="drag-handle" title="Drag to reorder">
+                    <svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor">
+                        <circle cx="4" cy="4"  r="1.8"/>
+                        <circle cx="10" cy="4"  r="1.8"/>
+                        <circle cx="4" cy="10" r="1.8"/>
+                        <circle cx="10" cy="10" r="1.8"/>
+                        <circle cx="4" cy="16" r="1.8"/>
+                        <circle cx="10" cy="16" r="1.8"/>
+                    </svg>
+                </span>
+            </td>
+            <td class="py-2 pr-3">
+                <input type="text" class="tbl-input" value="${esc(t.text)}" placeholder="Describe the task"
+                    oninput="onTaskField(${t.id},'text',this.value)">
+            </td>
+            <td class="py-2 pr-3">
+                <input type="number" min="0" step="0.5" class="tbl-input" value="${t.hours||''}" placeholder="0"
+                    oninput="onTaskField(${t.id},'hours',this.value)">
+            </td>
+            <td class="py-2 pr-2 text-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-[#15397F] text-sm font-semibold">${idx+1}</span>
+            </td>
+            <td class="py-2 pr-3">
+                <select class="tbl-select" onchange="onTaskField(${t.id},'completedBy',this.value)">
+                    <option value=""${!t.completedBy?' selected':''}>– Select –</option>
+                    ${COMPLETED_BY_OPTIONS.map(o => `<option value="${o}"${t.completedBy===o?' selected':''}>${o}</option>`).join('')}
+                </select>
+            </td>
+            <td class="py-2 pr-3">
+                <select class="tbl-select" onchange="onTaskField(${t.id},'employeeId',this.value)">
+                    <option value="">– Select employee –</option>
+                    ${employeeOptionsHtml}
+                </select>
+            </td>
+            <td class="py-2 pr-3" style="position:relative">
+                <button type="button" class="ms-btn" data-tid="${t.id}"
+                    onclick="openReadinessMs(event,${t.id})">${esc(readinessLabel(t))}</button>
+                <div id="rms-${t.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
+                    ${readinessOptionsHtml}
+                </div>
+            </td>
+            <td class="py-2 text-center">
+                <button onclick="removeTask(${t.id})"
+                    class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+    updateTaskTotals();
+}
+
+// ── Task Drag to Reorder ────────────────────────────────────────────────────
+let taskDragSrcIdx = null;
+
+function onTaskDragStart(event, idx) {
+    if (['INPUT','SELECT','TEXTAREA','BUTTON','LABEL'].includes(event.target.tagName)) {
+        event.preventDefault();
+        return;
+    }
+    taskDragSrcIdx = idx;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', idx);
+    requestAnimationFrame(() => event.currentTarget.classList.add('dragging'));
+}
+
+function onTaskDragOver(event) {
+    if (taskDragSrcIdx === null) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const tr = event.currentTarget;
+    const mid = tr.getBoundingClientRect().top + tr.getBoundingClientRect().height / 2;
+    document.querySelectorAll('#tasks-tbody tr').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+    tr.classList.add(event.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+}
+
+function onTaskDragLeave(event) {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        event.currentTarget.classList.remove('drag-over-top','drag-over-bottom');
+    }
+}
+
+function onTaskDrop(event, targetIdx) {
+    event.preventDefault();
+    if (taskDragSrcIdx === null) return;
+
+    const tr  = event.currentTarget;
+    const mid = tr.getBoundingClientRect().top + tr.getBoundingClientRect().height / 2;
+    const dropBefore = event.clientY < mid;
+
+    if (taskDragSrcIdx !== targetIdx) {
+        let insertAt = dropBefore ? targetIdx : targetIdx + 1;
+        if (taskDragSrcIdx < insertAt) insertAt--;
+        const [moved] = STATE.tasks.splice(taskDragSrcIdx, 1);
+        STATE.tasks.splice(insertAt, 0, moved);
+        renderTasksTable();
+        saveToStorage();
+    }
+    taskDragSrcIdx = null;
+}
+
+function onTaskDragEnd() {
+    taskDragSrcIdx = null;
+    document.querySelectorAll('#tasks-tbody tr').forEach(r =>
+        r.classList.remove('dragging','drag-over-top','drag-over-bottom')
+    );
+}
+
+// ── Roles and Skills Assessment ─────────────────────────────────────────────
+function addRoleAssessment() {
+    STATE.roleAssessments.push({
+        id: Date.now(), role: '', personId: null, personCustomName: '',
+        customSwItems: [], skillItems: [], alignment: ''
+    });
+    renderRaTable();
+    saveToStorage();
+}
+
+function removeRoleAssessment(id) {
+    STATE.roleAssessments = STATE.roleAssessments.filter(r => r.id !== id);
+    renderRaTable();
+    saveToStorage();
+}
+
+function renderRoleSelect(r) {
+    const knownRoles = [...new Set(STATE.people.map(p => (p.role||'').trim()).filter(Boolean))];
+    const value = r.role || '';
+    const colorStyle = !value ? '' : (knownRoles.includes(value)
+        ? 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
+        : 'background:#fef2f2;border-color:#f87171;color:#b91c1c;');
+    const extraOption = (value && !knownRoles.includes(value)) ? `<option value="${esc(value)}" selected>${esc(value)}</option>` : '';
+    return `
+        <select class="tbl-select" style="${colorStyle}" onchange="onRoleSelectChange(${r.id},this.value)">
+            <option value=""${!value?' selected':''}>– Select –</option>
+            ${knownRoles.map(v => `<option value="${esc(v)}"${v===value?' selected':''}>${esc(v)}</option>`).join('')}
+            ${extraOption}
+            <option value="__add_new__">+ Add custom role</option>
+        </select>`;
+}
+
+function onRoleSelectChange(rowId, value) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    if (value === '__add_new__') {
+        const text = prompt('Enter the role title:');
+        if (text && text.trim()) r.role = text.trim();
+    } else {
+        r.role = value;
+    }
+    renderRaTable();
+    saveToStorage();
+}
+
+function renderPersonSelect(r) {
+    const people = STATE.people.filter(p => p.name.trim());
+    const hasValue = !!r.personId || !!r.personCustomName;
+    const isKnown  = !!r.personId;
+    const colorStyle = !hasValue ? '' : (isKnown
+        ? 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
+        : 'background:#fef2f2;border-color:#f87171;color:#b91c1c;');
+    const customOption = (!r.personId && r.personCustomName) ? `<option value="custom" selected>${esc(r.personCustomName)}</option>` : '';
+    return `
+        <select class="tbl-select" style="${colorStyle}" onchange="onPersonSelectChange(${r.id},this.value)">
+            <option value=""${!hasValue?' selected':''}>– Select –</option>
+            ${people.map(p => `<option value="${p.id}"${r.personId===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}
+            ${customOption}
+            <option value="__add_new__">+ Add person not in org chart</option>
+        </select>`;
+}
+
+function onPersonSelectChange(rowId, value) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    if (value === '__add_new__') {
+        const text = prompt("Enter the person's name:");
+        if (text && text.trim()) { r.personId = null; r.personCustomName = text.trim(); }
+    } else if (value === 'custom') {
+        // keep existing custom name as-is
+    } else if (value === '') {
+        r.personId = null; r.personCustomName = '';
+    } else {
+        r.personId = Number(value); r.personCustomName = '';
+    }
+    renderRaTable();
+    saveToStorage();
+}
+
+function renderRaResp(r) {
+    if (!r.personId) {
+        return '<span class="text-xs text-gray-400">No responsibilities to show – this person isn\'t on the Team Members list.</span>';
+    }
+    const p = STATE.people.find(p => p.id === r.personId);
+    const items = (p && p.respItems) || [];
+    if (!items.length) {
+        return '<span class="text-xs text-gray-400">No responsibilities recorded yet – add them in Team Members.</span>';
+    }
+    return `<div class="sw-stack">${items.map(item =>
+        `<span class="resp-pill">${esc(item.text)}</span>`
+    ).join('')}</div>`;
+}
+
+function renderRaSw(r) {
+    if (r.personId) {
+        const p = STATE.people.find(p => p.id === r.personId);
+        const items = (p && p.swItems) || [];
+        if (!items.length) {
+            return '<span class="text-xs text-gray-400">No strengths/weaknesses recorded yet – add them in Team Members.</span>';
+        }
+        return `<div class="sw-stack">${items.map(item =>
+            `<span class="sw-pill sw-pill-${item.type}">${esc(item.text)}</span>`
+        ).join('')}</div>`;
+    }
+    return renderRaCustomSwPills(r);
+}
+
+function renderRaCustomSwPills(r) {
+    const items = r.customSwItems || [];
+    const pillsHtml = items.map(item => {
+        if (item.editing) {
+            return `
+                <span class="sw-pill sw-pill-${item.type} sw-pill-editing">
+                    <input type="text" class="sw-pill-input" data-rasw-id="${item.id}" value="${esc(item.text)}"
+                        placeholder="${item.type === 'strength' ? 'Type a strength…' : 'Type a weakness…'}"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRaSwItem(${r.id},'${item.id}');}"
+                        onblur="commitRaSwItem(${r.id},'${item.id}',this.value)">
+                </span>`;
+        }
+        return `
+            <span class="sw-pill sw-pill-${item.type}">
+                ${esc(item.text)}
+                <button type="button" class="sw-pill-x" onclick="removeRaSwItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+            </span>`;
+    }).join('');
+
+    return `
+        <div class="sw-stack">
+            ${pillsHtml}
+            <div class="sw-add-row">
+                <button type="button" class="sw-add-btn" onclick="openRaSwMenu(event,${r.id})" title="Add strength or weakness">+</button>
+                <div id="rasw-menu-${r.id}" class="sw-menu" style="display:none" onclick="event.stopPropagation()">
+                    <button type="button" class="sw-menu-item sw-menu-strength" onclick="startAddRaSw(${r.id},'strength')">+ Add Strength</button>
+                    <button type="button" class="sw-menu-item sw-menu-weakness" onclick="startAddRaSw(${r.id},'weakness')">+ Add Weakness</button>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderRaSwCell(rowId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    const cell = document.getElementById(`rasw-cell-${rowId}`);
+    if (r && cell) cell.innerHTML = renderRaSw(r);
+}
+
+let openRaSwMenuId = null;
+
+function openRaSwMenu(event, rowId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const menu = document.getElementById(`rasw-menu-${rowId}`);
+    if (!menu) return;
+
+    if (openRaSwMenuId && openRaSwMenuId !== rowId) {
+        const prev = document.getElementById(`rasw-menu-${openRaSwMenuId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (menu.style.display !== 'none') {
+        menu.style.display = 'none';
+        openRaSwMenuId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    menu.style.left = rect.left + 'px';
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.display = 'block';
+    openRaSwMenuId = rowId;
+}
+
+function startAddRaSw(rowId, type) {
+    if (openRaSwMenuId) {
+        const m = document.getElementById(`rasw-menu-${openRaSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openRaSwMenuId = null;
+    }
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.customSwItems = r.customSwItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    r.customSwItems.push({ id: tempId, type, text: '', editing: true });
+    renderRaSwCell(rowId);
+    const input = document.querySelector(`#rasw-cell-${rowId} input[data-rasw-id="${tempId}"]`);
+    if (input) input.focus();
+}
+
+function commitRaSwItem(rowId, itemId, text) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const item = (r.customSwItems || []).find(i => i.id === itemId);
+    if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+        r.customSwItems = r.customSwItems.filter(i => i.id !== itemId);
+    } else {
+        item.text = trimmed;
+        item.editing = false;
+    }
+    renderRaSwCell(rowId);
+    saveToStorage();
+}
+
+function cancelRaSwItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.customSwItems = (r.customSwItems || []).filter(i => i.id !== itemId);
+    renderRaSwCell(rowId);
+}
+
+function removeRaSwItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.customSwItems = (r.customSwItems || []).filter(i => i.id !== itemId);
+    renderRaSwCell(rowId);
+    saveToStorage();
+}
+
+document.addEventListener('click', () => {
+    if (openRaSwMenuId) {
+        const m = document.getElementById(`rasw-menu-${openRaSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openRaSwMenuId = null;
+    }
+});
+window.addEventListener('scroll', () => {
+    if (openRaSwMenuId) {
+        const m = document.getElementById(`rasw-menu-${openRaSwMenuId}`);
+        if (m) m.style.display = 'none';
+        openRaSwMenuId = null;
+    }
+}, true);
+
+function renderRaSkillsPills(r) {
+    const items = r.skillItems || [];
+    const pillsHtml = items.map(item => {
+        if (item.editing) {
+            return `
+                <span class="resp-pill resp-pill-editing">
+                    <input type="text" class="sw-pill-input" data-raskill-id="${item.id}" value="${esc(item.text)}"
+                        placeholder="Type a required skill…"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRaSkillItem(${r.id},'${item.id}');}"
+                        onblur="commitRaSkillItem(${r.id},'${item.id}',this.value)">
+                </span>`;
+        }
+        return `
+            <span class="resp-pill">
+                ${esc(item.text)}
+                <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+            </span>`;
+    }).join('');
+
+    return `
+        <div class="sw-stack">
+            ${pillsHtml}
+            <button type="button" class="sw-add-btn" onclick="startAddRaSkill(${r.id})" title="Add a required skill">+</button>
+        </div>`;
+}
+
+function renderRaSkillsCell(rowId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    const cell = document.getElementById(`raskill-cell-${rowId}`);
+    if (r && cell) cell.innerHTML = renderRaSkillsPills(r);
+}
+
+function startAddRaSkill(rowId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.skillItems = r.skillItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    r.skillItems.push({ id: tempId, text: '', editing: true });
+    renderRaSkillsCell(rowId);
+    const input = document.querySelector(`#raskill-cell-${rowId} input[data-raskill-id="${tempId}"]`);
+    if (input) input.focus();
+}
+
+function commitRaSkillItem(rowId, itemId, text) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const item = (r.skillItems || []).find(i => i.id === itemId);
+    if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+        r.skillItems = r.skillItems.filter(i => i.id !== itemId);
+    } else {
+        item.text = trimmed;
+        item.editing = false;
+    }
+    renderRaSkillsCell(rowId);
+    saveToStorage();
+}
+
+function cancelRaSkillItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.skillItems = (r.skillItems || []).filter(i => i.id !== itemId);
+    renderRaSkillsCell(rowId);
+}
+
+function removeRaSkillItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.skillItems = (r.skillItems || []).filter(i => i.id !== itemId);
+    renderRaSkillsCell(rowId);
+    saveToStorage();
+}
+
+function onRaAlignmentChange(rowId, value, selectEl) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.alignment = value;
+    if (selectEl) selectEl.style.cssText = ALIGNMENT_COLORS[value] || '';
+    saveToStorage();
+}
+
+function renderAlignmentSelect(r) {
+    const colorStyle = ALIGNMENT_COLORS[r.alignment] || '';
+    return `
+        <select class="tbl-select" style="${colorStyle}" onchange="onRaAlignmentChange(${r.id},this.value,this)">
+            <option value=""${!r.alignment?' selected':''}>– Select –</option>
+            ${ALIGNMENT_OPTIONS.map(o => `<option value="${o}"${r.alignment===o?' selected':''}>${o}</option>`).join('')}
+        </select>`;
+}
+
+function renderRaRespCell(rowId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    const cell = document.getElementById(`raresp-cell-${rowId}`);
+    if (r && cell) cell.innerHTML = renderRaResp(r);
+}
+
+function renderRaTable() {
+    const tbody = document.getElementById('ra-tbody');
+    if (!STATE.roleAssessments.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-sm text-gray-400">Click "Add Role" to start assessing roles and skills</td></tr>';
+        return;
+    }
+    tbody.innerHTML = STATE.roleAssessments.map(r => `
+        <tr class="border-t border-gray-100" data-rid="${r.id}">
+            <td class="py-2 pr-3">${renderRoleSelect(r)}</td>
+            <td class="py-2 pr-3">${renderPersonSelect(r)}</td>
+            <td class="py-2 pr-3" id="raresp-cell-${r.id}" style="position:relative;min-width:190px">${renderRaResp(r)}</td>
+            <td class="py-2 pr-3" id="rasw-cell-${r.id}" style="position:relative;min-width:200px">${renderRaSw(r)}</td>
+            <td class="py-2 pr-3" id="raskill-cell-${r.id}" style="position:relative;min-width:200px">${renderRaSkillsPills(r)}</td>
+            <td class="py-2 pr-3">${renderAlignmentSelect(r)}</td>
+            <td class="py-2 text-center">
+                <button onclick="removeRoleAssessment(${r.id})" class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>`).join('');
+}
+
+// ── Systemise (Delegated) Tasks ─────────────────────────────────────────────
+function syncSystemiseFromTasks() {
+    const qualifying = STATE.tasks.filter(t => t.completedBy === 'Delegate' || t.completedBy === 'AI');
+    const qualifyingIds = new Set(qualifying.map(t => t.id));
+    STATE.systemise = STATE.systemise.filter(s => s.taskId === null || qualifyingIds.has(s.taskId));
+    const existingTaskIds = new Set(STATE.systemise.filter(s => s.taskId !== null).map(s => s.taskId));
+    qualifying.forEach((t, i) => {
+        if (!existingTaskIds.has(t.id)) {
+            STATE.systemise.push({ id: Date.now() + i + 1, taskId: t.id, customText: '', responsibleId: t.employeeId ?? null, docTypes: [], efficiency: '', dismissed: false });
+        }
+    });
+}
+
+function addSystemiseRow() {
+    STATE.systemise.push({ id: Date.now(), taskId: null, customText: '', responsibleId: null, docTypes: [], efficiency: '', dismissed: false });
+    renderSystemiseTable();
+    saveToStorage();
+}
+
+function removeSystemiseRow(id) {
+    const s = STATE.systemise.find(s => s.id === id);
+    if (!s) return;
+    if (s.taskId === null) {
+        // Manual row – remove entirely
+        STATE.systemise = STATE.systemise.filter(s => s.id !== id);
+    } else {
+        // Auto-pulled row – dismiss instead of deleting, so it isn't recreated
+        // on the next sync while the underlying task still qualifies
+        s.dismissed = true;
+    }
+    renderSystemiseTable();
+    saveToStorage();
+}
+
+function renderSystemiseCol1(s) {
+    if (s.taskId !== null) {
+        const t = STATE.tasks.find(t => t.id === s.taskId);
+        const text = t ? t.text : '';
+        return `<div class="text-sm text-gray-800">${esc(text || '(untitled task)')}</div>
+                <div class="text-xs text-gray-400 mt-0.5">From Task Delegation</div>`;
+    }
+    return `<input type="text" class="tbl-input" value="${esc(s.customText||'')}" placeholder="Describe the process"
+                oninput="onSystemiseTextChange(${s.id},this.value)">`;
+}
+
+function onSystemiseTextChange(id, value) {
+    const s = STATE.systemise.find(s => s.id === id);
+    if (!s) return;
+    s.customText = value;
+    saveToStorage();
+}
+
+function renderResponsibleSelect(s) {
+    const people = STATE.people.filter(p => p.name.trim());
+    return `
+        <select class="tbl-select" onchange="onResponsibleChange(${s.id},this.value)">
+            <option value=""${!s.responsibleId?' selected':''}>– Select –</option>
+            ${people.map(p => `<option value="${p.id}"${s.responsibleId===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}
+        </select>`;
+}
+
+function onResponsibleChange(id, value) {
+    const s = STATE.systemise.find(s => s.id === id);
+    if (!s) return;
+    s.responsibleId = value === '' ? null : Number(value);
+    saveToStorage();
+}
+
+function docLabel(s) {
+    const items = s.docTypes || [];
+    if (!items.length) return '– None –';
+    const joined = items.join(', ');
+    return joined.length > 36 ? joined.slice(0, 34) + '…' : joined;
+}
+
+let openDocMsId = null;
+
+function openDocMs(event, id) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const dd  = document.getElementById(`docms-${id}`);
+    if (!dd) return;
+
+    if (openDocMsId && openDocMsId !== id) {
+        const prev = document.getElementById(`docms-${openDocMsId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (dd.style.display !== 'none') {
+        dd.style.display = 'none';
+        openDocMsId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    const dropW = Math.max(rect.width, 260);
+    dd.style.width  = dropW + 'px';
+    dd.style.left   = rect.left + 'px';
+    dd.style.display = 'block';
+
+    const afterBottom = rect.bottom + 2 + 220;
+    if (afterBottom > window.innerHeight && rect.top > 230) {
+        const h = Math.min(dd.scrollHeight, 220);
+        dd.style.top = (rect.top - h - 4) + 'px';
+    } else {
+        dd.style.top = (rect.bottom + 2) + 'px';
+    }
+
+    openDocMsId = id;
+}
+
+function toggleDocType(id, value, checked) {
+    const s = STATE.systemise.find(s => s.id === id);
+    if (!s) return;
+    const arr = s.docTypes || [];
+    if (checked) {
+        if (!arr.includes(value)) s.docTypes = [...arr, value];
+    } else {
+        s.docTypes = arr.filter(v => v !== value);
+    }
+    const btn = document.querySelector(`button.ms-btn[data-sysid="${id}"]`);
+    if (btn) btn.textContent = docLabel(s);
+    saveToStorage();
+}
+
+document.addEventListener('click', () => {
+    if (openDocMsId) {
+        const dd = document.getElementById(`docms-${openDocMsId}`);
+        if (dd) dd.style.display = 'none';
+        openDocMsId = null;
+    }
+});
+window.addEventListener('scroll', () => {
+    if (openDocMsId) {
+        const dd = document.getElementById(`docms-${openDocMsId}`);
+        if (dd) dd.style.display = 'none';
+        openDocMsId = null;
+    }
+}, true);
+
+function renderEfficiencySelect(s) {
+    return `
+        <select class="tbl-select" onchange="onEfficiencyChange(${s.id},this.value)">
+            <option value=""${!s.efficiency?' selected':''}>– Select –</option>
+            ${EFFICIENCY_OPTIONS.map(o => `<option value="${o}"${s.efficiency===o?' selected':''}>${o}</option>`).join('')}
+        </select>`;
+}
+
+function onEfficiencyChange(id, value) {
+    const s = STATE.systemise.find(s => s.id === id);
+    if (!s) return;
+    s.efficiency = value;
+    saveToStorage();
+}
+
+function renderSystemiseTable() {
+    syncSystemiseFromTasks();
+    const tbody = document.getElementById('systemise-tbody');
+    const visible = STATE.systemise.filter(s => !s.dismissed);
+    if (!visible.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-400">Delegated or AI-assigned tasks from Task Delegation will appear here automatically</td></tr>';
+        return;
+    }
+
+    const taskOrder = STATE.tasks.map(t => t.id);
+    const rows = [...visible].sort((a, b) => {
+        const ai = a.taskId === null ? Infinity : taskOrder.indexOf(a.taskId);
+        const bi = b.taskId === null ? Infinity : taskOrder.indexOf(b.taskId);
+        if (ai !== bi) return ai - bi;
+        return a.id - b.id;
+    });
+
+    tbody.innerHTML = rows.map(s => {
+        const docOptionsHtml = DOC_OPTIONS.map(opt => `
+            <label class="ms-option">
+                <input type="checkbox" style="width:16px;height:16px"
+                    ${(s.docTypes||[]).includes(opt) ? 'checked' : ''}
+                    onchange="toggleDocType(${s.id},'${opt}',this.checked)">
+                ${opt}
+            </label>`).join('');
+
+        return `
+        <tr class="border-t border-gray-100" data-sid="${s.id}">
+            <td class="py-2 pr-3">${renderSystemiseCol1(s)}</td>
+            <td class="py-2 pr-3">${renderResponsibleSelect(s)}</td>
+            <td class="py-2 pr-3" style="position:relative">
+                <button type="button" class="ms-btn" data-sysid="${s.id}"
+                    onclick="openDocMs(event,${s.id})">${esc(docLabel(s))}</button>
+                <div id="docms-${s.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
+                    ${docOptionsHtml}
+                </div>
+            </td>
+            <td class="py-2 pr-3">${renderEfficiencySelect(s)}</td>
+            <td class="py-2 text-center">
+                <button onclick="removeSystemiseRow(${s.id})" class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
