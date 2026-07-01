@@ -31,6 +31,35 @@
         }
         .tbl-input:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
+        /* Fixed-width, right-aligned number boxes (Owner Weekly Tasks) */
+        .hours-box {
+            display: block;
+            width: 100px;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: right;
+            outline: none;
+            background: white;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .hours-box:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .hours-box[type=number] { -moz-appearance: textfield; }
+        .hours-box[type=number]::-webkit-inner-spin-button,
+        .hours-box[type=number]::-webkit-outer-spin-button { display: none; }
+        .hours-box-diff { font-weight: 700; background: #f9fafb; }
+        .hours-box-diff-highlight { background: #fef2f2; border-color: #f87171; color: #b91c1c; }
+        .hours-box-diff-match { background: #f0fdf4; border-color: #4ade80; color: #166534; }
+        .hours-box-total { font-weight: 700; background: #eef2f6; border-color: #94a3b8; color: #15397F; }
+
+        tr.owt-summary-row td { background: #f9fafb; padding-top: 8px; padding-bottom: 8px; }
+        tr.owt-summary-row .owt-summary-label {
+            font-size: 12px; font-weight: 600; color: #6b7280;
+            text-transform: uppercase; letter-spacing: 0.03em;
+        }
+        tr.owt-total-row td { border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; }
+
         .tbl-select {
             width: 100%;
             padding: 7px 10px;
@@ -161,6 +190,38 @@
         }
         .tab-btn:hover { color: #15397F; }
         .tab-btn-active { color: #15397F; border-bottom-color: #F7AC08; }
+
+        /* Task row expand/collapse */
+        .expand-btn {
+            background: none; border: none; cursor: pointer; padding: 4px;
+            color: #9ca3af; display: flex; align-items: center; justify-content: center;
+            transition: color .15s, transform .15s;
+        }
+        .expand-btn:hover { color: #15397F; }
+        .expand-btn.expanded { transform: rotate(90deg); color: #15397F; }
+        tr.task-detail-row { background: #f9fafb; }
+        .task-textarea {
+            width: 100%; min-height: 64px; resize: vertical;
+            padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 14px; font-family: inherit; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .task-textarea:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+
+        /* Skills / Abilities / Qualities pills (neutral) */
+        .tskill-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 999px;
+            font-size: 12px; font-weight: 500; line-height: 1.3;
+            max-width: 100%; word-break: break-word;
+        }
+        .tskill-pill-skill    { background: #eef2f6; color: #334155; border: 1px solid #94a3b8; }
+        .tskill-pill-ability  { background: #f5f5f4; color: #44403c; border: 1px solid #a8a29e; }
+        .tskill-pill-quality  { background: #f4f4f5; color: #3f3f46; border: 1px solid #a1a1aa; }
+        .tskill-pill-editing  { padding: 2px 4px 2px 10px; background: white; border: 1px dashed #9ca3af; }
+        .tskill-menu-skill    { color: #334155; }
+        .tskill-menu-ability  { color: #44403c; }
+        .tskill-menu-quality  { color: #3f3f46; }
 
         .chart-outer {
             overflow: auto;
@@ -339,7 +400,7 @@
                 </div>
             </div>
             <div id="team-section-body">
-                <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory; Role, Level, Primary Reports To, Secondary Reports To, Outline Responsibilities, Current Chart and Future Chart are optional.</p>
+                <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory; Role, Level, Primary Reports To, Secondary Reports To, Outline Responsibilities, Current Chart, Future 6 Month Chart and Future 12 Month Chart are optional.</p>
 
                 <div class="table-outer">
                     <table class="w-full" style="min-width:1120px">
@@ -351,22 +412,24 @@
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:7%">Level</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Primary Reports To</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Secondary Reports To</th>
-                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:7%">
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:6%">
                                     <span class="block">Current</span>
                                     <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
                                 </th>
-                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:7%">
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:6%">
                                     <span class="block">Future</span>
-                                    <span class="block font-normal normal-case tracking-normal text-gray-400">chart</span>
+                                    <span class="block font-normal normal-case tracking-normal text-gray-400">6M</span>
                                 </th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3 pc-only-col" style="width:18%">Outline Responsibilities</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3 pc-only-col" style="width:18%">Strengths and Weaknesses</th>
+                                <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:6%">
+                                    <span class="block">Future</span>
+                                    <span class="block font-normal normal-case tracking-normal text-gray-400">12M</span>
+                                </th>
                                 <th style="width:4%"></th>
                             </tr>
                         </thead>
                         <tbody id="people-tbody">
                             <tr>
-                                <td colspan="11" class="py-10 text-center text-sm text-gray-400">
+                                <td colspan="10" class="py-10 text-center text-sm text-gray-400">
                                     Click "Add Person" to start building your org chart
                                 </td>
                             </tr>
@@ -378,13 +441,20 @@
 
         <!-- Tabs -->
         <div class="flex gap-1 border-b border-gray-200">
-            <button type="button" onclick="switchTab('orgcharts')" id="tab-btn-orgcharts" class="tab-btn tab-btn-active">Org Charts</button>
-            <button type="button" onclick="switchTab('taskdelegation')" id="tab-btn-taskdelegation" class="tab-btn">Owner/Leadership Task Delegation</button>
-            <button type="button" onclick="switchTab('rolesskills')" id="tab-btn-rolesskills" class="tab-btn">Roles and Skills Assessment</button>
-            <button type="button" onclick="switchTab('systemise')" id="tab-btn-systemise" class="tab-btn">Systemise (Delegated) Tasks</button>
+            <button type="button" onclick="switchTab('orgcharts')" id="tab-btn-orgcharts" class="tab-btn tab-btn-active">1. Organisation Charts</button>
+            <button type="button" onclick="switchTab('rolesskills')" id="tab-btn-rolesskills" class="tab-btn">2. Roles and Skills Assessment</button>
+            <button type="button" onclick="switchTab('ownertasks')" id="tab-btn-ownertasks" class="tab-btn">3. Owner Weekly Tasks</button>
+            <button type="button" onclick="switchTab('taskdelegation')" id="tab-btn-taskdelegation" class="tab-btn">4. Owner/Leadership Task Delegation</button>
+            <button type="button" onclick="switchTab('systemise')" id="tab-btn-systemise" class="tab-btn">5. Systemise (Delegated) Tasks</button>
         </div>
 
         <div id="tab-panel-orgcharts" class="space-y-6">
+            <!-- Responsibilities toggle -->
+            <div class="flex items-center gap-2 px-1">
+                <input type="checkbox" id="toggle-resp-in-chart" onchange="toggleRespInChart(this.checked)" style="width:16px;height:16px;cursor:pointer">
+                <label for="toggle-resp-in-chart" class="text-sm text-gray-600 cursor-pointer select-none">Show responsibilities in chart</label>
+            </div>
+
             <!-- Current Chart -->
             <div class="bg-white rounded-lg shadow p-5">
                 <div class="flex justify-between items-center mb-1">
@@ -402,10 +472,10 @@
                 </div>
             </div>
 
-            <!-- Future Chart -->
+            <!-- Future 6 Months Chart -->
             <div class="bg-white rounded-lg shadow p-5">
                 <div class="flex justify-between items-center mb-1">
-                    <h2 class="font-semibold text-gray-900">Future Organisation Chart</h2>
+                    <h2 class="font-semibold text-gray-900">Future 6 Months Organisation Chart</h2>
                     <button onclick="downloadChart('future-chart')" class="btn-amber-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -413,9 +483,91 @@
                         Download Chart
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-4">Team members with "Future" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
+                <p class="text-xs text-gray-400 mb-4">Team members with "Future 6M" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
                 <div class="chart-outer" id="future-chart">
-                    <div class="empty-state">Tick "Future" for team members to see them appear here</div>
+                    <div class="empty-state">Tick "Future 6M" for team members to see them appear here</div>
+                </div>
+            </div>
+
+            <!-- Future 12 Months Chart -->
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex justify-between items-center mb-1">
+                    <h2 class="font-semibold text-gray-900">Future 12 Months Organisation Chart</h2>
+                    <button onclick="downloadChart('future-12m-chart')" class="btn-amber-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Chart
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Team members with "Future 12M" ticked · <span class="inline-flex items-center gap-1"><span style="display:inline-block;width:12px;height:12px;background:#FCF6E9;border:1.5px solid #F8C558;border-radius:2px;"></span> Future-only (new roles)</span></p>
+                <div class="chart-outer" id="future-12m-chart">
+                    <div class="empty-state">Tick "Future 12M" for team members to see them appear here</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="tab-panel-ownertasks" class="hidden space-y-6">
+            <div class="bg-white rounded-lg shadow p-5">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h2 class="font-semibold text-gray-900">Owner Weekly Tasks</h2>
+                    <button onclick="addTask()" class="btn-amber">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Task
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Start by entering the number of hours you think you work a week, then list each task and the time each task takes. This helps surface where your time is really going.</p>
+
+                <div class="table-outer">
+                    <table style="table-layout:fixed;width:730px;min-width:480px">
+                        <colgroup>
+                            <col style="width:560px">
+                            <col style="width:130px">
+                            <col style="width:40px">
+                        </colgroup>
+                        <tbody>
+                            <tr class="owt-summary-row">
+                                <td class="pr-3"><span class="owt-summary-label">What do you think you work per week (hours)?</span></td>
+                                <td class="pr-3">
+                                    <input id="owner-estimated-hours" type="number" min="0" step="0.5" oninput="onOwnerEstimateChange(this.value)"
+                                        class="hours-box" placeholder="0">
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr class="owt-summary-row">
+                                <td class="pr-3"><span class="owt-summary-label">Difference</span></td>
+                                <td class="pr-3">
+                                    <div id="owner-hours-diff" class="hours-box hours-box-diff">–</div>
+                                    <div class="text-xs text-gray-400 mt-1" id="owner-hours-diff-note"></div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr class="owt-summary-row owt-total-row">
+                                <td class="pr-3"><span class="owt-summary-label">Total Hours</span></td>
+                                <td class="pr-3">
+                                    <div id="owner-tasks-total" class="hours-box hours-box-total">0</div>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr class="border-t-2 border-gray-200">
+                                <td class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pt-3 pb-2 pr-3">Task</td>
+                                <td class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pt-3 pb-2 pr-3">Hours</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tbody id="owner-tasks-tbody">
+                            <tr>
+                                <td colspan="3" class="py-10 text-center text-sm text-gray-400">
+                                    Click "Add Task" to start listing weekly tasks
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -424,64 +576,30 @@
             <div class="bg-white rounded-lg shadow p-5">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 class="font-semibold text-gray-900">Owner/Leadership Task Delegation</h2>
-                    <button onclick="addTask()" class="btn-amber">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Add Task
-                    </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">List the tasks owners and leaders complete each week. Drag rows to reorder – Priority updates automatically based on position.</p>
+                <p class="text-xs text-gray-400 mb-3">Tasks come from Owner Weekly Tasks. Drag rows to reorder – Priority updates automatically based on position. Click a row to add a detailed description and the skills, abilities and qualities it requires.</p>
 
                 <div class="table-outer">
-                    <table class="w-full" style="min-width:1080px">
+                    <table class="w-full" style="min-width:1140px">
                         <thead>
                             <tr>
                                 <th style="width:3%"></th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Task</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Hours</th>
+                                <th style="width:3%"></th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:20%">Task</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:8%">Hours</th>
                                 <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:8%">Priority</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Completed By</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Pick Employee</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Readiness</th>
-                                <th style="width:4%"></th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Future Task Allocation</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:15%">Pick Employee</th>
                             </tr>
                         </thead>
                         <tbody id="tasks-tbody">
                             <tr>
                                 <td colspan="8" class="py-10 text-center text-sm text-gray-400">
-                                    Click "Add Task" to start listing weekly tasks
+                                    Add tasks on the Owner Weekly Tasks tab to see them here
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-5">
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Total Time Spent</div>
-                        <div id="task-total-hours" class="text-xl font-bold text-[#15397F] mt-1">0 hrs</div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Owner</div>
-                        <div id="task-total-owner-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
-                        <div id="task-total-owner-count" class="text-xs text-gray-500">0 jobs</div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Delegate</div>
-                        <div id="task-total-delegate-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
-                        <div id="task-total-delegate-count" class="text-xs text-gray-500">0 jobs</div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">AI</div>
-                        <div id="task-total-ai-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
-                        <div id="task-total-ai-count" class="text-xs text-gray-500">0 jobs</div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-center">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Waste of Time</div>
-                        <div id="task-total-wasteoftime-hours" class="text-lg font-bold text-[#15397F] mt-1">0 hrs</div>
-                        <div id="task-total-wasteoftime-count" class="text-xs text-gray-500">0 jobs</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -507,7 +625,7 @@
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Person Currently in This Role</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Outline Responsibilities</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Strengths and Weaknesses</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Additional Skills Required</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Skills Required for This Role</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Role Alignment</th>
                                 <th style="width:4%"></th>
                             </tr>
@@ -535,23 +653,24 @@
                         Add Process
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">Tasks marked "Delegate" or "AI" in Task Delegation appear here automatically – add extra processes that aren't tracked as a task.</p>
+                <p class="text-xs text-gray-400 mb-3">Tasks marked "Delegate" in Task Delegation appear here automatically – add extra processes that aren't tracked as a task.</p>
 
                 <div class="table-outer">
                     <table class="w-full" style="min-width:1200px">
                         <thead>
                             <tr>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:28%">Task / Process</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:16%">Responsible</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:24%">Process Documentation to Create</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Responsible</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:16%">Readiness</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:20%">Process Documentation to Create</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Process Implementation Model</th>
                                 <th style="width:4%"></th>
                             </tr>
                         </thead>
                         <tbody id="systemise-tbody">
                             <tr>
-                                <td colspan="5" class="py-10 text-center text-sm text-gray-400">
-                                    Delegated or AI-assigned tasks from Task Delegation will appear here automatically
+                                <td colspan="6" class="py-10 text-center text-sm text-gray-400">
+                                    Delegated tasks from Task Delegation will appear here automatically
                                 </td>
                             </tr>
                         </tbody>
@@ -567,11 +686,11 @@
 // ── State ──────────────────────────────────────────────────────────────────
 let STATE = { people: [], tasks: [], roleAssessments: [], systemise: [] };
 const READINESS_OPTIONS = ['Ready to go', 'Needs training', 'Process needs documenting', 'Checklist required'];
-const COMPLETED_BY_OPTIONS = ['Owner', 'Delegate', 'AI', 'Waste of Time'];
-const ALIGNMENT_OPTIONS = ['Does not align', 'Mostly aligns', 'Completely aligns'];
+const COMPLETED_BY_OPTIONS = ['Owner', 'Delegate', 'Waste of Time'];
+const ALIGNMENT_OPTIONS = ['Does not align', 'Mostly aligns - needs additional skills', 'Completely aligns'];
 const ALIGNMENT_COLORS = {
     'Does not align':    'background:#fef2f2;border-color:#f87171;color:#b91c1c;',
-    'Mostly aligns':     'background:#fffbeb;border-color:#fbbf24;color:#92400e;',
+    'Mostly aligns - needs additional skills': 'background:#fffbeb;border-color:#fbbf24;color:#92400e;',
     'Completely aligns': 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
 };
 const DOC_OPTIONS = [
@@ -1071,7 +1190,7 @@ function onField(id, field, value) {
     const p = STATE.people.find(p => p.id === id);
     if (!p) return;
     if (field === 'level')  p.level  = Number(value);
-    else if (field === 'current' || field === 'future') p[field] = Boolean(value);
+    else if (field === 'current' || field === 'future' || field === 'future12m') p[field] = Boolean(value);
     else p[field] = value;
     if (field === 'name') { refreshMsDropdowns(); renderTasksTable(); renderRaTable(); renderSystemiseTable(); }
     if (field === 'role') renderRaTable();
@@ -1083,7 +1202,7 @@ function onField(id, field, value) {
 function renderTable() {
     const tbody = document.getElementById('people-tbody');
     if (!STATE.people.length) {
-        tbody.innerHTML = '<tr><td colspan="11" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="py-10 text-center text-sm text-gray-400">Click "Add Person" to start building your org chart</td></tr>';
         return;
     }
 
@@ -1165,11 +1284,9 @@ function renderTable() {
                 <input type="checkbox" style="width:20px;height:20px" ${p.future?'checked':''}
                     onchange="onField(${p.id},'future',this.checked)">
             </td>
-            <td class="py-2 pr-3 pc-only-col" id="resp-cell-${p.id}" style="position:relative;min-width:220px">
-                ${renderRespPills(p)}
-            </td>
-            <td class="py-2 pr-3 pc-only-col" id="sw-cell-${p.id}" style="position:relative;min-width:190px">
-                ${renderSwPills(p)}
+            <td class="py-2 pr-2 text-center">
+                <input type="checkbox" style="width:20px;height:20px" ${p.future12m?'checked':''}
+                    onchange="onField(${p.id},'future12m',this.checked)">
             </td>
             <td class="py-2 text-center">
                 <button onclick="removePerson(${p.id})"
@@ -1333,11 +1450,11 @@ function downloadCSV() {
     if (!STATE.people.length) { alert('No team members to download.'); return; }
     const business = document.getElementById('company-name').value.trim();
     const date     = document.getElementById('chart-date').value.trim();
-    const hdrs = ['Name','Role','Level','Primary Reports To','Secondary Reports To','Outline Responsibilities','Current Chart','Future Chart'];
+    const hdrs = ['Name','Role','Level','Primary Reports To','Secondary Reports To','Outline Responsibilities','Current Chart','Future 6 Month Chart','Future 12 Month Chart'];
     const namesFor = ids => (ids||[]).map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean).join('; ');
     const rows = STATE.people.map(p => {
         const resp = (p.respItems||[]).map(i => i.text).join('; ');
-        return [p.name, p.role, p.level, namesFor(p.reportsToIds), namesFor(p.secondaryReportsToIds), resp, p.current?'Yes':'No', p.future?'Yes':'No'];
+        return [p.name, p.role, p.level, namesFor(p.reportsToIds), namesFor(p.secondaryReportsToIds), resp, p.current?'Yes':'No', p.future?'Yes':'No', p.future12m?'Yes':'No'];
     });
     const csv = [hdrs,...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
@@ -1411,7 +1528,8 @@ function renderChart(containerId, people) {
     const filtId = 'ds-' + containerId;
 
     if (!people.length) {
-        const label = containerId === 'current-chart' ? 'Current' : 'Future';
+        const labels = { 'current-chart': 'Current', 'future-chart': 'Future 6M', 'future-12m-chart': 'Future 12M' };
+        const label = labels[containerId] || 'Future';
         el.innerHTML = `<div class="empty-state">Tick "${label}" for team members to see them appear here</div>`;
         return;
     }
@@ -1421,23 +1539,26 @@ function renderChart(containerId, people) {
     const nodes = collectNodes(roots);
     if (!nodes.length) { el.innerHTML = `<div class="empty-state">No people to display</div>`; return; }
 
-    const pad   = 40;
-    const maxLf = Math.max(...nodes.map(n => n._lf));
-    const maxD  = Math.max(...nodes.map(n => n._d));
-    const W = (maxLf + 1) * UW + pad * 2;
-    const H = (maxD  + 1) * UH + pad * 2;
+    const pad    = 40;
+    const BH_EXT = showRespInChart ? 44 : 0;
+    const EFF_BH = BH + BH_EXT;
+    const EFF_UH = EFF_BH + VG;
+    const maxLf  = Math.max(...nodes.map(n => n._lf));
+    const maxD   = Math.max(...nodes.map(n => n._d));
+    const W = (maxLf + 1) * UW     + pad * 2;
+    const H = (maxD  + 1) * EFF_UH + pad * 2;
 
     nodes.forEach(n => {
-        n._cx = pad + n._lf * UW + BW / 2;
-        n._cy = pad + n._d  * UH + BH / 2;
+        n._cx = pad + n._lf * UW     + BW / 2;
+        n._cy = pad + n._d  * EFF_UH + EFF_BH / 2;
     });
 
     const rootIds = new Set(roots.map(r => r.id));
 
     // Draw edges – primary reporting lines are solid grey, secondary lines are dotted yellow
     const edgeSvg = drawEdges.map(({ from: fr, to, dashed }) => {
-        const x1 = fr._cx, y1 = fr._cy + BH/2;
-        const x2 = to._cx, y2 = to._cy - BH/2;
+        const x1 = fr._cx, y1 = fr._cy + EFF_BH/2;
+        const x2 = to._cx, y2 = to._cy - EFF_BH/2;
         const my = (y1 + y2) / 2;
         const strokeAttrs = dashed
             ? 'stroke="#F7AC08" stroke-width="2.5" stroke-dasharray="1,7"'
@@ -1446,7 +1567,7 @@ function renderChart(containerId, people) {
     }).join('');
 
     const nodeSvg = nodes.map(n => {
-        const x = n._cx - BW/2, y = n._cy - BH/2;
+        const x = n._cx - BW/2, y = n._cy - EFF_BH/2;
         const isRoot     = rootIds.has(n.id);
         const futureOnly = !!n._futureOnly;
 
@@ -1462,15 +1583,33 @@ function renderChart(containerId, people) {
             tc1 = '#111827'; tc2 = '#6b7280';
         }
 
+        const nameY = showRespInChart ? y + 20 : n._cy - 8;
+        const roleY = showRespInChart ? y + 36 : n._cy + 12;
+
+        let respSvg = '';
+        if (showRespInChart) {
+            const respItems = (n.respItems || []).filter(i => i.text).slice(0, 3);
+            if (respItems.length) {
+                const sepColor = isRoot && !futureOnly ? 'rgba(255,255,255,0.25)' : '#e5e7eb';
+                respSvg = `<line x1="${x+10}" y1="${y+46}" x2="${x+BW-10}" y2="${y+46}" stroke="${sepColor}" stroke-width="1"/>`;
+                respSvg += respItems.map((item, i) =>
+                    `<text x="${n._cx}" y="${y + 60 + i * 13}" text-anchor="middle"
+                        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+                        font-size="9.5" fill="${tc2}">${esc(trunc(item.text, 28))}</text>`
+                ).join('');
+            }
+        }
+
         return `<g>
-<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="8"
+<rect x="${x}" y="${y}" width="${BW}" height="${EFF_BH}" rx="8"
     fill="${fill}" stroke="${stroke}" stroke-width="2" filter="url(#${filtId})"/>
-<text x="${n._cx}" y="${n._cy-8}" text-anchor="middle"
+<text x="${n._cx}" y="${nameY}" text-anchor="middle"
     font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="13" font-weight="600" fill="${tc1}">${esc(trunc(n.name,22))}</text>
-<text x="${n._cx}" y="${n._cy+12}" text-anchor="middle"
+<text x="${n._cx}" y="${roleY}" text-anchor="middle"
     font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="11" fill="${tc2}">${esc(trunc(n.role,26))}</text>
+${respSvg}
 </g>`;
     }).join('');
 
@@ -1483,12 +1622,18 @@ ${nodeSvg}
 </svg>`;
 }
 
+let showRespInChart = false;
+function toggleRespInChart(val) { showRespInChart = val; updateCharts(); }
+
 function updateCharts() {
-    const currentPeople = STATE.people.filter(p => p.current && p.name.trim());
-    const futurePeople  = STATE.people.filter(p => p.future && p.name.trim())
+    const currentPeople  = STATE.people.filter(p => p.current && p.name.trim());
+    const future6People  = STATE.people.filter(p => p.future && p.name.trim())
         .map(p => ({ ...p, _futureOnly: !p.current }));
-    renderChart('current-chart', currentPeople);
-    renderChart('future-chart',  futurePeople);
+    const future12People = STATE.people.filter(p => p.future12m && p.name.trim())
+        .map(p => ({ ...p, _futureOnly: !p.current }));
+    renderChart('current-chart',    currentPeople);
+    renderChart('future-chart',     future6People);
+    renderChart('future-12m-chart', future12People);
 }
 
 // ── Download Chart ─────────────────────────────────────────────────────────
@@ -1499,9 +1644,10 @@ function downloadChart(containerId) {
 
     const business   = document.getElementById('company-name').value.trim();
     const date       = document.getElementById('chart-date').value.trim();
-    const isCurrent  = containerId === 'current-chart';
-    const chartTitle = isCurrent ? 'Current Organisation Chart' : 'Future Organisation Chart';
-    const fileLabel  = isCurrent ? 'current-org-chart' : 'future-org-chart';
+    const chartTitles = { 'current-chart': 'Current Organisation Chart', 'future-chart': 'Future 6 Months Organisation Chart', 'future-12m-chart': 'Future 12 Months Organisation Chart' };
+    const fileLabels  = { 'current-chart': 'current-org-chart', 'future-chart': 'future-6m-org-chart', 'future-12m-chart': 'future-12m-org-chart' };
+    const chartTitle  = chartTitles[containerId] || 'Organisation Chart';
+    const fileLabel   = fileLabels[containerId]  || 'org-chart';
     const filename   = `${slugify(business)}-${slugify(date)}-${fileLabel}.png`;
 
     const titleH = 72;
@@ -1554,6 +1700,7 @@ function saveToStorage() {
     localStorage.setItem('oc-tasks',      JSON.stringify(STATE.tasks));
     localStorage.setItem('oc-roleassessments', JSON.stringify(STATE.roleAssessments));
     localStorage.setItem('oc-systemise', JSON.stringify(STATE.systemise));
+    localStorage.setItem('oc-owner-estimated-hours', document.getElementById('owner-estimated-hours').value);
 }
 
 function loadFromStorage() {
@@ -1563,6 +1710,7 @@ function loadFromStorage() {
     set('company-name', 'oc-company');
     set('advisor-name', 'oc-advisor');
     set('chart-date',   'oc-date');
+    set('owner-estimated-hours', 'oc-owner-estimated-hours');
     try {
         const raw = JSON.parse(localStorage.getItem('oc-people') || '[]');
         if (Array.isArray(raw) && raw.length) {
@@ -1590,7 +1738,9 @@ function loadFromStorage() {
                 id: Number(t.id),
                 hours: Number(t.hours) || 0,
                 employeeId: t.employeeId === null || t.employeeId === undefined ? null : Number(t.employeeId),
-                readiness: t.readiness || []
+                readiness: t.readiness || [],
+                description: t.description || '',
+                skillItems: (t.skillItems || []).filter(i => !i.editing)
             }));
         }
     } catch {}
@@ -1602,7 +1752,8 @@ function loadFromStorage() {
                 id: Number(r.id),
                 personId: r.personId === null || r.personId === undefined ? null : Number(r.personId),
                 customSwItems: (r.customSwItems || []).filter(i => !i.editing),
-                skillItems: (r.skillItems || []).filter(i => !i.editing)
+                skillItems: (r.skillItems || []).filter(i => !i.editing),
+                alignment: r.alignment === 'Mostly aligns' ? 'Mostly aligns - needs additional skills' : (r.alignment || '')
             }));
         }
     } catch {}
@@ -1621,6 +1772,7 @@ function loadFromStorage() {
     } catch {}
     renderTable();
     updateCharts();
+    renderOwnerTasksTable();
     renderTasksTable();
     renderRaTable();
     renderSystemiseTable();
@@ -1693,7 +1845,7 @@ function toggleTeamSection() {
 }
 
 // ── Tabs ─────────────────────────────────────────────────────────────────
-const TABS = ['orgcharts', 'taskdelegation', 'rolesskills', 'systemise'];
+const TABS = ['orgcharts', 'rolesskills', 'ownertasks', 'taskdelegation', 'systemise'];
 
 function switchTab(tab) {
     TABS.forEach(t => {
@@ -1705,7 +1857,8 @@ function switchTab(tab) {
 
 // ── Task Delegation ──────────────────────────────────────────────────────────
 function addTask() {
-    STATE.tasks.push({ id: Date.now(), text: '', hours: 0, completedBy: '', employeeId: null, readiness: [] });
+    STATE.tasks.push({ id: Date.now(), text: '', hours: 0, completedBy: '', employeeId: null, readiness: [], description: '', skillItems: [] });
+    renderOwnerTasksTable();
     renderTasksTable();
     renderSystemiseTable();
     saveToStorage();
@@ -1713,6 +1866,8 @@ function addTask() {
 
 function removeTask(id) {
     STATE.tasks = STATE.tasks.filter(t => t.id !== id);
+    expandedTasks.delete(id);
+    renderOwnerTasksTable();
     renderTasksTable();
     renderSystemiseTable();
     saveToStorage();
@@ -1724,13 +1879,38 @@ function onTaskField(id, field, value) {
     if (field === 'hours') t.hours = value === '' ? 0 : Number(value);
     else if (field === 'employeeId') t.employeeId = value === '' ? null : Number(value);
     else t[field] = value;
-    if (field === 'hours' || field === 'completedBy') updateTaskTotals();
+    if (field === 'hours') updateOwnerHoursSummary();
+    if (field === 'text' || field === 'hours') renderTasksTable();
     if (field === 'completedBy' || field === 'text') renderSystemiseTable();
     if (field === 'employeeId') {
         const s = STATE.systemise.find(s => s.taskId === id);
         if (s) { s.responsibleId = t.employeeId; renderSystemiseTable(); }
+        const empPanel = document.getElementById(`emp-skills-${id}`);
+        if (empPanel) empPanel.innerHTML = renderEmpSkillsPanel(t);
     }
     saveToStorage();
+}
+
+function renderEmpSkillsPanel(t) {
+    if (!t.employeeId) return '<span class="text-xs text-gray-400">Select an employee to see their profile here</span>';
+    const eid = Number(t.employeeId);
+    const p = STATE.people.find(p => p.id === eid);
+    if (!p) return '<span class="text-xs text-gray-400">Employee not found</span>';
+    const resp  = (p.respItems || []).filter(i => i.text && !i.editing);
+    const sw    = (p.swItems   || []).filter(i => i.text && !i.editing);
+    if (!resp.length && !sw.length) return `<span class="text-xs text-gray-400">No responsibilities or strengths recorded for ${esc(p.name)} in Team Members yet.</span>`;
+    let html = '';
+    if (resp.length) {
+        html += '<div class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Responsibilities</div>';
+        html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">' +
+            resp.map(i => `<span class="resp-pill" style="display:block">${esc(i.text)}</span>`).join('') + '</div>';
+    }
+    if (sw.length) {
+        html += '<div class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Strengths and Weaknesses</div>';
+        html += '<div style="display:flex;flex-direction:column;gap:4px">' +
+            sw.map(i => `<span class="sw-pill sw-pill-${i.type}" style="display:block">${esc(i.text)}</span>`).join('') + '</div>';
+    }
+    return html;
 }
 
 function readinessLabel(t) {
@@ -1805,26 +1985,85 @@ window.addEventListener('scroll', () => {
     }
 }, true);
 
-function updateTaskTotals() {
-    const totalHours = STATE.tasks.reduce((sum, t) => sum + (Number(t.hours) || 0), 0);
-    document.getElementById('task-total-hours').textContent = `${totalHours} hrs`;
+function onOwnerEstimateChange(value) {
+    localStorage.setItem('oc-owner-estimated-hours', value);
+    updateOwnerHoursSummary();
+}
 
-    COMPLETED_BY_OPTIONS.forEach(label => {
-        const rows  = STATE.tasks.filter(t => t.completedBy === label);
-        const hours = rows.reduce((sum, t) => sum + (Number(t.hours) || 0), 0);
-        const key   = label.toLowerCase().replace(/[^a-z]/g, '');
-        const hoursEl = document.getElementById(`task-total-${key}-hours`);
-        const countEl = document.getElementById(`task-total-${key}-count`);
-        if (hoursEl) hoursEl.textContent = `${hours} hrs`;
-        if (countEl) countEl.textContent = `${rows.length} job${rows.length === 1 ? '' : 's'}`;
-    });
+function updateOwnerHoursSummary() {
+    const totalEl = document.getElementById('owner-tasks-total');
+    const total = STATE.tasks.reduce((sum, t) => sum + (Number(t.hours) || 0), 0);
+    if (totalEl) totalEl.textContent = total;
+
+    const estimateInput = document.getElementById('owner-estimated-hours');
+    const diffEl = document.getElementById('owner-hours-diff');
+    const noteEl = document.getElementById('owner-hours-diff-note');
+    if (!estimateInput || !diffEl) return;
+
+    if (!estimateInput.value) {
+        diffEl.textContent = '–';
+        noteEl.textContent = '';
+        diffEl.classList.remove('hours-box-diff-highlight', 'hours-box-diff-match');
+        return;
+    }
+    const estimate = Number(estimateInput.value) || 0;
+    const diff = estimate - total;
+    if (diff > 0) {
+        diffEl.textContent = `${diff}`;
+        noteEl.textContent = 'not yet itemised in the task list';
+    } else if (diff < 0) {
+        diffEl.textContent = `${Math.abs(diff)}`;
+        noteEl.textContent = 'more itemised than the estimate';
+    } else {
+        diffEl.textContent = '0';
+        noteEl.textContent = 'fully accounted for';
+    }
+    diffEl.classList.toggle('hours-box-diff-highlight', diff !== 0);
+    diffEl.classList.toggle('hours-box-diff-match', diff === 0);
+}
+
+function renderOwnerTasksTable() {
+    const tbody = document.getElementById('owner-tasks-tbody');
+    if (!STATE.tasks.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="py-10 text-center text-sm text-gray-400">Click "Add Task" to start listing weekly tasks</td></tr>';
+        updateOwnerHoursSummary();
+        return;
+    }
+    tbody.innerHTML = STATE.tasks.map(t => `
+        <tr class="border-t border-gray-100" data-tid="${t.id}">
+            <td class="py-2 pr-3">
+                <input type="text" class="tbl-input" value="${esc(t.text)}" placeholder="Describe the task"
+                    oninput="onTaskField(${t.id},'text',this.value)">
+            </td>
+            <td class="py-2 pr-3">
+                <input type="number" min="0" step="0.5" class="hours-box" value="${t.hours||''}" placeholder="0"
+                    oninput="onTaskField(${t.id},'hours',this.value)">
+            </td>
+            <td class="py-2 text-center">
+                <button onclick="removeTask(${t.id})"
+                    class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>`).join('');
+    updateOwnerHoursSummary();
+}
+
+let expandedTasks = new Set();
+
+function toggleTaskExpand(id) {
+    if (expandedTasks.has(id)) expandedTasks.delete(id);
+    else expandedTasks.add(id);
+    renderTasksTable();
 }
 
 function renderTasksTable() {
     const tbody = document.getElementById('tasks-tbody');
     if (!STATE.tasks.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-sm text-gray-400">Click "Add Task" to start listing weekly tasks</td></tr>';
-        updateTaskTotals();
+        tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-sm text-gray-400">Add tasks on the Owner Weekly Tasks tab to see them here</td></tr>';
         return;
     }
 
@@ -1843,7 +2082,9 @@ function renderTasksTable() {
             `<option value="${p.id}"${Number(t.employeeId)===p.id?' selected':''}>${esc(p.name)}</option>`
         ).join('');
 
-        return `
+        const isExpanded = expandedTasks.has(t.id);
+
+        const mainRow = `
         <tr class="border-t border-gray-100" data-tid="${t.id}" data-idx="${idx}"
             draggable="true"
             ondragstart="onTaskDragStart(event,${idx})"
@@ -1851,6 +2092,13 @@ function renderTasksTable() {
             ondragleave="onTaskDragLeave(event)"
             ondrop="onTaskDrop(event,${idx})"
             ondragend="onTaskDragEnd()">
+            <td class="py-2 pl-1">
+                <button type="button" class="expand-btn${isExpanded ? ' expanded' : ''}" onclick="toggleTaskExpand(${t.id})" title="Show details">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </td>
             <td class="py-2 pl-1">
                 <span class="drag-handle" title="Drag to reorder">
                     <svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor">
@@ -1863,14 +2111,8 @@ function renderTasksTable() {
                     </svg>
                 </span>
             </td>
-            <td class="py-2 pr-3">
-                <input type="text" class="tbl-input" value="${esc(t.text)}" placeholder="Describe the task"
-                    oninput="onTaskField(${t.id},'text',this.value)">
-            </td>
-            <td class="py-2 pr-3">
-                <input type="number" min="0" step="0.5" class="tbl-input" value="${t.hours||''}" placeholder="0"
-                    oninput="onTaskField(${t.id},'hours',this.value)">
-            </td>
+            <td class="py-2 pr-3 text-sm text-gray-800">${esc(t.text) || '<span class="text-gray-400">Untitled task</span>'}</td>
+            <td class="py-2 pr-3 text-sm text-gray-800">${t.hours || 0} hrs</td>
             <td class="py-2 pr-2 text-center">
                 <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-[#15397F] text-sm font-semibold">${idx+1}</span>
             </td>
@@ -1886,26 +2128,154 @@ function renderTasksTable() {
                     ${employeeOptionsHtml}
                 </select>
             </td>
-            <td class="py-2 pr-3" style="position:relative">
-                <button type="button" class="ms-btn" data-tid="${t.id}"
-                    onclick="openReadinessMs(event,${t.id})">${esc(readinessLabel(t))}</button>
-                <div id="rms-${t.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
-                    ${readinessOptionsHtml}
+        </tr>`;
+
+        const detailRow = isExpanded ? `
+        <tr class="task-detail-row" data-tid-detail="${t.id}">
+            <td></td>
+            <td colspan="6" class="py-4 pr-3">
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Detailed Task Description</label>
+                    <textarea class="task-textarea" placeholder="Describe exactly how this task is done…"
+                        oninput="onTaskField(${t.id},'description',this.value)">${esc(t.description||'')}</textarea>
+                </div>
+                <div style="display:flex;gap:24px;align-items:flex-start">
+                    <div style="flex:0 0 260px">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">${t.employeeId ? esc(STATE.people.find(p=>p.id===Number(t.employeeId))?.name||'Employee') + "'s Profile" : "Employee Profile"}</label>
+                        <div id="emp-skills-${t.id}">${renderEmpSkillsPanel(t)}</div>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Required Skills and Abilities</label>
+                        <div id="tskill-cell-${t.id}" style="position:relative">${renderTaskSkillPills(t)}</div>
+                    </div>
                 </div>
             </td>
-            <td class="py-2 text-center">
-                <button onclick="removeTask(${t.id})"
-                    class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
-            </td>
-        </tr>`;
+        </tr>` : '';
+
+        return mainRow + detailRow;
     }).join('');
-    updateTaskTotals();
 }
+
+// ── Task Skills, Abilities & Qualities pills ────────────────────────────────
+function renderTaskSkillPills(t) {
+    const items = t.skillItems || [];
+    const pillsHtml = items.map(item => {
+        if (item.editing) {
+            return `
+                <span class="tskill-pill tskill-pill-skill tskill-pill-editing">
+                    <input type="text" class="sw-pill-input" data-tskill-id="${item.id}" value="${esc(item.text)}"
+                        placeholder="Type a skill or ability…"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelTaskSkillItem(${t.id},'${item.id}');}"
+                        onblur="commitTaskSkillItem(${t.id},'${item.id}',this.value)">
+                </span>`;
+        }
+        return `
+            <span class="tskill-pill tskill-pill-skill">
+                ${esc(item.text)}
+                <button type="button" class="sw-pill-x" onclick="removeTaskSkillItem(${t.id},'${item.id}')" title="Remove">&times;</button>
+            </span>`;
+    }).join('');
+
+    return `
+        <div class="sw-stack">
+            ${pillsHtml}
+            <button type="button" class="sw-add-btn" onclick="startAddTaskSkill(${t.id})" title="Add skill or ability">+</button>
+        </div>`;
+}
+
+function renderTaskSkillCell(taskId) {
+    const t = STATE.tasks.find(t => t.id === taskId);
+    const cell = document.getElementById(`tskill-cell-${taskId}`);
+    if (t && cell) cell.innerHTML = renderTaskSkillPills(t);
+}
+
+let openTaskSkillMenuId = null;
+
+function openTaskSkillMenu(event, taskId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const menu = document.getElementById(`tskill-menu-${taskId}`);
+    if (!menu) return;
+
+    if (openTaskSkillMenuId && openTaskSkillMenuId !== taskId) {
+        const prev = document.getElementById(`tskill-menu-${openTaskSkillMenuId}`);
+        if (prev) prev.style.display = 'none';
+    }
+
+    if (menu.style.display !== 'none') {
+        menu.style.display = 'none';
+        openTaskSkillMenuId = null;
+        return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    menu.style.left = rect.left + 'px';
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.display = 'block';
+    openTaskSkillMenuId = taskId;
+}
+
+function startAddTaskSkill(taskId, type = 'skill') {
+    if (openTaskSkillMenuId) {
+        const m = document.getElementById(`tskill-menu-${openTaskSkillMenuId}`);
+        if (m) m.style.display = 'none';
+        openTaskSkillMenuId = null;
+    }
+    const t = STATE.tasks.find(t => t.id === taskId);
+    if (!t) return;
+    t.skillItems = t.skillItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    t.skillItems.push({ id: tempId, type, text: '', editing: true });
+    renderTaskSkillCell(taskId);
+    const input = document.querySelector(`#tskill-cell-${taskId} input[data-tskill-id="${tempId}"]`);
+    if (input) input.focus();
+}
+
+function commitTaskSkillItem(taskId, itemId, text) {
+    const t = STATE.tasks.find(t => t.id === taskId);
+    if (!t) return;
+    const item = (t.skillItems || []).find(i => i.id === itemId);
+    if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) {
+        t.skillItems = t.skillItems.filter(i => i.id !== itemId);
+    } else {
+        item.text = trimmed;
+        item.editing = false;
+    }
+    renderTaskSkillCell(taskId);
+    saveToStorage();
+}
+
+function cancelTaskSkillItem(taskId, itemId) {
+    const t = STATE.tasks.find(t => t.id === taskId);
+    if (!t) return;
+    t.skillItems = (t.skillItems || []).filter(i => i.id !== itemId);
+    renderTaskSkillCell(taskId);
+}
+
+function removeTaskSkillItem(taskId, itemId) {
+    const t = STATE.tasks.find(t => t.id === taskId);
+    if (!t) return;
+    t.skillItems = (t.skillItems || []).filter(i => i.id !== itemId);
+    renderTaskSkillCell(taskId);
+    saveToStorage();
+}
+
+document.addEventListener('click', () => {
+    if (openTaskSkillMenuId) {
+        const m = document.getElementById(`tskill-menu-${openTaskSkillMenuId}`);
+        if (m) m.style.display = 'none';
+        openTaskSkillMenuId = null;
+    }
+});
+window.addEventListener('scroll', () => {
+    if (openTaskSkillMenuId) {
+        const m = document.getElementById(`tskill-menu-${openTaskSkillMenuId}`);
+        if (m) m.style.display = 'none';
+        openTaskSkillMenuId = null;
+    }
+}, true);
 
 // ── Task Drag to Reorder ────────────────────────────────────────────────────
 let taskDragSrcIdx = null;
@@ -2044,28 +2414,22 @@ function onPersonSelectChange(rowId, value) {
 
 function renderRaResp(r) {
     if (!r.personId) {
-        return '<span class="text-xs text-gray-400">No responsibilities to show – this person isn\'t on the Team Members list.</span>';
+        return '<span class="text-xs text-gray-400">Select a team member to edit their responsibilities here.</span>';
     }
     const p = STATE.people.find(p => p.id === r.personId);
-    const items = (p && p.respItems) || [];
-    if (!items.length) {
-        return '<span class="text-xs text-gray-400">No responsibilities recorded yet – add them in Team Members.</span>';
-    }
-    return `<div class="sw-stack">${items.map(item =>
-        `<span class="resp-pill">${esc(item.text)}</span>`
-    ).join('')}</div>`;
+    if (!p) return '<span class="text-xs text-gray-400">Person not found.</span>';
+    return renderRespPills(p);
 }
 
 function renderRaSw(r) {
-    if (r.personId) {
+    // One-time migration: copy p.swItems into r.customSwItems so S&W is editable here
+    if (r.personId && !(r.customSwItems && r.customSwItems.length)) {
         const p = STATE.people.find(p => p.id === r.personId);
-        const items = (p && p.swItems) || [];
-        if (!items.length) {
-            return '<span class="text-xs text-gray-400">No strengths/weaknesses recorded yet – add them in Team Members.</span>';
+        const src = (p && p.swItems || []).filter(i => i.text && !i.editing);
+        if (src.length) {
+            r.customSwItems = src.map(i => ({ id: 'mig-' + i.id, type: i.type, text: i.text }));
+            saveToStorage();
         }
-        return `<div class="sw-stack">${items.map(item =>
-            `<span class="sw-pill sw-pill-${item.type}">${esc(item.text)}</span>`
-        ).join('')}</div>`;
     }
     return renderRaCustomSwPills(r);
 }
@@ -2198,27 +2562,29 @@ window.addEventListener('scroll', () => {
 
 function renderRaSkillsPills(r) {
     const items = r.skillItems || [];
-    const pillsHtml = items.map(item => {
+    const itemsHtml = items.map(item => {
         if (item.editing) {
-            return `
+            return `<div style="padding:3px 0">
                 <span class="resp-pill resp-pill-editing">
                     <input type="text" class="sw-pill-input" data-raskill-id="${item.id}" value="${esc(item.text)}"
-                        placeholder="Type a required skill…"
+                        placeholder="Type a skill…"
                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRaSkillItem(${r.id},'${item.id}');}"
                         onblur="commitRaSkillItem(${r.id},'${item.id}',this.value)">
-                </span>`;
+                </span></div>`;
         }
-        return `
-            <span class="resp-pill">
-                ${esc(item.text)}
-                <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
-            </span>`;
+        const done = !!item.done;
+        return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
+            <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0" ${done?'checked':''}
+                onchange="toggleRaSkillDone(${r.id},'${item.id}',this.checked)">
+            <span style="font-size:13px;${done?'text-decoration:line-through;color:#9ca3af':'color:#374151'}">${esc(item.text)}</span>
+            <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+        </div>`;
     }).join('');
 
     return `
-        <div class="sw-stack">
-            ${pillsHtml}
-            <button type="button" class="sw-add-btn" onclick="startAddRaSkill(${r.id})" title="Add a required skill">+</button>
+        <div style="display:flex;flex-direction:column">
+            ${itemsHtml}
+            <button type="button" class="sw-add-btn" onclick="startAddRaSkill(${r.id})" title="Add a required skill" style="margin-top:4px">+</button>
         </div>`;
 }
 
@@ -2228,12 +2594,19 @@ function renderRaSkillsCell(rowId) {
     if (r && cell) cell.innerHTML = renderRaSkillsPills(r);
 }
 
+function toggleRaSkillDone(rowId, itemId, checked) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const item = (r.skillItems || []).find(i => i.id === itemId);
+    if (item) { item.done = checked; saveToStorage(); renderRaSkillsCell(rowId); }
+}
+
 function startAddRaSkill(rowId) {
     const r = STATE.roleAssessments.find(r => r.id === rowId);
     if (!r) return;
     r.skillItems = r.skillItems || [];
     const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
-    r.skillItems.push({ id: tempId, text: '', editing: true });
+    r.skillItems.push({ id: tempId, text: '', done: false, editing: true });
     renderRaSkillsCell(rowId);
     const input = document.querySelector(`#raskill-cell-${rowId} input[data-raskill-id="${tempId}"]`);
     if (input) input.focus();
@@ -2320,7 +2693,7 @@ function renderRaTable() {
 
 // ── Systemise (Delegated) Tasks ─────────────────────────────────────────────
 function syncSystemiseFromTasks() {
-    const qualifying = STATE.tasks.filter(t => t.completedBy === 'Delegate' || t.completedBy === 'AI');
+    const qualifying = STATE.tasks.filter(t => t.completedBy === 'Delegate');
     const qualifyingIds = new Set(qualifying.map(t => t.id));
     STATE.systemise = STATE.systemise.filter(s => s.taskId === null || qualifyingIds.has(s.taskId));
     const existingTaskIds = new Set(STATE.systemise.filter(s => s.taskId !== null).map(s => s.taskId));
@@ -2473,12 +2846,60 @@ function onEfficiencyChange(id, value) {
     saveToStorage();
 }
 
+function renderSysReadiness(s) {
+    if (!s.taskId) return '<span class="text-xs text-gray-400">–</span>';
+    const t = STATE.tasks.find(t => t.id === s.taskId);
+    if (!t) return '<span class="text-xs text-gray-400">–</span>';
+    const readinessOptionsHtml = READINESS_OPTIONS.map(opt => `
+        <label class="ms-option">
+            <input type="checkbox" style="width:16px;height:16px"
+                ${(t.readiness||[]).includes(opt) ? 'checked' : ''}
+                onchange="toggleReadiness(${t.id},'${opt}',this.checked);renderSysReadinessBtn(${s.id})">
+            ${opt}
+        </label>`).join('');
+    return `<button type="button" class="ms-btn" id="sysrms-btn-${s.id}"
+        onclick="openSysReadinessMs(event,${s.id})">${esc(readinessLabel(t))}</button>
+        <div id="sysrms-${s.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
+            ${readinessOptionsHtml}
+        </div>`;
+}
+
+function renderSysReadinessBtn(sysId) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    const btn = document.getElementById(`sysrms-btn-${sysId}`);
+    if (s && s.taskId && btn) {
+        const t = STATE.tasks.find(t => t.id === s.taskId);
+        if (t) btn.textContent = readinessLabel(t);
+    }
+}
+
+let openSysReadinessMsId = null;
+function openSysReadinessMs(event, sysId) {
+    event.stopPropagation();
+    const menu = document.getElementById(`sysrms-${sysId}`);
+    if (!menu) return;
+    if (openSysReadinessMsId && openSysReadinessMsId !== sysId) {
+        const prev = document.getElementById(`sysrms-${openSysReadinessMsId}`);
+        if (prev) prev.style.display = 'none';
+    }
+    if (menu.style.display !== 'none') { menu.style.display = 'none'; openSysReadinessMsId = null; return; }
+    const rect = event.currentTarget.getBoundingClientRect();
+    menu.style.left = rect.left + 'px'; menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.display = 'block'; openSysReadinessMsId = sysId;
+}
+document.addEventListener('click', () => {
+    if (openSysReadinessMsId) {
+        const m = document.getElementById(`sysrms-${openSysReadinessMsId}`);
+        if (m) m.style.display = 'none'; openSysReadinessMsId = null;
+    }
+});
+
 function renderSystemiseTable() {
     syncSystemiseFromTasks();
     const tbody = document.getElementById('systemise-tbody');
     const visible = STATE.systemise.filter(s => !s.dismissed);
     if (!visible.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-400">Delegated or AI-assigned tasks from Task Delegation will appear here automatically</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-sm text-gray-400">Delegated tasks from Task Delegation will appear here automatically</td></tr>';
         return;
     }
 
@@ -2503,6 +2924,7 @@ function renderSystemiseTable() {
         <tr class="border-t border-gray-100" data-sid="${s.id}">
             <td class="py-2 pr-3">${renderSystemiseCol1(s)}</td>
             <td class="py-2 pr-3">${renderResponsibleSelect(s)}</td>
+            <td class="py-2 pr-3" style="position:relative">${renderSysReadiness(s)}</td>
             <td class="py-2 pr-3" style="position:relative">
                 <button type="button" class="ms-btn" data-sysid="${s.id}"
                     onclick="openDocMs(event,${s.id})">${esc(docLabel(s))}</button>
