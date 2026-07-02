@@ -111,8 +111,6 @@
             border: 1px solid #d1d5db;
             border-radius: 8px;
             box-shadow: 0 8px 24px rgba(0,0,0,.14);
-            max-height: 220px;
-            overflow-y: auto;
         }
         .ms-option {
             display: flex;
@@ -280,6 +278,7 @@
     </style>
 </head>
 <body class="bg-gray-50">
+<div id="ms-portal" style="position:fixed;top:0;left:0;z-index:9999;pointer-events:none"></div>
 <div id="rotate-prompt">
     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#F7AC08" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1.5rem">
         <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h5"/>
@@ -296,7 +295,7 @@
                 <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory – Systemisation</h1>
                 <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Assess your current team, plan your future team, manage tasks and time effectively, identify skills gaps and future requirements.</p>
             </div>
-            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v2.0</span>
+            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v2.1</span>
         </div>
     </header>
 
@@ -751,6 +750,28 @@ function msLabel(p) {
     return joined.length > 32 ? joined.slice(0, 30) + '…' : joined;
 }
 
+// Shared dropdown positioner - shows all items, flips above button if near bottom of screen
+function positionDropdown(dd, btn, minWidth) {
+    const rect       = btn.getBoundingClientRect();
+    const w          = Math.max(rect.width, minWidth || 230);
+    const spaceBelow = window.innerHeight - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+    dd.style.width      = w + 'px';
+    dd.style.left       = rect.left + 'px';
+    dd.style.maxHeight  = '';
+
+    if (spaceAbove > spaceBelow) {
+        // More room above: anchor bottom of dropdown to top of button
+        dd.style.top    = 'auto';
+        dd.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+    } else {
+        // Show below button
+        dd.style.bottom = 'auto';
+        dd.style.top    = (rect.bottom + 2) + 'px';
+    }
+    dd.style.display = 'block';
+}
+
 function openMs(event, personId) {
     event.stopPropagation();
     const btn = event.currentTarget;
@@ -769,21 +790,7 @@ function openMs(event, personId) {
         return;
     }
 
-    const rect = btn.getBoundingClientRect();
-    const dropW = Math.max(rect.width, 230);
-    dd.style.width  = dropW + 'px';
-    dd.style.left   = rect.left + 'px';
-    dd.style.display = 'block';
-
-    // Flip up if too close to bottom
-    const afterBottom = rect.bottom + 2 + 220;
-    if (afterBottom > window.innerHeight && rect.top > 230) {
-        const h = Math.min(dd.scrollHeight, 220);
-        dd.style.top    = (rect.top - h - 4) + 'px';
-    } else {
-        dd.style.top = (rect.bottom + 2) + 'px';
-    }
-
+    positionDropdown(dd, btn, 230);
     openMsId = personId;
 }
 
@@ -856,20 +863,7 @@ function openMs2(event, personId) {
         return;
     }
 
-    const rect = btn.getBoundingClientRect();
-    const dropW = Math.max(rect.width, 230);
-    dd.style.width  = dropW + 'px';
-    dd.style.left   = rect.left + 'px';
-    dd.style.display = 'block';
-
-    const afterBottom = rect.bottom + 2 + 220;
-    if (afterBottom > window.innerHeight && rect.top > 230) {
-        const h = Math.min(dd.scrollHeight, 220);
-        dd.style.top    = (rect.top - h - 4) + 'px';
-    } else {
-        dd.style.top = (rect.bottom + 2) + 'px';
-    }
-
+    positionDropdown(dd, btn, 230);
     openMs2Id = personId;
 }
 
@@ -1262,19 +1256,13 @@ function renderTable() {
                     ).join('')}
                 </select>
             </td>
-            <td class="py-2 pr-3" style="position:relative">
+            <td class="py-2 pr-3">
                 <button type="button" class="ms-btn" data-pid="${p.id}"
                     onclick="openMs(event,${p.id})">${esc(msLabel(p))}</button>
-                <div id="ms-${p.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
-                    ${primaryOptionsHtml}
-                </div>
             </td>
-            <td class="py-2 pr-3" style="position:relative">
+            <td class="py-2 pr-3">
                 <button type="button" class="ms-btn" data-pid2="${p.id}"
                     onclick="openMs2(event,${p.id})">${esc(msLabel2(p))}</button>
-                <div id="ms2-${p.id}" class="ms-dropdown" style="display:none" onclick="event.stopPropagation()">
-                    ${secondaryOptionsHtml}
-                </div>
             </td>
             <td class="py-2 pr-2 text-center">
                 <input type="checkbox" style="width:20px;height:20px" ${p.current?'checked':''}
@@ -1299,6 +1287,24 @@ function renderTable() {
             </td>
         </tr>`;
     }).join('');
+
+    // Render dropdown panels into portal so they're never inside an overflow container
+    const portal = document.getElementById('ms-portal');
+    if (portal) {
+        portal.innerHTML = STATE.people.map(p => {
+            const others = STATE.people.filter(o => o.id !== p.id && o.name.trim());
+            const mkOpts = (ids, fn) => others.length
+                ? others.map(o => `<label class="ms-option"><input type="checkbox" style="width:16px;height:16px" ${ids.includes(o.id)?'checked':''} onchange="${fn}(${p.id},${o.id},this.checked)">${esc(o.name)}</label>`).join('')
+                : '<div class="ms-empty">No other people added yet</div>';
+            return `
+            <div id="ms-${p.id}" class="ms-dropdown" style="display:none;pointer-events:auto" onclick="event.stopPropagation()">
+                ${mkOpts(p.reportsToIds||[], 'toggleParent')}
+            </div>
+            <div id="ms2-${p.id}" class="ms-dropdown" style="display:none;pointer-events:auto" onclick="event.stopPropagation()">
+                ${mkOpts(p.secondaryReportsToIds||[], 'toggleSecondaryParent')}
+            </div>`;
+        }).join('');
+    }
 }
 
 // ── Drag to Reorder ───────────────────────────────────────────────────────
@@ -1939,20 +1945,7 @@ function openReadinessMs(event, taskId) {
         return;
     }
 
-    const rect = btn.getBoundingClientRect();
-    const dropW = Math.max(rect.width, 230);
-    dd.style.width  = dropW + 'px';
-    dd.style.left   = rect.left + 'px';
-    dd.style.display = 'block';
-
-    const afterBottom = rect.bottom + 2 + 220;
-    if (afterBottom > window.innerHeight && rect.top > 230) {
-        const h = Math.min(dd.scrollHeight, 220);
-        dd.style.top = (rect.top - h - 4) + 'px';
-    } else {
-        dd.style.top = (rect.bottom + 2) + 'px';
-    }
-
+    positionDropdown(dd, btn, 230);
     openReadinessMsId = taskId;
 }
 
@@ -2785,20 +2778,7 @@ function openDocMs(event, id) {
         return;
     }
 
-    const rect = btn.getBoundingClientRect();
-    const dropW = Math.max(rect.width, 260);
-    dd.style.width  = dropW + 'px';
-    dd.style.left   = rect.left + 'px';
-    dd.style.display = 'block';
-
-    const afterBottom = rect.bottom + 2 + 220;
-    if (afterBottom > window.innerHeight && rect.top > 230) {
-        const h = Math.min(dd.scrollHeight, 220);
-        dd.style.top = (rect.top - h - 4) + 'px';
-    } else {
-        dd.style.top = (rect.bottom + 2) + 'px';
-    }
-
+    positionDropdown(dd, btn, 260);
     openDocMsId = id;
 }
 
@@ -2883,9 +2863,8 @@ function openSysReadinessMs(event, sysId) {
         if (prev) prev.style.display = 'none';
     }
     if (menu.style.display !== 'none') { menu.style.display = 'none'; openSysReadinessMsId = null; return; }
-    const rect = event.currentTarget.getBoundingClientRect();
-    menu.style.left = rect.left + 'px'; menu.style.top = (rect.bottom + 4) + 'px';
-    menu.style.display = 'block'; openSysReadinessMsId = sysId;
+    positionDropdown(menu, event.currentTarget, 230);
+    openSysReadinessMsId = sysId;
 }
 document.addEventListener('click', () => {
     if (openSysReadinessMsId) {
