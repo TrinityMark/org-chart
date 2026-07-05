@@ -1073,9 +1073,9 @@ function renderRespPills(p) {
                 </span>`;
         }
         return `
-            <span class="resp-pill">
+            <span class="resp-pill" style="cursor:pointer" onclick="editRespItem(${p.id},'${item.id}')" title="Click to edit">
                 ${esc(item.text)}
-                <button type="button" class="sw-pill-x" onclick="removeRespItem(${p.id},'${item.id}')" title="Remove">&times;</button>
+                <button type="button" class="sw-pill-x" onclick="event.stopPropagation();removeRespItem(${p.id},'${item.id}')" title="Remove">&times;</button>
             </span>`;
     }).join('');
 
@@ -1098,9 +1098,30 @@ function startAddResp(personId) {
     p.respItems = p.respItems || [];
     const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
     p.respItems.push({ id: tempId, text: '', editing: true });
-    renderRespCell(personId);
-    const input = document.querySelector(`#resp-cell-${personId} input[data-resp-id="${tempId}"]`);
-    if (input) input.focus();
+    refreshRaRespForPerson(personId);
+    const ra = STATE.roleAssessments.find(r => r.personId === personId);
+    if (ra) {
+        requestAnimationFrame(() => {
+            const input = document.querySelector(`#raresp-cell-${ra.id} input[data-resp-id="${tempId}"]`);
+            if (input) { input.focus(); input.select(); }
+        });
+    }
+}
+
+function editRespItem(personId, itemId) {
+    const p = STATE.people.find(p => p.id === personId);
+    if (!p) return;
+    const item = (p.respItems || []).find(i => i.id === itemId);
+    if (!item || item.editing) return;
+    item.editing = true;
+    refreshRaRespForPerson(personId);
+    const ra = STATE.roleAssessments.find(r => r.personId === personId);
+    if (ra) {
+        requestAnimationFrame(() => {
+            const input = document.querySelector(`#raresp-cell-${ra.id} input[data-resp-id="${itemId}"]`);
+            if (input) { input.focus(); input.select(); }
+        });
+    }
 }
 
 function commitRespItem(personId, itemId, text) {
@@ -1124,7 +1145,7 @@ function cancelRespItem(personId, itemId) {
     const p = STATE.people.find(p => p.id === personId);
     if (!p) return;
     p.respItems = (p.respItems || []).filter(i => i.id !== itemId);
-    renderRespCell(personId);
+    refreshRaRespForPerson(personId);
 }
 
 function removeRespItem(personId, itemId) {
@@ -2440,9 +2461,9 @@ function renderRaCustomSwPills(r) {
                 </span>`;
         }
         return `
-            <span class="sw-pill sw-pill-${item.type}">
+            <span class="sw-pill sw-pill-${item.type}" style="cursor:pointer" onclick="editRaSwItem(${r.id},'${item.id}')" title="Click to edit">
                 ${esc(item.text)}
-                <button type="button" class="sw-pill-x" onclick="removeRaSwItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+                <button type="button" class="sw-pill-x" onclick="event.stopPropagation();removeRaSwItem(${r.id},'${item.id}')" title="Remove">&times;</button>
             </span>`;
     }).join('');
 
@@ -2507,6 +2528,17 @@ function startAddRaSw(rowId, type) {
     if (input) input.focus();
 }
 
+function editRaSwItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const item = (r.customSwItems || []).find(i => i.id === itemId);
+    if (!item || item.editing) return;
+    item.editing = true;
+    renderRaSwCell(rowId);
+    const input = document.querySelector(`#rasw-cell-${rowId} input[data-rasw-id="${itemId}"]`);
+    if (input) { input.focus(); input.select(); }
+}
+
 function commitRaSwItem(rowId, itemId, text) {
     const r = STATE.roleAssessments.find(r => r.id === rowId);
     if (!r) return;
@@ -2567,9 +2599,9 @@ function renderRaSkillsPills(r) {
         }
         const done = !!item.done;
         return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
-            <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0" ${done?'checked':''}
+            <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#1e7a34" ${done?'checked':''}
                 onchange="toggleRaSkillDone(${r.id},'${item.id}',this.checked)">
-            <span style="font-size:13px;${done?'text-decoration:line-through;color:#9ca3af':'color:#374151'}">${esc(item.text)}</span>
+            <span style="font-size:13px;${done?'color:#1e7a34;font-weight:500':'color:#374151'}">${esc(item.text)}</span>
             <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
         </div>`;
     }).join('');
