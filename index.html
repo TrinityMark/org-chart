@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.2</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.4</span>
             </div>
         </div>
     </header>
@@ -530,7 +530,7 @@
                         Add Task
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-4">Start by entering the number of hours you think you work a week, then list each task and the time each task takes. This helps surface where your time is really going.</p>
+                <p class="text-xs text-gray-400 mb-4">Use this tab to identify the regular tasks that you carry out on a weekly (frequent) basis.</p>
 
                 <div class="table-outer">
                     <table style="table-layout:fixed;width:730px;min-width:480px">
@@ -588,7 +588,7 @@
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 class="font-semibold text-gray-900">Owner/Leadership Task Delegation</h2>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">Tasks come from Owner Weekly Tasks. Drag rows to reorder – Priority updates automatically based on position.</p>
+                <p class="text-xs text-gray-400 mb-3">Use this tab to prioritise your weekly tasks (drag task to prioritise) and decide the future task allocation status for each task – select &#8216;Owner&#8217; to retain task, &#8216;Delegate&#8217; to delegate the task to another team member, or &#8216;Waste of time&#8217; to stop performing the task.</p>
 
                 <div class="table-outer">
                     <table class="w-full" style="min-width:700px">
@@ -624,7 +624,7 @@
                         Add Role
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">Roles and people picked from Team Members show green; anything added that isn't on the Team Members list shows red.</p>
+                <p class="text-xs text-gray-400 mb-3">Use this tab to identify role responsibilities, list strengths and weaknesses of person currently in the role and close the gap between the required skills for a role and current skills possessed.</p>
 
                 <div class="table-outer">
                     <table class="w-full" style="min-width:1340px;table-layout:fixed">
@@ -662,7 +662,7 @@
                         Add Process
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">Tasks marked "Delegate" in Task Delegation appear here automatically – add extra processes that aren't tracked as a task.</p>
+                <p class="text-xs text-gray-400 mb-3">Use this tab to allocate the &#8216;Delegated&#8217; tasks to another team member. Provide a description of the task, nominate the person you will delegate the task to, list the steps required to complete the task then list the activities that are required to go from where you are now to being able to delegate the task (&#8220;the activities and materials required so that another person can fully perform the task without assistance&#8221;).</p>
 
                 <div class="table-outer">
                     <table class="w-full" style="min-width:1400px">
@@ -1185,7 +1185,7 @@ function addPerson() {
         id: Date.now(),
         name: '', role: '', level: 1,
         reportsToIds: [], secondaryReportsToIds: [],
-        current: true, future: false, swItems: [], respItems: []
+        current: true, future: true, future12m: true, swItems: [], respItems: []
     });
     renderTable();
     updateCharts();
@@ -2601,7 +2601,8 @@ function renderRaSkillsPills(r) {
         return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
             <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#1e7a34" ${done?'checked':''}
                 onchange="toggleRaSkillDone(${r.id},'${item.id}',this.checked)">
-            <span style="font-size:14px;font-family:inherit;${done?'color:#1e7a34':'color:#374151'}">${esc(item.text)}</span>
+            <span style="font-size:14px;font-family:inherit;cursor:pointer;flex:1;${done?'color:#1e7a34':'color:#374151'}"
+                title="Click to edit" onclick="editRaSkillItem(${r.id},'${item.id}')">${esc(item.text)}</span>
             <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
         </div>`;
     }).join('');
@@ -2653,11 +2654,31 @@ function commitRaSkillItem(rowId, itemId, text) {
     saveToStorage();
 }
 
+function editRaSkillItem(rowId, itemId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const item = (r.skillItems || []).find(i => i.id === itemId);
+    if (!item || item.editing) return;
+    item._prevText = item.text;
+    item.editing = true;
+    renderRaSkillsCell(rowId);
+    requestAnimationFrame(() => {
+        const input = document.querySelector(`#raskill-cell-${rowId} input[data-raskill-id="${itemId}"]`);
+        if (input) { input.focus(); input.select(); }
+    });
+}
+
 function cancelRaSkillItem(rowId, itemId) {
     const r = STATE.roleAssessments.find(r => r.id === rowId);
     if (!r) return;
-    r.skillItems = (r.skillItems || []).filter(i => i.id !== itemId);
-    renderRaSkillsCell(rowId);
+    const item = (r.skillItems || []).find(i => i.id === itemId);
+    if (item && item._prevText !== undefined) {
+        item.text = item._prevText; delete item._prevText; item.editing = false;
+        renderRaSkillsCell(rowId);
+    } else {
+        r.skillItems = (r.skillItems || []).filter(i => i.id !== itemId);
+        renderRaSkillsCell(rowId);
+    }
 }
 
 function removeRaSkillItem(rowId, itemId) {
