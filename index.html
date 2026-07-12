@@ -132,8 +132,8 @@
         .sw-stack { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
         .sw-pill {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500; line-height: 1.3;
+            padding: 7px 10px; border-radius: 6px; min-height: 30px;
+            font-size: 14px; font-family: inherit; line-height: 1.4;
             max-width: 100%; word-break: break-word;
         }
         .sw-pill-strength { background: #e6f4ea; color: #1e7a34; border: 1px solid #9fd9b4; }
@@ -143,8 +143,8 @@
             color: inherit; opacity: .6; padding: 0; margin-left: 2px;
         }
         .sw-pill-x:hover { opacity: 1; }
-        .sw-pill-editing { padding: 2px 4px 2px 10px; background: white; border: 1px dashed #9ca3af; }
-        .sw-pill-input { border: none; outline: none; font-size: 12px; width: 140px; background: transparent; }
+        .sw-pill-editing { padding: 4px 4px 4px 10px; background: white; border: 1px dashed #9ca3af; }
+        .sw-pill-input { border: none; outline: none; font-size: 14px; width: 140px; background: transparent; }
         .sw-add-row { position: relative; }
         .sw-add-btn {
             width: 24px; height: 24px; border-radius: 999px;
@@ -168,12 +168,12 @@
         /* Outline Responsibilities pills */
         .resp-pill {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500; line-height: 1.3;
+            padding: 7px 10px; border-radius: 6px; min-height: 30px;
+            font-size: 14px; font-family: inherit; line-height: 1.4;
             background: white; color: #374151; border: 1px solid #d1d5db;
             max-width: 100%; word-break: break-word;
         }
-        .resp-pill-editing { padding: 2px 4px 2px 10px; border: 1px dashed #9ca3af; }
+        .resp-pill-editing { padding: 4px 4px 4px 10px; border: 1px dashed #9ca3af; }
 
         /* PC-only columns (hidden on phones, incl. landscape) */
         @media (max-width: 900px) {
@@ -199,7 +199,7 @@
         .expand-btn.expanded { transform: rotate(90deg); color: #15397F; }
         tr.task-detail-row { background: #f9fafb; }
         .task-textarea {
-            width: 100%; min-height: 64px; resize: vertical;
+            width: 100%; min-height: 56px; resize: none; overflow: hidden;
             padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
             font-size: 14px; font-family: inherit; outline: none;
             transition: border-color .15s, box-shadow .15s;
@@ -209,14 +209,14 @@
         /* Skills / Abilities / Qualities pills (neutral) */
         .tskill-pill {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500; line-height: 1.3;
+            padding: 7px 10px; border-radius: 6px; min-height: 30px;
+            font-size: 14px; font-family: inherit; line-height: 1.4;
             max-width: 100%; word-break: break-word;
         }
         .tskill-pill-skill    { background: #eef2f6; color: #334155; border: 1px solid #94a3b8; }
         .tskill-pill-ability  { background: #f5f5f4; color: #44403c; border: 1px solid #a8a29e; }
         .tskill-pill-quality  { background: #f4f4f5; color: #3f3f46; border: 1px solid #a1a1aa; }
-        .tskill-pill-editing  { padding: 2px 4px 2px 10px; background: white; border: 1px dashed #9ca3af; }
+        .tskill-pill-editing  { padding: 4px 4px 4px 10px; background: white; border: 1px dashed #9ca3af; }
         .tskill-menu-skill    { color: #334155; }
         .tskill-menu-ability  { color: #44403c; }
         .tskill-menu-quality  { color: #3f3f46; }
@@ -297,7 +297,17 @@
                 <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory – Systemisation</h1>
                 <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Assess your current team, plan your future team, manage tasks and time effectively, identify skills gaps and future requirements.</p>
             </div>
-            <span class="ml-4 mt-1 text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded flex-shrink-0">v2.2</span>
+            <div class="ml-4 mt-1 flex items-center gap-3 flex-shrink-0">
+                <button id="copy-link-btn" onclick="copyShareLink()"
+                    class="text-sm font-semibold bg-white bg-opacity-15 text-white px-4 py-2 rounded-md hover:bg-opacity-25 transition-colors whitespace-nowrap">
+                    Copy link
+                </button>
+                <button onclick="generateReport()"
+                    class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
+                    Generate Report
+                </button>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.2</span>
+            </div>
         </div>
     </header>
 
@@ -453,7 +463,7 @@
             <!-- Responsibilities toggle -->
             <div class="flex items-center gap-2 px-1">
                 <input type="checkbox" id="toggle-resp-in-chart" onchange="toggleRespInChart(this.checked)" style="width:16px;height:16px;cursor:pointer">
-                <label for="toggle-resp-in-chart" class="text-sm text-gray-600 cursor-pointer select-none">Show responsibilities in chart</label>
+                <label for="toggle-resp-in-chart" class="text-sm text-gray-600 cursor-pointer select-none">Show responsibilities in chart <span class="text-gray-400">(Responsibilities are added in the Roles and Skills Assessment tab)</span></label>
             </div>
 
             <!-- Current Chart -->
@@ -617,16 +627,16 @@
                 <p class="text-xs text-gray-400 mb-3">Roles and people picked from Team Members show green; anything added that isn't on the Team Members list shows red.</p>
 
                 <div class="table-outer">
-                    <table class="w-full" style="min-width:1340px">
+                    <table class="w-full" style="min-width:1340px;table-layout:fixed">
                         <thead>
                             <tr>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Person Currently in This Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Outline Responsibilities</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Strengths and Weaknesses</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Skills Required for This Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Role Alignment</th>
-                                <th style="width:4%"></th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Outline Responsibilities</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Strengths and Weaknesses</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Skills Required for This Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Role Alignment</th>
+                                <th style="width:6%"></th>
                             </tr>
                         </thead>
                         <tbody id="ra-tbody">
@@ -658,11 +668,12 @@
                     <table class="w-full" style="min-width:1400px">
                         <thead>
                             <tr>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:16%">Task / Process</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Task / Process Description</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Delegated to</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Skills required for this task</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:28%">Activities required for successful delegation</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Task / Process</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Task / Process Description</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:15%">Pre-delegation questions</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Delegated to</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Steps required to complete this task</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Activities required for successful delegation</th>
                                 <th style="width:4%"></th>
                             </tr>
                         </thead>
@@ -680,6 +691,11 @@
 
     </main>
 </div>
+
+<script>
+// ── LZString (inlined, MIT licence, pieroxy/lz-string) ─────────────────────
+var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
+</script>
 
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
@@ -1550,6 +1566,34 @@ function collectNodes(roots) {
     return nodes;
 }
 
+const RESP_LINE_H    = 11;   // line height within one responsibility item
+const RESP_ITEM_GAP  = 6;    // extra gap between separate responsibility items
+const RESP_MAX_CHARS = 26;   // approx chars per line at BW=180, font-size 9.5
+
+function wrapRespText(text) {
+    const words = (text || '').split(' ');
+    const lines = [];
+    let cur = '';
+    for (const word of words) {
+        const candidate = cur ? cur + ' ' + word : word;
+        if (candidate.length <= RESP_MAX_CHARS) {
+            cur = candidate;
+        } else {
+            if (cur) lines.push(cur);
+            cur = word.length > RESP_MAX_CHARS ? word.slice(0, RESP_MAX_CHARS) : word;
+        }
+    }
+    if (cur) lines.push(cur);
+    return lines;
+}
+
+function totalRespHeight(n) {
+    const items = (n.respItems || []).filter(i => i.text);
+    if (!items.length) return 0;
+    return items.reduce((sum, item, idx) =>
+        sum + wrapRespText(item.text).length * RESP_LINE_H + (idx > 0 ? RESP_ITEM_GAP : 0), 0);
+}
+
 function renderChart(containerId, people) {
     const el     = document.getElementById(containerId);
     const filtId = 'ds-' + containerId;
@@ -1567,7 +1611,10 @@ function renderChart(containerId, people) {
     if (!nodes.length) { el.innerHTML = `<div class="empty-state">No people to display</div>`; return; }
 
     const pad    = 40;
-    const BH_EXT = showRespInChart ? 44 : 0;
+    const maxRespHeight = showRespInChart
+        ? Math.max(0, ...nodes.map(n => totalRespHeight(n)))
+        : 0;
+    const BH_EXT = maxRespHeight > 0 ? maxRespHeight + 14 : 0;
     const EFF_BH = BH + BH_EXT;
     const EFF_UH = EFF_BH + VG;
     const maxLf  = Math.max(...nodes.map(n => n._lf));
@@ -1615,15 +1662,20 @@ function renderChart(containerId, people) {
 
         let respSvg = '';
         if (showRespInChart) {
-            const respItems = (n.respItems || []).filter(i => i.text).slice(0, 3);
+            const respItems = (n.respItems || []).filter(i => i.text);
             if (respItems.length) {
                 const sepColor = isRoot && !futureOnly ? 'rgba(255,255,255,0.25)' : '#e5e7eb';
                 respSvg = `<line x1="${x+10}" y1="${y+46}" x2="${x+BW-10}" y2="${y+46}" stroke="${sepColor}" stroke-width="1"/>`;
-                respSvg += respItems.map((item, i) =>
-                    `<text x="${n._cx}" y="${y + 60 + i * 13}" text-anchor="middle"
-                        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-                        font-size="9.5" fill="${tc2}">${esc(trunc(item.text, 28))}</text>`
-                ).join('');
+                let lineY = y + 60;
+                respItems.forEach((item, itemIdx) => {
+                    if (itemIdx > 0) lineY += RESP_ITEM_GAP;
+                    wrapRespText(item.text).forEach(line => {
+                        respSvg += `<text x="${n._cx}" y="${lineY}" text-anchor="middle"
+                            font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+                            font-size="9.5" fill="${tc2}">${esc(line)}</text>`;
+                        lineY += RESP_LINE_H;
+                    });
+                });
             }
         }
 
@@ -1871,6 +1923,13 @@ function toggleTeamSection() {
     localStorage.setItem('oc-team-collapsed', collapsed ? '1' : '0');
 }
 
+// ── Power Automate ────────────────────────────────────────────────────────
+// Advisor list flow: POST { action:'getAdvisors' } → returns [{advisorName, advisorEmail}, ...]
+const PA_URL = 'https://bb06665214b0e7c9957df91fc7a08e.c0.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/b061cace61634387b21e176cacf35fb2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UauD3PRUThSwVs6_q6WMEPdHuOJ_g_tecP5Nn_xIDY0';
+// Notification flow: POST { advisorName, client, businessName, activity }
+const PA_NOTIFY_URL = 'https://bb06665214b0e7c9957df91fc7a08e.c0.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/11/workflows/204be2e4826d44e5a61d06a719c1bf24/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k7e9xGqrDX4siONKa5SMsey8M8o2orEYYu8GdiKI4FQ';
+let ADVISORS = []; // populated from PA on load: [{name:'Mark Nixey', email:'mark@...'}]
+
 // ── Tabs ─────────────────────────────────────────────────────────────────
 const TABS = ['orgcharts', 'rolesskills', 'ownertasks', 'taskdelegation', 'systemise'];
 
@@ -1880,6 +1939,11 @@ function switchTab(tab) {
         document.getElementById(`tab-btn-${t}`).classList.toggle('tab-btn-active', t === tab);
     });
     localStorage.setItem('oc-active-tab', tab);
+    if (tab === 'systemise') {
+        requestAnimationFrame(() =>
+            document.querySelectorAll('#tab-panel-systemise textarea.task-textarea').forEach(autoSizeTa)
+        );
+    }
 }
 
 // ── Task Delegation ──────────────────────────────────────────────────────────
@@ -2308,61 +2372,52 @@ function removeRoleAssessment(id) {
     saveToStorage();
 }
 
+function duplicateRoleAssessment(id) {
+    const r = STATE.roleAssessments.find(r => r.id === id);
+    if (!r) return;
+    const now = Date.now();
+    const copy = JSON.parse(JSON.stringify(r));
+    copy.id = now;
+    copy.customSwItems = (copy.customSwItems || []).map((item, i) => ({ ...item, id: `sw-${now}-${i}`, editing: false }));
+    copy.skillItems    = (copy.skillItems    || []).map((item, i) => ({ ...item, id: `sk-${now}-${i}`, editing: false }));
+    const idx = STATE.roleAssessments.findIndex(r => r.id === id);
+    STATE.roleAssessments.splice(idx + 1, 0, copy);
+    renderRaTable();
+    saveToStorage();
+}
+
 function renderRoleSelect(r) {
     const knownRoles = [...new Set(STATE.people.map(p => (p.role||'').trim()).filter(Boolean))];
     const value = r.role || '';
-    const colorStyle = !value ? '' : (knownRoles.includes(value)
-        ? 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
-        : 'background:#fef2f2;border-color:#f87171;color:#b91c1c;');
-    const extraOption = (value && !knownRoles.includes(value)) ? `<option value="${esc(value)}" selected>${esc(value)}</option>` : '';
     return `
-        <select class="tbl-select" style="${colorStyle}" onchange="onRoleSelectChange(${r.id},this.value)">
+        <select class="tbl-select" onchange="onRoleSelectChange(${r.id},this.value)">
             <option value=""${!value?' selected':''}>– Select –</option>
             ${knownRoles.map(v => `<option value="${esc(v)}"${v===value?' selected':''}>${esc(v)}</option>`).join('')}
-            ${extraOption}
-            <option value="__add_new__">+ Add custom role</option>
         </select>`;
 }
 
 function onRoleSelectChange(rowId, value) {
     const r = STATE.roleAssessments.find(r => r.id === rowId);
     if (!r) return;
-    if (value === '__add_new__') {
-        const text = prompt('Enter the role title:');
-        if (text && text.trim()) r.role = text.trim();
-    } else {
-        r.role = value;
-    }
+    r.role = value;
     renderRaTable();
     saveToStorage();
 }
 
 function renderPersonSelect(r) {
     const people = STATE.people.filter(p => p.name.trim());
-    const hasValue = !!r.personId || !!r.personCustomName;
-    const isKnown  = !!r.personId;
-    const colorStyle = !hasValue ? '' : (isKnown
-        ? 'background:#f0fdf4;border-color:#4ade80;color:#166534;'
-        : 'background:#fef2f2;border-color:#f87171;color:#b91c1c;');
-    const customOption = (!r.personId && r.personCustomName) ? `<option value="custom" selected>${esc(r.personCustomName)}</option>` : '';
+    const hasValue = !!r.personId;
     return `
-        <select class="tbl-select" style="${colorStyle}" onchange="onPersonSelectChange(${r.id},this.value)">
+        <select class="tbl-select" onchange="onPersonSelectChange(${r.id},this.value)">
             <option value=""${!hasValue?' selected':''}>– Select –</option>
             ${people.map(p => `<option value="${p.id}"${r.personId===p.id?' selected':''}>${esc(p.name)}</option>`).join('')}
-            ${customOption}
-            <option value="__add_new__">+ Add person not in org chart</option>
         </select>`;
 }
 
 function onPersonSelectChange(rowId, value) {
     const r = STATE.roleAssessments.find(r => r.id === rowId);
     if (!r) return;
-    if (value === '__add_new__') {
-        const text = prompt("Enter the person's name:");
-        if (text && text.trim()) { r.personId = null; r.personCustomName = text.trim(); }
-    } else if (value === 'custom') {
-        // keep existing custom name as-is
-    } else if (value === '') {
+    if (value === '') {
         r.personId = null; r.personCustomName = '';
     } else {
         r.personId = Number(value); r.personCustomName = '';
@@ -2546,7 +2601,7 @@ function renderRaSkillsPills(r) {
         return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
             <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#1e7a34" ${done?'checked':''}
                 onchange="toggleRaSkillDone(${r.id},'${item.id}',this.checked)">
-            <span style="font-size:13px;${done?'color:#1e7a34;font-weight:500':'color:#374151'}">${esc(item.text)}</span>
+            <span style="font-size:14px;font-family:inherit;${done?'color:#1e7a34':'color:#374151'}">${esc(item.text)}</span>
             <button type="button" class="sw-pill-x" onclick="removeRaSkillItem(${r.id},'${item.id}')" title="Remove">&times;</button>
         </div>`;
     }).join('');
@@ -2646,17 +2701,25 @@ function renderRaTable() {
         <tr class="border-t border-gray-100" data-rid="${r.id}">
             <td class="py-2 pr-3">${renderRoleSelect(r)}</td>
             <td class="py-2 pr-3">${renderPersonSelect(r)}</td>
-            <td class="py-2 pr-3" id="raresp-cell-${r.id}" style="position:relative;min-width:190px">${renderRaResp(r)}</td>
-            <td class="py-2 pr-3" id="rasw-cell-${r.id}" style="position:relative;min-width:200px">${renderRaSw(r)}</td>
-            <td class="py-2 pr-3" id="raskill-cell-${r.id}" style="position:relative;min-width:200px">${renderRaSkillsPills(r)}</td>
+            <td class="py-2 pr-3" id="raresp-cell-${r.id}">${renderRaResp(r)}</td>
+            <td class="py-2 pr-3" id="rasw-cell-${r.id}">${renderRaSw(r)}</td>
+            <td class="py-2 pr-3" id="raskill-cell-${r.id}">${renderRaSkillsPills(r)}</td>
             <td class="py-2 pr-3">${renderAlignmentSelect(r)}</td>
-            <td class="py-2 text-center">
-                <button onclick="removeRoleAssessment(${r.id})" class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
+            <td class="py-2">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button onclick="duplicateRoleAssessment(${r.id})" class="text-gray-300 hover:text-blue-500 transition-colors" title="Duplicate row">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </button>
+                    <button onclick="removeRoleAssessment(${r.id})" class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
             </td>
         </tr>`).join('');
 }
@@ -2675,7 +2738,7 @@ function syncSystemiseFromTasks() {
 }
 
 function addSystemiseRow() {
-    STATE.systemise.push({ id: Date.now(), taskId: null, customText: '', responsibleId: null, description: '', skillItems: [], delegationItems: makeDefaultDelegationItems(), dismissed: false });
+    STATE.systemise.push({ id: Date.now(), taskId: null, customText: '', responsibleId: null, description: '', skillItems: [], delegationItems: makeDefaultDelegationItems(), stepItems: [], docStatus: '', docType: '', automationPotential: '', fullyOptimized: '', dismissed: false });
     renderSystemiseTable();
     saveToStorage();
 }
@@ -2864,6 +2927,8 @@ function makeDefaultDelegationItems() {
     return DEFAULT_DELEGATION_ACTIVITIES.map((text, i) => ({ id: 'deleg-' + now + '-' + i, text, done: false }));
 }
 
+function autoSizeTa(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
 function onSysDescChange(id, value) {
     const s = STATE.systemise.find(s => s.id === id);
     if (!s) return;
@@ -2948,22 +3013,203 @@ function removeSysSkillItem(sysId, itemId) {
     saveToStorage();
 }
 
+// ── Pre-delegation questions ─────────────────────────────────────────────────
+function renderPreDelegQuestions(s) {
+    function selectInput(field, options) {
+        const val = s[field] || '';
+        return `<select onchange="onPreDelegChange(${s.id},'${field}',this.value)"
+            style="width:100%;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:${val?'#111827':'#9ca3af'};background:white;cursor:pointer">
+            <option value="" ${!val?'selected':''} style="color:#9ca3af">Select…</option>
+            ${options.map(opt => `<option value="${opt}" ${val===opt?'selected':''}>${opt}</option>`).join('')}
+        </select>`;
+    }
+    const docTypeBlock = s.docStatus === 'Yes' ? `
+        <div>
+            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">How is it documented?</div>
+            ${selectInput('docType', ['Work instructions','Video instructions','Other'])}
+        </div>` : '';
+    return `<div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Is this process documented?</div>
+            ${selectInput('docStatus', ['Yes','No','Not sure'])}
+        </div>
+        ${docTypeBlock}
+        <div>
+            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Potential to automate?</div>
+            ${selectInput('automationPotential', ['Yes','No','Not sure'])}
+        </div>
+        <div>
+            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Fully optimised?</div>
+            ${selectInput('fullyOptimized', ['Yes','No','Not sure'])}
+        </div>
+    </div>`;
+}
+
+function renderPreDelegCell(sysId) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    const cell = document.getElementById(`syspredel-cell-${sysId}`);
+    if (s && cell) cell.innerHTML = renderPreDelegQuestions(s);
+}
+
+function onPreDelegChange(sysId, field, value) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    if (!s) return;
+    s[field] = value;
+    if (field === 'docStatus' && value !== 'Yes') s.docType = '';
+    saveToStorage();
+    renderPreDelegCell(sysId);
+    if (field === 'fullyOptimized') {
+        renderSysStepsCell(sysId);
+        renderSysDelegationCell(sysId);
+    }
+}
+
+// ── Checklist drag-to-reorder (shared by steps and delegation) ────────────────
+let _clDragState = null;
+function onChecklistDragStart(sysId, listKey, itemId, evt) {
+    _clDragState = { sysId, listKey, itemId };
+    evt.dataTransfer.effectAllowed = 'move';
+}
+function onChecklistDragOver(evt) { evt.preventDefault(); evt.dataTransfer.dropEffect = 'move'; }
+function onChecklistDragEnter(el) { el.style.background = '#eff6ff'; }
+function onChecklistDragLeave(el) { el.style.background = ''; }
+function onChecklistDrop(sysId, listKey, toId, evt, el) {
+    evt.preventDefault(); el.style.background = '';
+    if (!_clDragState || _clDragState.sysId !== sysId || _clDragState.listKey !== listKey) return;
+    const fromId = _clDragState.itemId; _clDragState = null;
+    if (fromId === toId) return;
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const items = s[listKey] || [];
+    const fi = items.findIndex(i => i.id === fromId), ti = items.findIndex(i => i.id === toId);
+    if (fi === -1 || ti === -1) return;
+    const [moved] = items.splice(fi, 1); items.splice(ti, 0, moved);
+    saveToStorage();
+    if (listKey === 'stepItems') renderSysStepsCell(sysId); else renderSysDelegationCell(sysId);
+}
+const DRAG_HANDLE = `<svg style="width:10px;height:14px;flex-shrink:0;cursor:grab;color:#9ca3af" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="2.5" r="1.2"/><circle cx="7" cy="2.5" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11.5" r="1.2"/><circle cx="7" cy="11.5" r="1.2"/></svg>`;
+
+// ── Steps required checklist ─────────────────────────────────────────────────
+const OPTIMISED_PLACEHOLDER = `<span style="font-size:14px;font-family:inherit;color:#d1d5db;font-style:italic">Not required — process is fully optimised</span>`;
+
+function renderSysStepItems(s) {
+    if (s.fullyOptimized === 'Yes') return OPTIMISED_PLACEHOLDER;
+    const items = s.stepItems || [];
+    const itemsHtml = items.map(item => {
+        if (item.editing) {
+            return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
+                <span style="width:10px;flex-shrink:0"></span>
+                <input type="checkbox" style="width:14px;height:14px;flex-shrink:0;opacity:0.3" disabled>
+                <input type="text" data-sysstep-id="${item.id}" value="${esc(item.text)}" placeholder="Type a step…"
+                    style="flex:1;font-size:14px;font-family:inherit;padding:3px 6px;border:1px solid #93c5fd;border-radius:4px;outline:none;min-width:0"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}else if(event.key==='Escape'){cancelSysStepItem(${s.id},'${item.id}');}"
+                    onblur="commitSysStepItem(${s.id},'${item.id}',this.value)">
+                <button type="button" class="sw-pill-x" onclick="cancelSysStepItem(${s.id},'${item.id}')" title="Cancel">&times;</button>
+            </div>`;
+        }
+        const done = !!item.done;
+        return `<div draggable="true"
+            ondragstart="onChecklistDragStart(${s.id},'stepItems','${item.id}',event)"
+            ondragover="onChecklistDragOver(event)" ondragenter="onChecklistDragEnter(this)" ondragleave="onChecklistDragLeave(this)"
+            ondrop="onChecklistDrop(${s.id},'stepItems','${item.id}',event,this)"
+            style="display:flex;align-items:center;gap:6px;padding:3px 0;border-radius:4px">
+            ${DRAG_HANDLE}
+            <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#15397F" ${done?'checked':''}
+                onchange="toggleSysStepDone(${s.id},'${item.id}',this.checked)">
+            <span onclick="editSysStepItem(${s.id},'${item.id}')" title="Click to edit"
+                style="flex:1;font-size:14px;font-family:inherit;cursor:text;${done?'color:#1e6db5;font-weight:500':'color:#374151'}">${esc(item.text)}</span>
+            <button type="button" class="sw-pill-x" onclick="removeSysStepItem(${s.id},'${item.id}')" title="Remove">&times;</button>
+        </div>`;
+    }).join('');
+    return `<div style="display:flex;flex-direction:column">${itemsHtml}
+        <button type="button" class="sw-add-btn" onclick="startAddSysStep(${s.id})" title="Add a step" style="margin-top:4px">+</button>
+    </div>`;
+}
+
+function renderSysStepsCell(sysId) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    const cell = document.getElementById(`syssteps-cell-${sysId}`);
+    if (s && cell) cell.innerHTML = renderSysStepItems(s);
+}
+
+function toggleSysStepDone(sysId, itemId, checked) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.stepItems || []).find(i => i.id === itemId);
+    if (item) { item.done = checked; saveToStorage(); renderSysStepsCell(sysId); }
+}
+
+function editSysStepItem(sysId, itemId) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.stepItems || []).find(i => i.id === itemId);
+    if (!item || item.editing) return;
+    item._prevText = item.text; item.editing = true;
+    renderSysStepsCell(sysId);
+    requestAnimationFrame(() => {
+        const input = document.querySelector(`#syssteps-cell-${sysId} input[data-sysstep-id="${itemId}"]`);
+        if (input) { input.focus(); input.select(); }
+    });
+}
+
+function startAddSysStep(sysId) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    s.stepItems = s.stepItems || [];
+    const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    s.stepItems.push({ id: tempId, text: '', done: false, editing: true });
+    renderSysStepsCell(sysId);
+    requestAnimationFrame(() => {
+        const input = document.querySelector(`#syssteps-cell-${sysId} input[data-sysstep-id="${tempId}"]`);
+        if (input) input.focus();
+    });
+}
+
+function commitSysStepItem(sysId, itemId, text) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.stepItems || []).find(i => i.id === itemId); if (!item) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed) { s.stepItems = s.stepItems.filter(i => i.id !== itemId); }
+    else { item.text = trimmed; item.editing = false; delete item._prevText; }
+    renderSysStepsCell(sysId); saveToStorage();
+}
+
+function cancelSysStepItem(sysId, itemId) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.stepItems || []).find(i => i.id === itemId);
+    if (item && item._prevText !== undefined) { item.text = item._prevText; delete item._prevText; item.editing = false; }
+    else { s.stepItems = (s.stepItems || []).filter(i => i.id !== itemId); }
+    renderSysStepsCell(sysId);
+}
+
+function removeSysStepItem(sysId, itemId) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    s.stepItems = (s.stepItems || []).filter(i => i.id !== itemId);
+    renderSysStepsCell(sysId); saveToStorage();
+}
+
 function renderSysDelegationItems(s) {
+    if (s.fullyOptimized === 'Yes') return OPTIMISED_PLACEHOLDER;
     const items = s.delegationItems || [];
     const itemsHtml = items.map(item => {
         if (item.editing) {
-            return `<div style="padding:3px 0"><span class="resp-pill resp-pill-editing">
-                <input type="text" class="sw-pill-input" data-sysdeleg-id="${item.id}" value="${esc(item.text)}"
-                    placeholder="Type an activity…"
-                    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelSysDelegationItem(${s.id},'${item.id}');}"
+            return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
+                <span style="width:10px;flex-shrink:0"></span>
+                <input type="checkbox" style="width:14px;height:14px;flex-shrink:0;opacity:0.3" disabled>
+                <input type="text" data-sysdeleg-id="${item.id}" value="${esc(item.text)}" placeholder="Type an activity…"
+                    style="flex:1;font-size:14px;font-family:inherit;padding:3px 6px;border:1px solid #93c5fd;border-radius:4px;outline:none;min-width:0"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}else if(event.key==='Escape'){cancelSysDelegationItem(${s.id},'${item.id}');}"
                     onblur="commitSysDelegationItem(${s.id},'${item.id}',this.value)">
-            </span></div>`;
+                <button type="button" class="sw-pill-x" onclick="cancelSysDelegationItem(${s.id},'${item.id}')" title="Cancel">&times;</button>
+            </div>`;
         }
         const done = !!item.done;
-        return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0">
+        return `<div draggable="true"
+            ondragstart="onChecklistDragStart(${s.id},'delegationItems','${item.id}',event)"
+            ondragover="onChecklistDragOver(event)" ondragenter="onChecklistDragEnter(this)" ondragleave="onChecklistDragLeave(this)"
+            ondrop="onChecklistDrop(${s.id},'delegationItems','${item.id}',event,this)"
+            style="display:flex;align-items:center;gap:6px;padding:3px 0;border-radius:4px">
+            ${DRAG_HANDLE}
             <input type="checkbox" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#15397F" ${done?'checked':''}
                 onchange="toggleSysDelegationDone(${s.id},'${item.id}',this.checked)">
-            <span style="font-size:13px;${done?'color:#1e6db5;font-weight:500':'color:#374151'}">${esc(item.text)}</span>
+            <span onclick="editSysDelegationItem(${s.id},'${item.id}')" title="Click to edit"
+                style="flex:1;font-size:14px;font-family:inherit;cursor:text;${done?'color:#1e6db5;font-weight:500':'color:#374151'}">${esc(item.text)}</span>
             <button type="button" class="sw-pill-x" onclick="removeSysDelegationItem(${s.id},'${item.id}')" title="Remove">&times;</button>
         </div>`;
     }).join('');
@@ -2998,22 +3244,32 @@ function startAddSysDelegation(sysId) {
     });
 }
 
-function commitSysDelegationItem(sysId, itemId, text) {
-    const s = STATE.systemise.find(s => s.id === sysId);
-    if (!s) return;
+function editSysDelegationItem(sysId, itemId) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
     const item = (s.delegationItems || []).find(i => i.id === itemId);
-    if (!item) return;
+    if (!item || item.editing) return;
+    item._prevText = item.text; item.editing = true;
+    renderSysDelegationCell(sysId);
+    requestAnimationFrame(() => {
+        const input = document.querySelector(`#sysdeleg-cell-${sysId} input[data-sysdeleg-id="${itemId}"]`);
+        if (input) { input.focus(); input.select(); }
+    });
+}
+
+function commitSysDelegationItem(sysId, itemId, text) {
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.delegationItems || []).find(i => i.id === itemId); if (!item) return;
     const trimmed = (text || '').trim();
     if (!trimmed) { s.delegationItems = s.delegationItems.filter(i => i.id !== itemId); }
-    else { item.text = trimmed; item.editing = false; }
-    renderSysDelegationCell(sysId);
-    saveToStorage();
+    else { item.text = trimmed; item.editing = false; delete item._prevText; }
+    renderSysDelegationCell(sysId); saveToStorage();
 }
 
 function cancelSysDelegationItem(sysId, itemId) {
-    const s = STATE.systemise.find(s => s.id === sysId);
-    if (!s) return;
-    s.delegationItems = (s.delegationItems || []).filter(i => i.id !== itemId);
+    const s = STATE.systemise.find(s => s.id === sysId); if (!s) return;
+    const item = (s.delegationItems || []).find(i => i.id === itemId);
+    if (item && item._prevText !== undefined) { item.text = item._prevText; delete item._prevText; item.editing = false; }
+    else { s.delegationItems = (s.delegationItems || []).filter(i => i.id !== itemId); }
     renderSysDelegationCell(sysId);
 }
 
@@ -3030,15 +3286,20 @@ function renderSystemiseTable() {
     // Migrate rows that pre-date these fields
     let _migrated = false;
     STATE.systemise.forEach(s => {
-        if (s.delegationItems === undefined) { s.delegationItems = makeDefaultDelegationItems(); _migrated = true; }
-        if (s.skillItems    === undefined) { s.skillItems    = []; _migrated = true; }
-        if (s.description   === undefined) { s.description   = ''; _migrated = true; }
+        if (s.delegationItems     === undefined) { s.delegationItems     = makeDefaultDelegationItems(); _migrated = true; }
+        if (s.skillItems          === undefined) { s.skillItems          = []; _migrated = true; }
+        if (s.description         === undefined) { s.description         = ''; _migrated = true; }
+        if (s.stepItems           === undefined) { s.stepItems           = []; _migrated = true; }
+        if (s.docStatus           === undefined) { s.docStatus           = ''; _migrated = true; }
+        if (s.docType             === undefined) { s.docType             = ''; _migrated = true; }
+        if (s.automationPotential === undefined) { s.automationPotential = ''; _migrated = true; }
+        if (s.fullyOptimized      === undefined) { s.fullyOptimized      = ''; _migrated = true; }
     });
     if (_migrated) saveToStorage();
     const tbody = document.getElementById('systemise-tbody');
     const visible = STATE.systemise.filter(s => !s.dismissed);
     if (!visible.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-sm text-gray-400">Delegated tasks from Task Delegation will appear here automatically</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-sm text-gray-400">Delegated tasks from Task Delegation will appear here automatically</td></tr>';
         return;
     }
 
@@ -3050,15 +3311,16 @@ function renderSystemiseTable() {
         return a.id - b.id;
     });
 
-    tbody.innerHTML = rows.map(s => `
-        <tr class="border-t border-gray-100" data-sid="${s.id}">
+    tbody.innerHTML = rows.map((s, idx) => `
+        <tr class="border-t border-gray-100" data-sid="${s.id}" style="background:${idx % 2 === 0 ? 'white' : '#f8fafc'}">
             <td class="py-2 pr-3">${renderSystemiseCol1(s)}</td>
             <td class="py-2 pr-3">
-                <textarea class="task-textarea" style="min-height:56px" placeholder="Describe this process…"
-                    oninput="onSysDescChange(${s.id},this.value)">${esc(s.description||'')}</textarea>
+                <textarea class="task-textarea" placeholder="Describe this process…"
+                    oninput="onSysDescChange(${s.id},this.value);autoSizeTa(this)">${esc(s.description||'')}</textarea>
             </td>
+            <td class="py-2 pr-3" id="syspredel-cell-${s.id}">${renderPreDelegQuestions(s)}</td>
             <td class="py-2 pr-3">${renderResponsibleSelect(s)}</td>
-            <td class="py-2 pr-3" id="sysskill-cell-${s.id}">${renderSysSkillsPills(s)}</td>
+            <td class="py-2 pr-3" id="syssteps-cell-${s.id}">${renderSysStepItems(s)}</td>
             <td class="py-2 pr-3" id="sysdeleg-cell-${s.id}">${renderSysDelegationItems(s)}</td>
             <td class="py-2 text-center">
                 <button onclick="removeSystemiseRow(${s.id})" class="text-gray-300 hover:text-red-500 transition-colors" title="Remove">
@@ -3069,10 +3331,552 @@ function renderSystemiseTable() {
                 </button>
             </td>
         </tr>`).join('');
+    requestAnimationFrame(() => tbody.querySelectorAll('textarea.task-textarea').forEach(autoSizeTa));
+}
+
+// ── Report Generation ─────────────────────────────────────────────────────
+function generateReport() {
+    const bizName    = document.getElementById('company-name').value.trim() || 'Business';
+    const clientName = document.getElementById('your-name').value.trim();
+    const advisor    = document.getElementById('advisor-name').value.trim();
+    const repDate    = document.getElementById('chart-date').value.trim();
+    const estHours   = document.getElementById('owner-estimated-hours').value;
+    const totalHours = STATE.tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+    const diff       = estHours !== '' ? (Number(estHours) - totalHours) : null;
+
+    // Ensure charts render without responsibilities for the PDF, then restore
+    const wasShowingResp = showRespInChart;
+    showRespInChart = false;
+    const respCb = document.getElementById('toggle-resp-in-chart');
+    if (respCb) respCb.checked = false;
+    updateCharts();
+    function svgOf(id) {
+        const el = document.getElementById(id);
+        if (!el || el.querySelector('.empty-state')) return null;
+        return el.innerHTML;
+    }
+    // Add viewBox so SVG scales to fit page width instead of clipping
+    function scaleSvg(svgHtml) {
+        if (!svgHtml) return null;
+        return svgHtml.replace(/<svg([^>]*)>/, (_, attrs) => {
+            const wm = attrs.match(/width="(\d+(\.\d+)?)"/);
+            const hm = attrs.match(/height="(\d+(\.\d+)?)"/);
+            if (!wm || !hm) return `<svg${attrs}>`;
+            const w = wm[1], h = hm[1];
+            const newAttrs = attrs
+                .replace(/width="[^"]*"/, `viewBox="0 0 ${w} ${h}" width="100%"`)
+                .replace(/height="[^"]*"/, '');
+            return `<svg${newAttrs} style="display:block;width:100%;height:auto">`;
+        });
+    }
+    const charts = {
+        current:  scaleSvg(svgOf('current-chart')),
+        future6:  scaleSvg(svgOf('future-chart')),
+        future12: scaleSvg(svgOf('future-12m-chart'))
+    };
+
+    // Restore responsibilities toggle to its previous state
+    if (wasShowingResp) {
+        showRespInChart = true;
+        if (respCb) respCb.checked = true;
+        updateCharts();
+    }
+
+    // Local escape helper (report runs in isolated window with no esc() from app)
+    function e(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function emptyVal(text) { return `<span class="empty-val">${text || '–'}</span>`; }
+
+    function bulletList(items) {
+        if (!items || !items.length) return emptyVal();
+        return items.map(i => `<div class="bullet">&#8226; ${e(i)}</div>`).join('');
+    }
+
+    function respHtml(personId) {
+        const p = STATE.people.find(p => p.id === personId);
+        if (!p) return emptyVal();
+        const items = (p.respItems || []).filter(i => i.text && !i.editing);
+        return items.length ? items.map(i => `<div class="bullet">&#8226; ${e(i.text)}</div>`).join('') : emptyVal();
+    }
+
+    function swHtml(r) {
+        const items = (r.customSwItems || []).filter(i => i.text);
+        if (!items.length) return emptyVal();
+        let html = '';
+        const strengths  = items.filter(i => i.type === 'strength');
+        const weaknesses = items.filter(i => i.type === 'weakness');
+        if (strengths.length)  html += `<div class="group-label c-green">Strengths</div>` + strengths.map(i => `<div class="bullet c-green">&#8226; ${e(i.text)}</div>`).join('');
+        if (weaknesses.length) html += `<div class="group-label c-red">Weaknesses</div>` + weaknesses.map(i => `<div class="bullet c-red">&#8226; ${e(i.text)}</div>`).join('');
+        return html;
+    }
+
+    function checklistHtml(items) {
+        if (!items || !items.length) return emptyVal();
+        return items.filter(i => i.text).map(i => `
+            <div class="check-row">
+                <span class="check-box${i.done ? ' check-ticked' : ''}">${i.done ? '&#10003;' : ''}</span>
+                <span class="${i.done ? 'c-green' : ''}">${e(i.text)}</span>
+            </div>`).join('');
+    }
+
+    function personName(personId, customName) {
+        if (personId) { const p = STATE.people.find(p => p.id === personId); if (p) return e(p.name); }
+        return customName ? e(customName) : emptyVal();
+    }
+
+    function delegateName(responsibleId) {
+        if (!responsibleId) return emptyVal();
+        const p = STATE.people.find(p => p.id === responsibleId);
+        return p ? e(p.name) : emptyVal();
+    }
+
+    const alignColor = {
+        'Does not align': '#b91c1c',
+        'Mostly aligns - needs additional skills': '#92400e',
+        'Completely aligns': '#166534'
+    };
+
+    function chartBlock(title, svg, emptyMsg) {
+        return `<div class="chart-block">
+            <h3 class="chart-title">${title}</h3>
+            ${svg
+                ? `<div class="chart-wrap">${svg}</div>`
+                : `<p class="empty-val" style="padding:12px 0">${emptyMsg}</p>`}
+        </div>`;
+    }
+
+    // ── Section content ──────────────────────────────────────────────────────
+
+    const rolesHtml = !STATE.roleAssessments.length ? `<p class="empty-val">No roles assessed yet.</p>` : `
+        <table><thead><tr>
+            <th style="width:12%">Role</th>
+            <th style="width:13%">Person</th>
+            <th style="width:18%">Responsibilities</th>
+            <th style="width:18%">Strengths &amp; Weaknesses</th>
+            <th style="width:20%">Skills Required</th>
+            <th style="width:19%">Role Alignment</th>
+        </tr></thead><tbody>
+        ${STATE.roleAssessments.map(r => `<tr>
+            <td>${e(r.role) || emptyVal()}</td>
+            <td>${personName(r.personId, r.personCustomName)}</td>
+            <td>${respHtml(r.personId)}</td>
+            <td>${swHtml(r)}</td>
+            <td>${checklistHtml(r.skillItems)}</td>
+            <td style="color:${alignColor[r.alignment]||'inherit'};font-weight:${r.alignment?'600':'400'}">${e(r.alignment) || emptyVal()}</td>
+        </tr>`).join('')}
+        </tbody></table>`;
+
+    const summaryBoxes = `
+        <div class="summary-row">
+            <div class="summary-box">
+                <div class="summary-label">Estimated hours / week</div>
+                <div class="summary-val">${estHours || '–'}</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-label">Total itemised hours</div>
+                <div class="summary-val">${totalHours}</div>
+            </div>
+            ${diff !== null ? `<div class="summary-box ${diff !== 0 ? 'summary-diff' : 'summary-match'}">
+                <div class="summary-label">Difference</div>
+                <div class="summary-val">${diff > 0 ? `${diff} hrs not yet itemised` : diff < 0 ? `${Math.abs(diff)} hrs over` : '0 hrs – fully accounted for'}</div>
+            </div>` : ''}
+        </div>`;
+
+    const tasksHtml = !STATE.tasks.length ? `<p class="empty-val">No tasks recorded yet.</p>` : `
+        ${summaryBoxes}
+        <table><thead><tr>
+            <th style="width:80%">Task</th>
+            <th style="width:20%;text-align:right">Hours</th>
+        </tr></thead><tbody>
+        ${STATE.tasks.map(t => `<tr>
+            <td>${e(t.text) || emptyVal('Untitled task')}</td>
+            <td style="text-align:right">${t.hours || 0}</td>
+        </tr>`).join('')}
+        </tbody></table>`;
+
+    const delegationHtml = !STATE.tasks.length ? `<p class="empty-val">No tasks recorded yet.</p>` : `
+        <table><thead><tr>
+            <th style="width:8%;text-align:center">Priority</th>
+            <th style="width:52%">Task</th>
+            <th style="width:12%;text-align:right">Hours</th>
+            <th style="width:28%">Future Task Allocation</th>
+        </tr></thead><tbody>
+        ${STATE.tasks.map((t, i) => `<tr>
+            <td style="text-align:center"><span class="priority-badge">${i+1}</span></td>
+            <td>${e(t.text) || emptyVal('Untitled task')}</td>
+            <td style="text-align:right">${t.hours || 0}</td>
+            <td>${e(t.completedBy) || emptyVal()}</td>
+        </tr>`).join('')}
+        </tbody></table>`;
+
+    const visibleSys = STATE.systemise.filter(s => !s.dismissed);
+    function preDelegHtml(s) {
+        function answeredRow(label, val) {
+            return val ? `<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af">${label}</span><br>${e(val)}</div>` : '';
+        }
+        return [
+            answeredRow('Documented?', s.docStatus),
+            s.docStatus === 'Yes' ? answeredRow('How?', s.docType) : '',
+            answeredRow('Automate potential?', s.automationPotential),
+            answeredRow('Fully optimised?', s.fullyOptimized),
+        ].filter(Boolean).join('') || '<span style="color:#9ca3af;font-style:italic">–</span>';
+    }
+    const systemiseHtml = !visibleSys.length ? `<p class="empty-val">No delegated tasks or processes recorded yet.</p>` : `
+        <table><thead><tr>
+            <th style="width:12%">Task / Process</th>
+            <th style="width:14%">Description</th>
+            <th style="width:18%">Pre-delegation questions</th>
+            <th style="width:9%">Delegated to</th>
+            <th style="width:22%">Steps required</th>
+            <th style="width:25%">Delegation Activities</th>
+        </tr></thead><tbody>
+        ${visibleSys.map(s => {
+            const taskText = s.taskId !== null
+                ? (STATE.tasks.find(t => t.id === s.taskId)?.text || '(untitled)')
+                : (s.customText || '');
+            return `<tr>
+                <td>${e(taskText) || emptyVal()}</td>
+                <td>${e(s.description) || emptyVal()}</td>
+                <td>${preDelegHtml(s)}</td>
+                <td>${delegateName(s.responsibleId)}</td>
+                <td>${checklistHtml(s.stepItems)}</td>
+                <td>${checklistHtml(s.delegationItems)}</td>
+            </tr>`;
+        }).join('')}
+        </tbody></table>`;
+
+    // ── CSS ──────────────────────────────────────────────────────────────────
+    const cssBizName = (bizName || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const css = `
+*, *::before, *::after { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; color: #111827; background: #f1f5f9; }
+
+.print-bar { position: sticky; top: 0; z-index: 100; background: #0f2a5e; padding: 12px 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.print-bar p { color: rgba(255,255,255,.65); font-size: 13px; margin: 0; }
+.print-bar button { background: #F7AC08; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.print-bar button:hover { background: #e09a06; }
+
+.cover { min-height: 100vh; background: #15397F; color: white; padding: 80px; display: flex; flex-direction: column; justify-content: center; }
+.cover-brand { font-size: 12px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #F7AC08; margin-bottom: 56px; }
+.cover-rule { width: 56px; height: 4px; background: #F7AC08; margin-bottom: 44px; border-radius: 2px; }
+.cover-label { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 12px; }
+.cover-biz { font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 52px; }
+.cover-meta { display: flex; flex-direction: column; gap: 10px; font-size: 16px; color: rgba(255,255,255,.85); }
+.meta-label { color: rgba(255,255,255,.45); margin-right: 6px; }
+
+.section { background: white; padding: 60px 80px; border-bottom: 1px solid #e5e7eb; }
+.section-num { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: #F7AC08; text-transform: uppercase; margin-bottom: 4px; }
+.section-title { font-size: 28px; font-weight: 800; color: #15397F; margin: 0 0 32px; }
+
+.chart-page { background: white; padding: 40px 56px; border-bottom: 1px solid #e5e7eb; }
+.chart-page-header { margin-bottom: 16px; }
+.chart-page-title { font-size: 20px; font-weight: 700; color: #15397F; margin: 4px 0 0; }
+.chart-page svg { display: block; max-width: 100%; height: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: #f8fafc; }
+th { text-align: left; padding: 10px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
+td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: top; line-height: 1.5; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: #fafafa; }
+
+.bullet { margin: 2px 0; line-height: 1.4; font-size: 12px; }
+.group-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 5px 0 2px; }
+.c-green { color: #166534; }
+.c-red   { color: #b91c1c; }
+
+.check-row { display: flex; align-items: flex-start; gap: 6px; margin: 3px 0; font-size: 12px; }
+.check-box { flex-shrink: 0; width: 13px; height: 13px; border: 1.5px solid #9ca3af; border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; margin-top: 2px; }
+.check-ticked { background: #f0fdf4; border-color: #4ade80; color: #166534; font-weight: 900; }
+
+.summary-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.summary-box { flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; }
+.summary-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin-bottom: 4px; }
+.summary-val { font-size: 22px; font-weight: 800; color: #15397F; }
+.summary-diff { border-color: #f87171; background: #fef2f2; }
+.summary-diff .summary-val { color: #b91c1c; }
+.summary-match { border-color: #4ade80; background: #f0fdf4; }
+.summary-match .summary-val { color: #166534; }
+
+.priority-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #eef2ff; color: #15397F; font-weight: 700; font-size: 12px; }
+.empty-val { color: #9ca3af; font-style: italic; font-size: 12px; }
+
+@page {
+    size: A4 landscape;
+    margin: 14mm 18mm 18mm;
+    @top-left { content: ""; }
+    @top-center { content: ""; }
+    @top-right { content: ""; }
+    @bottom-left {
+        content: '${cssBizName}';
+        font-size: 8pt; color: #9ca3af;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    @bottom-right {
+        content: counter(page);
+        font-size: 8pt; color: #9ca3af;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+}
+
+@media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: white; margin: 0; }
+    .print-bar, .dl-bar { display: none !important; }
+    .cover { page-break-after: always; break-after: page; min-height: 100vh; }
+    .section { border-bottom: none; page-break-before: always; break-before: page; padding: 28px 48px; }
+    .chart-page { break-before: page; page-break-before: always; border-bottom: none; padding: 12px 0 0; }
+    .chart-page svg { max-height: 148mm; width: 100% !important; height: auto !important; }
+    table { page-break-inside: auto; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+    .summary-row { page-break-inside: avoid; break-inside: avoid; }
+}`;
+
+    // ── Full HTML ─────────────────────────────────────────────────────────────
+    const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${e(bizName)} – Systemisation Report</title>
+<style>${css}</style>
+</head>
+<body>
+<div class="dl-bar" id="dl-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#15397F;color:white;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.25)">
+    <span id="dl-status">Preparing PDF download…</span>
+    <button id="dl-btn" onclick="doDownload()" style="background:white;color:#15397F;border:none;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">&#8595; Download PDF</button>
+</div>
+<div style="height:52px"></div>
+
+<div id="report-body">
+<div class="cover">
+    <div class="cover-brand">Trinity Advisory</div>
+    <div class="cover-rule"></div>
+    <div class="cover-label">Systemisation Report</div>
+    <div class="cover-biz">${e(bizName)}</div>
+    <div class="cover-meta">
+        ${clientName ? `<div><span class="meta-label">Prepared for:</span>${e(clientName)}</div>` : ''}
+        ${advisor    ? `<div><span class="meta-label">Advisor:</span>${e(advisor)}</div>` : ''}
+        ${repDate    ? `<div><span class="meta-label">Date:</span>${e(repDate)}</div>` : ''}
+    </div>
+</div>
+
+<div class="chart-page">
+    <div class="chart-page-header">
+        <div class="section-num">Section 1 &ndash; Organisation Charts</div>
+        <h2 class="chart-page-title">Current Organisation Chart</h2>
+    </div>
+    ${charts.current || '<p class="empty-val">No team members marked as current.</p>'}
+</div>
+<div class="chart-page">
+    <div class="chart-page-header">
+        <div class="section-num">Section 1 &ndash; Organisation Charts</div>
+        <h2 class="chart-page-title">Future 6 Month Organisation Chart</h2>
+    </div>
+    ${charts.future6 || '<p class="empty-val">No team members marked for the future 6 month chart.</p>'}
+</div>
+<div class="chart-page">
+    <div class="chart-page-header">
+        <div class="section-num">Section 1 &ndash; Organisation Charts</div>
+        <h2 class="chart-page-title">Future 12 Month Organisation Chart</h2>
+    </div>
+    ${charts.future12 || '<p class="empty-val">No team members marked for the future 12 month chart.</p>'}
+</div>
+
+<div class="section">
+    <div class="section-num">Section 2</div>
+    <h2 class="section-title">Roles and Skills Assessment</h2>
+    ${rolesHtml}
+</div>
+
+<div class="section">
+    <div class="section-num">Section 3</div>
+    <h2 class="section-title">Owner Weekly Tasks</h2>
+    ${tasksHtml}
+</div>
+
+<div class="section">
+    <div class="section-num">Section 4</div>
+    <h2 class="section-title">Owner / Leadership Task Delegation</h2>
+    ${delegationHtml}
+</div>
+
+<div class="section">
+    <div class="section-num">Section 5</div>
+    <h2 class="section-title">Systemise (Delegated) Tasks</h2>
+    ${systemiseHtml}
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+<script>
+function doDownload() {
+    var btn = document.getElementById('dl-btn');
+    var status = document.getElementById('dl-status');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    status.textContent = 'Generating PDF – please wait…';
+    var opt = {
+        margin: [14, 18, 18, 18],
+        filename: 'Systemisation-Report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+    html2pdf().set(opt).from(document.getElementById('report-body')).save().then(function() {
+        btn.disabled = false;
+        btn.textContent = '↓ Download PDF';
+        status.textContent = 'Download complete. Click to download again.';
+    }).catch(function() {
+        btn.disabled = false;
+        btn.textContent = '↓ Download PDF';
+        status.textContent = 'Download failed – click to try again.';
+    });
+}
+window.addEventListener('load', function() { setTimeout(doDownload, 1000); });
+<\/script>
+</body>
+</html>`;
+
+    // Notify advisor via Power Automate (fire-and-forget, non-blocking)
+    fetch(PA_NOTIFY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            advisorName:  advisor || 'No advisor selected',
+            client:       clientName,
+            businessName: bizName,
+            activity:     'Systemisation Report',
+            action:       'downloaded'
+        })
+    }).catch(err => console.warn('Report notification failed:', err));
+
+    const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+    window.open(URL.createObjectURL(blob), '_blank');
+}
+
+// ── Advisor list from Power Automate ─────────────────────────────────────
+async function loadAdvisors() {
+    const sel = document.getElementById('advisor-name');
+    if (!sel) return;
+    try {
+        const res = await fetch(PA_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'getAdvisors' })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        console.log('[Advisors] Raw PA response:', text);
+        if (!text.trim()) return;
+        const data = JSON.parse(text);
+        console.log('[Advisors] Parsed:', data);
+        // Handle common PA response shapes: array, {advisors:[]}, {value:[]}, {items:[]}
+        const list = Array.isArray(data)          ? data
+                   : Array.isArray(data.advisors)  ? data.advisors
+                   : Array.isArray(data.value)     ? data.value
+                   : Array.isArray(data.items)     ? data.items
+                   : [];
+        // Normalise entries: accept {name,email}, {Name,Email}, or plain strings
+        ADVISORS = list.map(a => typeof a === 'string'
+            ? { name: a, email: '' }
+            : { name: a.name || a.Name || a.advisorName || '', email: a.email || a.Email || a.advisorEmail || '' }
+        ).filter(a => a.name);
+        console.log('[Advisors] Final list:', ADVISORS);
+        if (!ADVISORS.length) return;
+        const current = sel.value;
+        sel.innerHTML = '<option value="">Select your advisor...</option>' +
+            ADVISORS.map(a => `<option value="${esc(a.name)}"${a.name === current ? ' selected' : ''}>${esc(a.name)}</option>`).join('');
+    } catch (err) {
+        console.warn('[Advisors] Could not load:', err);
+    }
+}
+
+// ── URL state sharing ─────────────────────────────────────────────────────
+function getShareableState() {
+    return {
+        state: STATE,
+        form: {
+            yourName:    document.getElementById('your-name').value,
+            yourEmail:   document.getElementById('your-email').value,
+            company:     document.getElementById('company-name').value,
+            advisor:     document.getElementById('advisor-name').value,
+            date:        document.getElementById('chart-date').value,
+            ownerHours:  document.getElementById('owner-estimated-hours').value
+        }
+    };
+}
+
+function encodeStateToHash() {
+    try {
+        const json = JSON.stringify(getShareableState());
+        location.hash = LZString.compressToEncodedURIComponent(json);
+    } catch (e) { console.warn('encodeStateToHash failed:', e); }
+}
+
+function decodeStateFromHash() {
+    try {
+        const raw = location.hash.slice(1);
+        if (!raw) return null;
+        const json = LZString.decompressFromEncodedURIComponent(raw);
+        if (!json) return null;
+        return JSON.parse(json);
+    } catch (e) { return null; }
+}
+
+function applySharedState(obj) {
+    if (!obj || !obj.state) return;
+    STATE.people          = obj.state.people          || [];
+    STATE.tasks           = obj.state.tasks           || [];
+    STATE.roleAssessments = obj.state.roleAssessments || [];
+    STATE.systemise       = obj.state.systemise       || [];
+    if (obj.form) {
+        const f = obj.form;
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        set('your-name',               f.yourName);
+        set('your-email',              f.yourEmail);
+        set('company-name',            f.company);
+        set('chart-date',              f.date);
+        set('owner-estimated-hours',   f.ownerHours);
+        // advisor select — set after loadAdvisors() may have run
+        const advSel = document.getElementById('advisor-name');
+        if (advSel) advSel.value = f.advisor || '';
+    }
+    renderPeopleList(); renderCurrentChart(); renderFutureChart(); renderFuture12Chart();
+    renderOwnerTasksTable(); renderTaskDelegationTable(); renderRaTable(); renderSystemiseTable();
+    checkClearBtn(); checkClearBizBtn();
+}
+
+function copyShareLink() {
+    encodeStateToHash();
+    const btn = document.getElementById('copy-link-btn');
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        if (btn) { const prev = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = prev, 2000); }
+    }).catch(() => {
+        if (btn) { const prev = btn.textContent; btn.textContent = 'Copy failed'; setTimeout(() => btn.textContent = prev, 2000); }
+    });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', loadFromStorage);
+document.addEventListener('DOMContentLoaded', () => {
+    const shared = decodeStateFromHash();
+    if (shared) {
+        applySharedState(shared);
+        loadAdvisors().then(() => {
+            const advSel = document.getElementById('advisor-name');
+            if (advSel && shared.form && shared.form.advisor) advSel.value = shared.form.advisor;
+        });
+    } else {
+        loadFromStorage();
+        loadAdvisors();
+    }
+});
 </script>
 </body>
 </html>
