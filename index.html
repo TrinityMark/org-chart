@@ -3877,11 +3877,21 @@ function applySharedState(obj) {
 function copyShareLink() {
     encodeStateToHash();
     const btn = document.getElementById('copy-link-btn');
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        if (btn) { const prev = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = prev, 2000); }
-    }).catch(() => {
-        if (btn) { const prev = btn.textContent; btn.textContent = 'Copy failed'; setTimeout(() => btn.textContent = prev, 2000); }
-    });
+    const url = window.location.href;
+    const success = () => { if (btn) { const p = btn.textContent; btn.textContent = 'Copied!';  setTimeout(() => btn.textContent = p, 2000); } };
+    const fail    = () => { if (btn) { const p = btn.textContent; btn.textContent = 'Copy failed'; setTimeout(() => btn.textContent = p, 2000); } };
+    const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy') ? success() : fail(); } catch(e) { fail(); }
+        document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(success).catch(fallback);
+    } else {
+        fallback();
+    }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
