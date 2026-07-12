@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.4</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.5</span>
             </div>
         </div>
     </header>
@@ -3364,6 +3364,9 @@ function generateReport() {
     const estHours   = document.getElementById('owner-estimated-hours').value;
     const totalHours = STATE.tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
     const diff       = estHours !== '' ? (Number(estHours) - totalHours) : null;
+    const safeDate   = repDate.replace(/[^0-9]/g, '') || new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const fileName   = `Systemisation-Report-${bizName.replace(/[^a-zA-Z0-9]/g,'-')}-${safeDate}.pdf`;
+    const apiOrigin  = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : location.origin;
 
     // Ensure charts render without responsibilities for the PDF, then restore
     const wasShowingResp = showRespInChart;
@@ -3736,6 +3739,11 @@ tbody tr:nth-child(even) { background: #fafafa; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
 <script>
+var META_CLIENT   = ${JSON.stringify(clientName || '')};
+var META_ADVISOR  = ${JSON.stringify(advisor || '')};
+var META_BIZ      = ${JSON.stringify(bizName || '')};
+var META_FILENAME = ${JSON.stringify(fileName)};
+var META_API      = ${JSON.stringify(apiOrigin)};
 function doDownload() {
     var btn = document.getElementById('dl-btn');
     var status = document.getElementById('dl-status');
@@ -3744,16 +3752,35 @@ function doDownload() {
     status.textContent = 'Generating PDF – please wait…';
     var opt = {
         margin: [14, 18, 18, 18],
-        filename: 'Systemisation-Report.pdf',
+        filename: META_FILENAME,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak: { mode: ['css', 'legacy'] }
     };
-    html2pdf().set(opt).from(document.getElementById('report-body')).save().then(function() {
+    html2pdf().set(opt).from(document.getElementById('report-body')).toPdf().output('blob').then(function(pdfBlob) {
+        var blobUri = URL.createObjectURL(pdfBlob);
+        var a = document.createElement('a');
+        a.href = blobUri; a.download = META_FILENAME;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(blobUri); }, 60000);
         btn.disabled = false;
         btn.textContent = '↓ Download PDF';
         status.textContent = 'Download complete. Click to download again.';
+        if (META_API) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var b64 = reader.result.split(',')[1];
+                fetch(META_API + '/api/save-doc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ docType: 'systemisation', clientName: META_CLIENT,
+                        advisorName: META_ADVISOR, businessName: META_BIZ,
+                        fileName: META_FILENAME, createdBy: META_ADVISOR, pdfBase64: b64 })
+                }).catch(function(e) { console.warn('Save to Azure failed:', e); });
+            };
+            reader.readAsDataURL(pdfBlob);
+        }
     }).catch(function() {
         btn.disabled = false;
         btn.textContent = '↓ Download PDF';
