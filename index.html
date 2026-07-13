@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.5</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.6</span>
             </div>
         </div>
     </header>
@@ -3791,19 +3791,6 @@ window.addEventListener('load', function() { setTimeout(doDownload, 1000); });
 <\/script>
 </body>
 </html>`;
-
-    // Notify advisor via Power Automate (fire-and-forget, non-blocking)
-    fetch(PA_NOTIFY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            advisorName:  advisor || 'No advisor selected',
-            client:       clientName,
-            businessName: bizName,
-            activity:     'Systemisation Report',
-            action:       'downloaded'
-        })
-    }).catch(err => console.warn('Report notification failed:', err));
 
     const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
     window.open(URL.createObjectURL(blob), '_blank');
