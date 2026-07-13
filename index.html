@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.11</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.12</span>
             </div>
         </div>
     </header>
@@ -3583,7 +3583,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .print-bar button { background: #F7AC08; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; white-space: nowrap; }
 .print-bar button:hover { background: #e09a06; }
 
-.cover { height: 210mm; box-sizing: border-box; background: #15397F; color: white; padding: 80px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.cover { height: 178mm; box-sizing: border-box; background: #15397F; color: white; padding: 80px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; page-break-after: always; break-after: page; }
 .cover-brand { font-size: 12px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #F7AC08; margin-bottom: 56px; }
 .cover-rule { width: 56px; height: 4px; background: #F7AC08; margin-bottom: 44px; border-radius: 2px; }
 .cover-label { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 12px; }
@@ -3591,11 +3591,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .cover-meta { display: flex; flex-direction: column; gap: 10px; font-size: 16px; color: rgba(255,255,255,.85); }
 .meta-label { color: rgba(255,255,255,.45); margin-right: 6px; }
 
-.section { background: white; padding: 60px 80px; border-bottom: 1px solid #e5e7eb; }
+.section { background: white; padding: 60px 80px; border-bottom: 1px solid #e5e7eb; page-break-before: always; break-before: page; }
 .section-num { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: #F7AC08; text-transform: uppercase; margin-bottom: 4px; }
 .section-title { font-size: 28px; font-weight: 800; color: #15397F; margin: 0 0 32px; }
 
-.chart-page { background: white; padding: 40px 56px; border-bottom: 1px solid #e5e7eb; }
+.chart-page { background: white; padding: 40px 56px; border-bottom: 1px solid #e5e7eb; page-break-before: always; break-before: page; }
 .chart-page-header { margin-bottom: 16px; }
 .chart-page-title { font-size: 20px; font-weight: 700; color: #15397F; margin: 4px 0 0; }
 .chart-page svg { display: block; max-width: 100%; height: auto; }
@@ -3605,6 +3605,7 @@ thead tr { background: #f8fafc; }
 th { text-align: left; padding: 10px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
 td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: top; line-height: 1.5; }
 tr:last-child td { border-bottom: none; }
+tbody tr { page-break-inside: avoid; break-inside: avoid; }
 tbody tr:nth-child(even) { background: #fafafa; }
 
 .bullet { margin: 2px 0; line-height: 1.4; font-size: 12px; }
@@ -3616,7 +3617,7 @@ tbody tr:nth-child(even) { background: #fafafa; }
 .check-box { flex-shrink: 0; width: 13px; height: 13px; border: 1.5px solid #9ca3af; border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; margin-top: 2px; }
 .check-ticked { background: #f0fdf4; border-color: #4ade80; color: #166534; font-weight: 900; }
 
-.summary-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.summary-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; page-break-inside: avoid; break-inside: avoid; }
 .summary-box { flex: 1; min-width: 160px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; }
 .summary-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin-bottom: 4px; }
 .summary-val { font-size: 22px; font-weight: 800; color: #15397F; }
