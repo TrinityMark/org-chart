@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.7</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.8</span>
             </div>
         </div>
     </header>
@@ -3758,30 +3758,32 @@ function doDownload() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak: { mode: ['css', 'legacy'] }
     };
-    html2pdf().set(opt).from(document.getElementById('report-body')).toPdf().then(function(worker) {
-        var pdf = worker.prop.pdf;
-        pdf.save(META_FILENAME);
+    var el = document.getElementById('report-body');
+    html2pdf().set(opt).from(el).save().then(function() {
         btn.disabled = false;
         btn.textContent = '↓ Download PDF';
         status.textContent = 'Download complete. Click to download again.';
         if (META_API) {
-            try {
-                var blob = pdf.output('blob');
+            html2pdf().set(opt).from(el).toPdf().output('blob').then(function(pdfBlob) {
+                var blob = (pdfBlob instanceof Blob) ? pdfBlob
+                         : (pdfBlob && pdfBlob.prop && pdfBlob.prop.pdf) ? pdfBlob.prop.pdf.output('blob')
+                         : null;
+                if (!blob) { console.warn('[save-doc] could not extract blob'); return; }
                 var reader = new FileReader();
                 reader.onload = function() {
                     var b64 = reader.result.split(',')[1];
+                    if (!b64) return;
                     fetch(META_API + '/api/save-doc', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ docType: 'systemisation', clientName: META_CLIENT,
                             advisorName: META_ADVISOR, businessName: META_BIZ,
                             fileName: META_FILENAME, createdBy: META_ADVISOR, pdfBase64: b64 })
-                    }).catch(function(e) { console.warn('Save to Azure failed:', e); });
+                    }).catch(function(e) { console.warn('[save-doc] fetch failed:', e); });
                 };
                 reader.readAsDataURL(blob);
-            } catch(e) { console.warn('Blob capture failed:', e); }
+            }).catch(function(e) { console.warn('[save-doc] render failed:', e); });
         }
-        return worker;
     }).catch(function() {
         btn.disabled = false;
         btn.textContent = '↓ Download PDF';
