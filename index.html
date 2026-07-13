@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.13</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.14</span>
             </div>
         </div>
     </header>
@@ -3379,18 +3379,23 @@ function generateReport() {
         if (!el || el.querySelector('.empty-state')) return null;
         return el.innerHTML;
     }
-    // Add viewBox so SVG scales to fit page width instead of clipping
+    // Scale SVG to explicit pixel dimensions that fit one A4 landscape page.
+    // A4 landscape content area (margins [14,18,18,18]mm): 261mm × 178mm ≈ 987×673px at 96dpi.
+    // Chart-page header + padding consumes ~132px vertically, leaving MAX_H=490px (≈130mm).
+    // Horizontal padding (56px × 2) leaves MAX_W=875px. Never upscale.
     function scaleSvg(svgHtml) {
         if (!svgHtml) return null;
         return svgHtml.replace(/<svg([^>]*)>/, (_, attrs) => {
             const wm = attrs.match(/width="(\d+(\.\d+)?)"/);
             const hm = attrs.match(/height="(\d+(\.\d+)?)"/);
             if (!wm || !hm) return `<svg${attrs}>`;
-            const w = wm[1], h = hm[1];
+            const w = parseFloat(wm[1]), h = parseFloat(hm[1]);
+            const scale = Math.min(875 / w, 490 / h, 1);
+            const dw = Math.round(w * scale);
             const newAttrs = attrs
-                .replace(/width="[^"]*"/, `viewBox="0 0 ${w} ${h}" width="100%"`)
+                .replace(/width="[^"]*"/, `viewBox="0 0 ${w} ${h}" width="${dw}"`)
                 .replace(/height="[^"]*"/, '');
-            return `<svg${newAttrs} style="display:block;width:100%;height:auto">`;
+            return `<svg${newAttrs} style="display:block;max-width:100%;height:auto">`;
         });
     }
     const charts = {
@@ -3598,7 +3603,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .chart-page { background: white; padding: 40px 56px; border-bottom: 1px solid #e5e7eb; page-break-before: always; break-before: page; }
 .chart-page-header { margin-bottom: 16px; }
 .chart-page-title { font-size: 20px; font-weight: 700; color: #15397F; margin: 4px 0 0; }
-.chart-page svg { display: block; max-width: 100%; height: auto; max-height: 128mm; width: 100%; }
+.chart-page svg { display: block; max-width: 100%; height: auto; }
 
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 thead tr { background: #f8fafc; }
