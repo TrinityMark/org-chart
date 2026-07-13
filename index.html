@@ -306,7 +306,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Generate Report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.10</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.11</span>
             </div>
         </div>
     </header>
@@ -3583,7 +3583,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .print-bar button { background: #F7AC08; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; white-space: nowrap; }
 .print-bar button:hover { background: #e09a06; }
 
-.cover { min-height: 100vh; background: #15397F; color: white; padding: 80px; display: flex; flex-direction: column; justify-content: center; }
+.cover { height: 210mm; box-sizing: border-box; background: #15397F; color: white; padding: 80px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
 .cover-brand { font-size: 12px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #F7AC08; margin-bottom: 56px; }
 .cover-rule { width: 56px; height: 4px; background: #F7AC08; margin-bottom: 44px; border-radius: 2px; }
 .cover-label { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 12px; }
@@ -3650,7 +3650,7 @@ tbody tr:nth-child(even) { background: #fafafa; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body { background: white; margin: 0; }
     .print-bar, .dl-bar { display: none !important; }
-    .cover { height: 210mm !important; min-height: 0 !important; padding: 36px 80px !important; box-sizing: border-box; page-break-after: always; break-after: page; overflow: hidden; }
+    .cover { page-break-after: always; break-after: page; }
     .section { border-bottom: none; page-break-before: always; break-before: page; padding: 28px 48px; }
     .chart-page { break-before: page; page-break-before: always; border-bottom: none; padding: 12px 0 0; }
     .chart-page svg { max-height: 148mm; width: 100% !important; height: auto !important; }
@@ -3754,7 +3754,7 @@ function doDownload() {
         margin: [14, 18, 18, 18],
         filename: META_FILENAME,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 1123 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak: { mode: ['css', 'legacy'] }
     };
