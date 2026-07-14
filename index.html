@@ -298,15 +298,11 @@
                 <p class="text-blue-100 mt-2 text-sm sm:text-base leading-relaxed max-w-3xl">Assess your current team, plan your future team, manage tasks and time effectively, identify skills gaps and future requirements.</p>
             </div>
             <div class="ml-4 mt-1 flex items-center gap-3 flex-shrink-0">
-                <button id="copy-link-btn" onclick="copyShareLink()"
-                    class="text-sm font-semibold bg-white bg-opacity-15 text-white px-4 py-2 rounded-md hover:bg-opacity-25 transition-colors whitespace-nowrap">
-                    Copy link
-                </button>
                 <button onclick="generateReport()"
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
-                    Generate Report
+                    Download a PDF version of this report
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.15</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.21</span>
             </div>
         </div>
     </header>
@@ -668,12 +664,11 @@
                     <table class="w-full" style="min-width:1400px">
                         <thead>
                             <tr>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Task / Process</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Task / Process Description</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:15%">Pre-delegation questions</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Delegated to</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Steps required to complete this task</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Activities required for successful delegation</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:11%">Identify the task/process to document</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:26%">Information on the process</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:12%">Process start &amp; end points</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:22%">Breakdown the process - Steps required to complete this task</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:25%">Activities required for successful delegation</th>
                                 <th style="width:4%"></th>
                             </tr>
                         </thead>
@@ -3036,6 +3031,9 @@ function removeSysSkillItem(sysId, itemId) {
 
 // ── Pre-delegation questions ─────────────────────────────────────────────────
 function renderPreDelegQuestions(s) {
+    const people = STATE.people.filter(p => p.name.trim());
+    const ql = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px';
+
     function selectInput(field, options) {
         const val = s[field] || '';
         return `<select onchange="onPreDelegChange(${s.id},'${field}',this.value)"
@@ -3044,32 +3042,118 @@ function renderPreDelegQuestions(s) {
             ${options.map(opt => `<option value="${opt}" ${val===opt?'selected':''}>${opt}</option>`).join('')}
         </select>`;
     }
-    const docTypeBlock = s.docStatus === 'Yes' ? `
-        <div>
-            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">How is it documented?</div>
+
+    function personSelect(currentId, onchangeExpr) {
+        return `<select onchange="${onchangeExpr}"
+            style="width:100%;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:${currentId?'#111827':'#9ca3af'};background:white;cursor:pointer">
+            <option value="" ${!currentId?'selected':''} style="color:#9ca3af">Select…</option>
+            ${people.map(p => `<option value="${p.id}" ${currentId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}
+        </select>`;
+    }
+
+    const qi = 'break-inside:avoid;margin-bottom:10px';
+    const mta = `class="task-textarea" style="font-size:12px;min-height:40px"`;
+
+    let docConditional = '';
+    if (s.docStatus === 'Yes') {
+        docConditional = `
+        <div style="${qi}">
+            <div style="${ql}">How is it documented?</div>
             ${selectInput('docType', ['Work instructions','Video instructions','Other'])}
+        </div>
+        <div style="${qi}">
+            <div style="${ql}">Who has access to this documentation?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'docAccessNames',this.value);autoSizeTa(this)">${esc(s.docAccessNames||'')}</textarea>
+        </div>`;
+    } else if (s.docStatus === 'No') {
+        docConditional = `
+        <div style="${qi}">
+            <div style="${ql}">How many people know how to complete this process (list names)?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'processKnowers',this.value);autoSizeTa(this)">${esc(s.processKnowers||'')}</textarea>
+        </div>`;
+    }
+
+    const automationBlock = s.automationPotential === 'Yes' ? `
+        <div style="${qi}">
+            <div style="${ql}">How could this process be automated?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'automationMethod',this.value);autoSizeTa(this)">${esc(s.automationMethod||'')}</textarea>
         </div>` : '';
-    return `<div style="display:flex;flex-direction:column;gap:10px">
-        <div>
-            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Is this process documented?</div>
+
+    const optimisationBlock = s.fullyOptimized === 'No' ? `
+        <div style="${qi}">
+            <div style="${ql}">How could this process be optimised?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'optimisationMethod',this.value);autoSizeTa(this)">${esc(s.optimisationMethod||'')}</textarea>
+        </div>` : '';
+
+    return `<div style="column-count:2;column-gap:14px">
+        <div style="${qi}">
+            <div style="${ql}">Who currently performs this process?</div>
+            ${personSelect(s.currentPerformerId, `onPreDelegChange(${s.id},'currentPerformerId',this.value===''?null:Number(this.value))`)}
+        </div>
+        <div style="${qi}">
+            <div style="${ql}">Will this process currently fail without this person?</div>
+            ${selectInput('failsWithoutPerson', ['Yes','No'])}
+        </div>
+        <div style="${qi}">
+            <div style="${ql}">Who will this task be delegated to in the future?</div>
+            ${personSelect(s.responsibleId, `onResponsibleChange(${s.id},this.value)`)}
+        </div>
+        <div style="${qi}">
+            <div style="${ql}">Is this process documented?</div>
             ${selectInput('docStatus', ['Yes','No','Not sure'])}
         </div>
-        ${docTypeBlock}
-        <div>
-            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Potential to automate?</div>
+        ${docConditional}
+        <div style="${qi}">
+            <div style="${ql}">Potential to automate?</div>
             ${selectInput('automationPotential', ['Yes','No','Not sure'])}
         </div>
-        <div>
-            <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px">Fully optimised?</div>
+        ${automationBlock}
+        <div style="${qi}">
+            <div style="${ql}">Fully optimised?</div>
             ${selectInput('fullyOptimized', ['Yes','No','Not sure'])}
         </div>
+        ${optimisationBlock}
     </div>`;
 }
 
 function renderPreDelegCell(sysId) {
     const s = STATE.systemise.find(s => s.id === sysId);
     const cell = document.getElementById(`syspredel-cell-${sysId}`);
-    if (s && cell) cell.innerHTML = renderPreDelegQuestions(s);
+    if (s && cell) {
+        cell.innerHTML = renderPreDelegQuestions(s);
+        requestAnimationFrame(() => cell.querySelectorAll('textarea.task-textarea').forEach(autoSizeTa));
+    }
+}
+
+function onSysFieldSave(sysId, field, value) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    if (!s) return;
+    s[field] = value;
+    saveToStorage();
+}
+
+function renderSysBoundaryItems(s) {
+    const ql = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:4px';
+    const mta = `class="task-textarea" style="font-size:12px;min-height:48px"`;
+    return `<div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+            <div style="${ql}">What is the start point that triggers this process?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'processStartPoint',this.value);autoSizeTa(this)">${esc(s.processStartPoint||'')}</textarea>
+        </div>
+        <div>
+            <div style="${ql}">What is the end point that completes this process?</div>
+            <textarea ${mta} oninput="onSysFieldSave(${s.id},'processEndPoint',this.value);autoSizeTa(this)">${esc(s.processEndPoint||'')}</textarea>
+        </div>
+    </div>`;
+}
+
+function renderSysBoundaryCell(sysId) {
+    const s = STATE.systemise.find(s => s.id === sysId);
+    const cell = document.getElementById(`sysboundary-cell-${sysId}`);
+    if (s && cell) {
+        cell.innerHTML = renderSysBoundaryItems(s);
+        requestAnimationFrame(() => cell.querySelectorAll('textarea.task-textarea').forEach(autoSizeTa));
+    }
 }
 
 function onPreDelegChange(sysId, field, value) {
@@ -3315,12 +3399,20 @@ function renderSystemiseTable() {
         if (s.docType             === undefined) { s.docType             = ''; _migrated = true; }
         if (s.automationPotential === undefined) { s.automationPotential = ''; _migrated = true; }
         if (s.fullyOptimized      === undefined) { s.fullyOptimized      = ''; _migrated = true; }
+        if (s.currentPerformerId  === undefined) { s.currentPerformerId  = null; _migrated = true; }
+        if (s.failsWithoutPerson  === undefined) { s.failsWithoutPerson  = ''; _migrated = true; }
+        if (s.docAccessNames      === undefined) { s.docAccessNames      = ''; _migrated = true; }
+        if (s.processKnowers      === undefined) { s.processKnowers      = ''; _migrated = true; }
+        if (s.automationMethod    === undefined) { s.automationMethod    = ''; _migrated = true; }
+        if (s.optimisationMethod  === undefined) { s.optimisationMethod  = ''; _migrated = true; }
+        if (s.processStartPoint   === undefined) { s.processStartPoint   = ''; _migrated = true; }
+        if (s.processEndPoint     === undefined) { s.processEndPoint     = ''; _migrated = true; }
     });
     if (_migrated) saveToStorage();
     const tbody = document.getElementById('systemise-tbody');
     const visible = STATE.systemise.filter(s => !s.dismissed);
     if (!visible.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-sm text-gray-400">Delegated tasks from Task Delegation will appear here automatically</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-sm text-gray-400">Delegated tasks from Task Delegation will appear here automatically</td></tr>';
         return;
     }
 
@@ -3335,12 +3427,8 @@ function renderSystemiseTable() {
     tbody.innerHTML = rows.map((s, idx) => `
         <tr class="border-t border-gray-100" data-sid="${s.id}" style="background:${idx % 2 === 0 ? 'white' : '#f8fafc'}">
             <td class="py-2 pr-3">${renderSystemiseCol1(s)}</td>
-            <td class="py-2 pr-3">
-                <textarea class="task-textarea" placeholder="Describe this process…"
-                    oninput="onSysDescChange(${s.id},this.value);autoSizeTa(this)">${esc(s.description||'')}</textarea>
-            </td>
             <td class="py-2 pr-3" id="syspredel-cell-${s.id}">${renderPreDelegQuestions(s)}</td>
-            <td class="py-2 pr-3">${renderResponsibleSelect(s)}</td>
+            <td class="py-2 pr-3" id="sysboundary-cell-${s.id}">${renderSysBoundaryItems(s)}</td>
             <td class="py-2 pr-3" id="syssteps-cell-${s.id}">${renderSysStepItems(s)}</td>
             <td class="py-2 pr-3" id="sysdeleg-cell-${s.id}">${renderSysDelegationItems(s)}</td>
             <td class="py-2 text-center">
@@ -3366,7 +3454,10 @@ function generateReport() {
     const diff       = estHours !== '' ? (Number(estHours) - totalHours) : null;
     const safeDate   = repDate.replace(/[^0-9]/g, '') || new Date().toISOString().slice(0,10).replace(/-/g,'');
     const fileName   = `Systemisation-Report-${bizName.replace(/[^a-zA-Z0-9]/g,'-')}-${safeDate}.pdf`;
-    const apiOrigin  = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : location.origin;
+    const apiOrigin    = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : location.origin;
+    const emailAddress = document.getElementById('your-email').value.trim();
+    const shareHash    = LZString.compressToEncodedURIComponent(JSON.stringify(getShareableState()));
+    const liveLink     = apiOrigin ? (apiOrigin + '/systemisation#' + shareHash) : '';
 
     // Ensure charts render without responsibilities for the PDF, then restore
     const wasShowingResp = showRespInChart;
@@ -3546,21 +3637,40 @@ function generateReport() {
         function answeredRow(label, val) {
             return val ? `<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af">${label}</span><br>${e(val)}</div>` : '';
         }
+        function personRow(label, personId) {
+            const p = STATE.people.find(p => p.id === personId);
+            return p ? answeredRow(label, p.name) : '';
+        }
         return [
-            answeredRow('Documented?', s.docStatus),
-            s.docStatus === 'Yes' ? answeredRow('How?', s.docType) : '',
-            answeredRow('Automate potential?', s.automationPotential),
+            personRow('Who currently performs this process?', s.currentPerformerId),
+            answeredRow('Will this process fail without this person?', s.failsWithoutPerson),
+            personRow('Who will this task be delegated to?', s.responsibleId),
+            answeredRow('Is this process documented?', s.docStatus),
+            s.docStatus === 'Yes' ? answeredRow('How is it documented?', s.docType) : '',
+            s.docStatus === 'Yes' ? answeredRow('Who has access to this documentation?', s.docAccessNames) : '',
+            s.docStatus === 'No'  ? answeredRow('How many people know how to complete this process?', s.processKnowers) : '',
+            answeredRow('Potential to automate?', s.automationPotential),
+            s.automationPotential === 'Yes' ? answeredRow('How could this process be automated?', s.automationMethod) : '',
             answeredRow('Fully optimised?', s.fullyOptimized),
+            s.fullyOptimized === 'No' ? answeredRow('How could this process be optimised?', s.optimisationMethod) : '',
+        ].filter(Boolean).join('') || '<span style="color:#9ca3af;font-style:italic">–</span>';
+    }
+    function boundaryHtml(s) {
+        function answeredRow(label, val) {
+            return val ? `<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af">${label}</span><br>${e(val)}</div>` : '';
+        }
+        return [
+            answeredRow('Start point', s.processStartPoint),
+            answeredRow('End point', s.processEndPoint),
         ].filter(Boolean).join('') || '<span style="color:#9ca3af;font-style:italic">–</span>';
     }
     const systemiseHtml = !visibleSys.length ? `<p class="empty-val">No delegated tasks or processes recorded yet.</p>` : `
         <table><thead><tr>
             <th style="width:12%">Task / Process</th>
-            <th style="width:14%">Description</th>
-            <th style="width:18%">Pre-delegation questions</th>
-            <th style="width:9%">Delegated to</th>
-            <th style="width:22%">Steps required</th>
-            <th style="width:25%">Delegation Activities</th>
+            <th style="width:30%">Information on the process</th>
+            <th style="width:14%">Process start &amp; end points</th>
+            <th style="width:22%">Steps required to complete this task</th>
+            <th style="width:22%">Delegation Activities</th>
         </tr></thead><tbody>
         ${visibleSys.map(s => {
             const taskText = s.taskId !== null
@@ -3568,9 +3678,8 @@ function generateReport() {
                 : (s.customText || '');
             return `<tr>
                 <td>${e(taskText) || emptyVal()}</td>
-                <td>${e(s.description) || emptyVal()}</td>
                 <td>${preDelegHtml(s)}</td>
-                <td>${delegateName(s.responsibleId)}</td>
+                <td>${boundaryHtml(s)}</td>
                 <td>${checklistHtml(s.stepItems)}</td>
                 <td>${checklistHtml(s.delegationItems)}</td>
             </tr>`;
@@ -3678,7 +3787,7 @@ tbody tr:nth-child(even) { background: #fafafa; }
 <body>
 <div class="dl-bar" id="dl-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#15397F;color:white;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.25)">
     <span id="dl-status">Preparing PDF download…</span>
-    <button id="dl-btn" onclick="doDownload()" style="background:white;color:#15397F;border:none;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">&#8595; Download PDF</button>
+    <button id="dl-btn" onclick="doDownload()" style="background:white;color:#15397F;border:none;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">Download a PDF of this Report</button>
 </div>
 <div style="height:52px"></div>
 
@@ -3750,6 +3859,8 @@ var META_ADVISOR  = ${JSON.stringify(advisor || '')};
 var META_BIZ      = ${JSON.stringify(bizName || '')};
 var META_FILENAME = ${JSON.stringify(fileName)};
 var META_API      = ${JSON.stringify(apiOrigin)};
+var META_LIVELINK = ${JSON.stringify(liveLink)};
+var META_EMAIL    = ${JSON.stringify(emailAddress)};
 function doDownload() {
     var btn = document.getElementById('dl-btn');
     var status = document.getElementById('dl-status');
@@ -3767,7 +3878,7 @@ function doDownload() {
     var el = document.getElementById('report-body');
     html2pdf().set(opt).from(el).save().then(function() {
         btn.disabled = false;
-        btn.textContent = '↓ Download PDF';
+        btn.textContent = 'Download a PDF of this Report';
         status.textContent = 'Download complete. Click to download again.';
         if (META_API) {
             html2pdf().set(opt).from(el).toPdf().output('blob').then(function(pdfBlob) {
@@ -3784,7 +3895,8 @@ function doDownload() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ docType: 'systemisation', clientName: META_CLIENT,
                             advisorName: META_ADVISOR, businessName: META_BIZ,
-                            fileName: META_FILENAME, createdBy: META_ADVISOR, pdfBase64: b64 })
+                            fileName: META_FILENAME, createdBy: META_ADVISOR,
+                            emailAddress: META_EMAIL, liveLink: META_LIVELINK, pdfBase64: b64 })
                     }).catch(function(e) { console.warn('[save-doc] fetch failed:', e); });
                 };
                 reader.readAsDataURL(blob);
@@ -3792,7 +3904,7 @@ function doDownload() {
         }
     }).catch(function() {
         btn.disabled = false;
-        btn.textContent = '↓ Download PDF';
+        btn.textContent = 'Download a PDF of this Report';
         status.textContent = 'Download failed – click to try again.';
     });
 }
@@ -3892,8 +4004,8 @@ function applySharedState(obj) {
         const advSel = document.getElementById('advisor-name');
         if (advSel) advSel.value = f.advisor || '';
     }
-    renderPeopleList(); renderCurrentChart(); renderFutureChart(); renderFuture12Chart();
-    renderOwnerTasksTable(); renderTaskDelegationTable(); renderRaTable(); renderSystemiseTable();
+    renderTable(); updateCharts();
+    renderOwnerTasksTable(); renderTasksTable(); renderRaTable(); renderSystemiseTable();
     checkClearBtn(); checkClearBizBtn();
 }
 
