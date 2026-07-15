@@ -182,12 +182,13 @@
 
         /* Tabs */
         .tab-btn {
-            padding: 12px 18px; font-size: 14px; font-weight: 600; color: #6b7280;
-            border: none; border-bottom: 3px solid transparent; background: none;
-            cursor: pointer; transition: color .15s, border-color .15s;
+            padding: 9px 18px; font-size: 14px; font-weight: 700; color: #15397F;
+            border: none; background: transparent;
+            cursor: pointer; transition: color .15s, background .15s;
+            border-radius: 6px; white-space: nowrap;
         }
-        .tab-btn:hover { color: #15397F; }
-        .tab-btn-active { color: #15397F; border-bottom-color: #F7AC08; }
+        .tab-btn:hover { background: rgba(21,57,127,0.12); }
+        .tab-btn-active { background: #15397F; color: #F7AC08; }
 
         /* Task row expand/collapse */
         .expand-btn {
@@ -300,9 +301,9 @@
             <div class="ml-4 mt-1 flex items-center gap-3 flex-shrink-0">
                 <button onclick="generateReport()"
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
-                    Download a PDF version of this report
+                    Email me a PDF and a link to this form
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.21</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.22</span>
             </div>
         </div>
     </header>
@@ -407,17 +408,16 @@
                 </div>
             </div>
             <div id="team-section-body">
-                <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory; Role, Level, Primary Reports To, Secondary Reports To, Outline Responsibilities, Current Chart, Future 6 Month Chart and Future 12 Month Chart are optional.</p>
+                <p class="text-xs text-gray-400 mb-3">Upload accepts CSV format. Column names need to be written exactly as shown, they are case sensitive. Name is mandatory; Role, Primary Reports To, Secondary Reports To, Outline Responsibilities, Current Chart, Future 6 Month Chart and Future 12 Month Chart are optional.</p>
 
                 <div class="table-outer">
-                    <table class="w-full" style="min-width:1120px">
+                    <table class="w-full" style="min-width:1000px">
                         <thead>
                             <tr>
                                 <th style="width:3%"></th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Name</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:9%">Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:7%">Level</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Primary Reports To</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Name</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:11%">Primary Reports To</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:10%">Secondary Reports To</th>
                                 <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-2" style="width:6%">
                                     <span class="block">Current</span>
@@ -447,7 +447,7 @@
         </div>
 
         <!-- Tabs -->
-        <div class="flex gap-1 border-b border-gray-200">
+        <div class="flex gap-1" style="background:rgba(21,57,127,0.08);padding:6px 8px;border-radius:10px;margin:0 0 16px;flex-wrap:wrap">
             <button type="button" onclick="switchTab('orgcharts')" id="tab-btn-orgcharts" class="tab-btn tab-btn-active">1. Organisation Charts</button>
             <button type="button" onclick="switchTab('rolesskills')" id="tab-btn-rolesskills" class="tab-btn">2. Roles and Skills Assessment</button>
             <button type="button" onclick="switchTab('ownertasks')" id="tab-btn-ownertasks" class="tab-btn">3. Owner Weekly Tasks</button>
@@ -586,6 +586,21 @@
                 </div>
                 <p class="text-xs text-gray-400 mb-3">Use this tab to prioritise your weekly tasks (drag task to prioritise) and decide the future task allocation status for each task – select &#8216;Owner&#8217; to retain task, &#8216;Delegate&#8217; to delegate the task to another team member, or &#8216;Waste of time&#8217; to stop performing the task.</p>
 
+                <div style="display:flex;gap:16px;margin-bottom:20px">
+                    <div style="flex:1;background:#EEF2FA;border:1px solid #C7D5F0;border-radius:8px;padding:16px;text-align:center">
+                        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6b7280;margin-bottom:8px">% Owner Hours</div>
+                        <div id="deleg-card-owner" style="font-size:28px;font-weight:800;color:#15397F">–</div>
+                    </div>
+                    <div style="flex:1;background:#F0FAF4;border:1px solid #A7D9B5;border-radius:8px;padding:16px;text-align:center">
+                        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6b7280;margin-bottom:8px">% Delegate Hours</div>
+                        <div id="deleg-card-delegate" style="font-size:28px;font-weight:800;color:#1a7a40">–</div>
+                    </div>
+                    <div style="flex:1;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:16px;text-align:center">
+                        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6b7280;margin-bottom:8px">% Waste of Time Hours</div>
+                        <div id="deleg-card-waste" style="font-size:28px;font-weight:800;color:#b91c1c">–</div>
+                    </div>
+                </div>
+
                 <div class="table-outer">
                     <table class="w-full" style="min-width:700px">
                         <thead>
@@ -626,12 +641,12 @@
                     <table class="w-full" style="min-width:1340px;table-layout:fixed">
                         <thead>
                             <tr>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Person Currently in This Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Outline Responsibilities</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Strengths and Weaknesses</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:18%">Role</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:14%">Outline Responsibilities</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Strengths</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:13%">Weaknesses</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Skills Required for This Role</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:17%">Role Alignment</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-3" style="width:19%">Role Alignment</th>
                                 <th style="width:6%"></th>
                             </tr>
                         </thead>
@@ -1178,7 +1193,7 @@ function refreshRaRespForPerson(personId) {
 function addPerson() {
     STATE.people.push({
         id: Date.now(),
-        name: '', role: '', level: 1,
+        name: '', role: '',
         reportsToIds: [], secondaryReportsToIds: [],
         current: true, future: true, future12m: true, swItems: [], respItems: []
     });
@@ -1215,8 +1230,7 @@ function removePerson(id) {
 function onField(id, field, value) {
     const p = STATE.people.find(p => p.id === id);
     if (!p) return;
-    if (field === 'level')  p.level  = Number(value);
-    else if (field === 'current' || field === 'future' || field === 'future12m') p[field] = Boolean(value);
+    if (field === 'current' || field === 'future' || field === 'future12m') p[field] = Boolean(value);
     else p[field] = value;
     if (field === 'name') { refreshMsDropdowns(); renderTasksTable(); renderRaTable(); renderSystemiseTable(); }
     if (field === 'role') renderRaTable();
@@ -1280,13 +1294,6 @@ function renderTable() {
             <td class="py-2 pr-3">
                 <input type="text" class="tbl-input" value="${esc(p.role)}" placeholder="Role or title"
                     oninput="onField(${p.id},'role',this.value)">
-            </td>
-            <td class="py-2 pr-3">
-                <select class="tbl-select" onchange="onField(${p.id},'level',this.value)">
-                    ${[1,2,3,4,5,6,7,8].map(l =>
-                        `<option value="${l}"${p.level===l?' selected':''}>Level ${l}</option>`
-                    ).join('')}
-                </select>
             </td>
             <td class="py-2 pr-3">
                 <button type="button" class="ms-btn" data-pid="${p.id}"
@@ -1424,7 +1431,6 @@ function uploadCSV() {
             const ni  = hdrs.findIndex(h => h === 'name');
             const ri  = hdrs.findIndex(h => h === 'role');
             const rsi = hdrs.findIndex(h => h.includes('responsibilit'));
-            const li  = hdrs.findIndex(h => h === 'level');
             const rti = hdrs.findIndex(h => h === 'reports to' || h === 'primary reports to');
             const s2i = hdrs.findIndex(h => h === 'secondary reports to');
             const cci = hdrs.findIndex(h => h.includes('current'));
@@ -1435,13 +1441,11 @@ function uploadCSV() {
             const incoming = lines.slice(1).map((line, i) => {
                 const c = parseCSVLine(line);
                 const get = idx => idx >= 0 ? (c[idx]||'').replace(/^"|"$/g,'') : '';
-                const level = li >= 0 ? parseInt(get(li), 10) : 1;
                 const respItems = get(rsi).split(';').map(s => s.trim()).filter(Boolean)
                     .map((text, j) => ({ id: `csv-${now}-${i}-${j}`, text }));
                 return {
                     id: now + i + 1,
                     name: get(ni), role: get(ri), respItems,
-                    level: (Number.isInteger(level) && level >= 1 && level <= 8) ? level : 1,
                     reportsToIds: [], reportsToRaw: get(rti),
                     secondaryReportsToIds: [], secondaryReportsToRaw: get(s2i),
                     current: parseYesNo(cci, c, true), future: parseYesNo(fci, c, false),
@@ -1488,11 +1492,11 @@ function downloadCSV() {
     if (!STATE.people.length) { alert('No team members to download.'); return; }
     const business = document.getElementById('company-name').value.trim();
     const date     = document.getElementById('chart-date').value.trim();
-    const hdrs = ['Name','Role','Level','Primary Reports To','Secondary Reports To','Outline Responsibilities','Current Chart','Future 6 Month Chart','Future 12 Month Chart'];
+    const hdrs = ['Name','Role','Primary Reports To','Secondary Reports To','Outline Responsibilities','Current Chart','Future 6 Month Chart','Future 12 Month Chart'];
     const namesFor = ids => (ids||[]).map(id => STATE.people.find(o => o.id === id)?.name).filter(Boolean).join('; ');
     const rows = STATE.people.map(p => {
         const resp = (p.respItems||[]).map(i => i.text).join('; ');
-        return [p.name, p.role, p.level, namesFor(p.reportsToIds), namesFor(p.secondaryReportsToIds), resp, p.current?'Yes':'No', p.future?'Yes':'No', p.future12m?'Yes':'No'];
+        return [p.name, p.role, namesFor(p.reportsToIds), namesFor(p.secondaryReportsToIds), resp, p.current?'Yes':'No', p.future?'Yes':'No', p.future12m?'Yes':'No'];
     });
     const csv = [hdrs,...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
@@ -1827,6 +1831,7 @@ function loadFromStorage() {
                 personId: r.personId === null || r.personId === undefined ? null : Number(r.personId),
                 customSwItems: (r.customSwItems || []).filter(i => !i.editing),
                 skillItems: (r.skillItems || []).filter(i => !i.editing),
+                roleType: r.roleType || 'Current Role',
                 alignment: r.alignment === 'Mostly aligns' ? 'Mostly aligns - needs additional skills' : (r.alignment || '')
             }));
         }
@@ -2133,8 +2138,25 @@ function toggleTaskExpand(id) {
     renderTasksTable();
 }
 
+function updateDelegationCards() {
+    const tasks = STATE.tasks.filter(t => (t.hours || 0) > 0);
+    const total = tasks.reduce((s, t) => s + (t.hours || 0), 0);
+    function pct(type) {
+        if (!total) return '–';
+        const sum = tasks.filter(t => t.completedBy === type).reduce((s, t) => s + (t.hours || 0), 0);
+        return Math.round(sum / total * 100) + '%';
+    }
+    const ownerEl = document.getElementById('deleg-card-owner');
+    const delegEl = document.getElementById('deleg-card-delegate');
+    const wasteEl = document.getElementById('deleg-card-waste');
+    if (ownerEl) ownerEl.textContent = pct('Owner');
+    if (delegEl) delegEl.textContent = pct('Delegate');
+    if (wasteEl) wasteEl.textContent = pct('Waste of Time');
+}
+
 function renderTasksTable() {
     const tbody = document.getElementById('tasks-tbody');
+    updateDelegationCards();
     if (!STATE.tasks.length) {
         tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-400">Add tasks on the Owner Weekly Tasks tab to see them here</td></tr>';
         return;
@@ -2355,7 +2377,7 @@ function onTaskDragEnd() {
 function addRoleAssessment() {
     STATE.roleAssessments.push({
         id: Date.now(), role: '', personId: null, personCustomName: '',
-        customSwItems: [], skillItems: [], alignment: ''
+        roleType: 'Current Role', customSwItems: [], skillItems: [], alignment: ''
     });
     renderRaTable();
     saveToStorage();
@@ -2421,6 +2443,21 @@ function onPersonSelectChange(rowId, value) {
     saveToStorage();
 }
 
+function renderRoleTypeSelect(r) {
+    const val = r.roleType || 'Current Role';
+    return `<select class="tbl-select" onchange="onRoleTypeChange(${r.id},this.value)">
+        <option value="Current Role"${val==='Current Role'?' selected':''}>Current Role</option>
+        <option value="Future Role"${val==='Future Role'?' selected':''}>Future Role</option>
+    </select>`;
+}
+
+function onRoleTypeChange(rowId, value) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    r.roleType = value;
+    saveToStorage();
+}
+
 function renderRaResp(r) {
     if (!r.personId) {
         return '<span class="text-xs text-gray-400">Select a team member to edit their responsibilities here.</span>';
@@ -2475,11 +2512,60 @@ function renderRaCustomSwPills(r) {
         </div>`;
 }
 
-function renderRaSwCell(rowId) {
-    const r = STATE.roleAssessments.find(r => r.id === rowId);
-    const cell = document.getElementById(`rasw-cell-${rowId}`);
-    if (r && cell) cell.innerHTML = renderRaSw(r);
+function renderRaStrengths(r) {
+    const items = (r.customSwItems || []).filter(i => i.type === 'strength');
+    const pillsHtml = items.map(item => {
+        if (item.editing) return `
+            <span class="sw-pill sw-pill-strength sw-pill-editing">
+                <input type="text" class="sw-pill-input" data-rasw-id="${item.id}" value="${esc(item.text)}"
+                    placeholder="Type a strength…"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRaSwItem(${r.id},'${item.id}');}"
+                    onblur="commitRaSwItem(${r.id},'${item.id}',this.value)">
+            </span>`;
+        return `<span class="sw-pill sw-pill-strength" style="cursor:pointer" onclick="editRaSwItem(${r.id},'${item.id}')" title="Click to edit">
+            ${esc(item.text)}
+            <button type="button" class="sw-pill-x" onclick="event.stopPropagation();removeRaSwItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+        </span>`;
+    }).join('');
+    return `<div class="sw-stack">${pillsHtml}
+        <div class="sw-add-row">
+            <button type="button" class="sw-add-btn" onclick="startAddRaSw(${r.id},'strength')" title="Add strength">+</button>
+        </div>
+    </div>`;
 }
+
+function renderRaWeaknesses(r) {
+    const items = (r.customSwItems || []).filter(i => i.type === 'weakness');
+    const pillsHtml = items.map(item => {
+        if (item.editing) return `
+            <span class="sw-pill sw-pill-weakness sw-pill-editing">
+                <input type="text" class="sw-pill-input" data-rasw-id="${item.id}" value="${esc(item.text)}"
+                    placeholder="Type a weakness…"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();} else if(event.key==='Escape'){cancelRaSwItem(${r.id},'${item.id}');}"
+                    onblur="commitRaSwItem(${r.id},'${item.id}',this.value)">
+            </span>`;
+        return `<span class="sw-pill sw-pill-weakness" style="cursor:pointer" onclick="editRaSwItem(${r.id},'${item.id}')" title="Click to edit">
+            ${esc(item.text)}
+            <button type="button" class="sw-pill-x" onclick="event.stopPropagation();removeRaSwItem(${r.id},'${item.id}')" title="Remove">&times;</button>
+        </span>`;
+    }).join('');
+    return `<div class="sw-stack">${pillsHtml}
+        <div class="sw-add-row">
+            <button type="button" class="sw-add-btn" onclick="startAddRaSw(${r.id},'weakness')" title="Add weakness">+</button>
+        </div>
+    </div>`;
+}
+
+function renderRaSwCells(rowId) {
+    const r = STATE.roleAssessments.find(r => r.id === rowId);
+    if (!r) return;
+    const sCell = document.getElementById(`rastrength-cell-${rowId}`);
+    const wCell = document.getElementById(`raweakness-cell-${rowId}`);
+    if (sCell) sCell.innerHTML = renderRaStrengths(r);
+    if (wCell) wCell.innerHTML = renderRaWeaknesses(r);
+}
+
+function renderRaSwCell(rowId) { renderRaSwCells(rowId); }
 
 let openRaSwMenuId = null;
 
@@ -2518,8 +2604,9 @@ function startAddRaSw(rowId, type) {
     r.customSwItems = r.customSwItems || [];
     const tempId = 'new-' + Date.now() + Math.random().toString(36).slice(2, 6);
     r.customSwItems.push({ id: tempId, type, text: '', editing: true });
-    renderRaSwCell(rowId);
-    const input = document.querySelector(`#rasw-cell-${rowId} input[data-rasw-id="${tempId}"]`);
+    renderRaSwCells(rowId);
+    const cellId = type === 'strength' ? `rastrength-cell-${rowId}` : `raweakness-cell-${rowId}`;
+    const input = document.querySelector(`#${cellId} input[data-rasw-id="${tempId}"]`);
     if (input) input.focus();
 }
 
@@ -2529,8 +2616,9 @@ function editRaSwItem(rowId, itemId) {
     const item = (r.customSwItems || []).find(i => i.id === itemId);
     if (!item || item.editing) return;
     item.editing = true;
-    renderRaSwCell(rowId);
-    const input = document.querySelector(`#rasw-cell-${rowId} input[data-rasw-id="${itemId}"]`);
+    renderRaSwCells(rowId);
+    const cellId = item.type === 'strength' ? `rastrength-cell-${rowId}` : `raweakness-cell-${rowId}`;
+    const input = document.querySelector(`#${cellId} input[data-rasw-id="${itemId}"]`);
     if (input) { input.focus(); input.select(); }
 }
 
@@ -2715,10 +2803,14 @@ function renderRaTable() {
     }
     tbody.innerHTML = STATE.roleAssessments.map(r => `
         <tr class="border-t border-gray-100" data-rid="${r.id}">
-            <td class="py-2 pr-3">${renderRoleSelect(r)}</td>
-            <td class="py-2 pr-3">${renderPersonSelect(r)}</td>
+            <td class="py-2 pr-3">
+                ${renderRoleSelect(r)}
+                <div style="margin-top:6px">${renderPersonSelect(r)}</div>
+                <div style="margin-top:6px">${renderRoleTypeSelect(r)}</div>
+            </td>
             <td class="py-2 pr-3" id="raresp-cell-${r.id}">${renderRaResp(r)}</td>
-            <td class="py-2 pr-3" id="rasw-cell-${r.id}">${renderRaSw(r)}</td>
+            <td class="py-2 pr-3" id="rastrength-cell-${r.id}">${renderRaStrengths(r)}</td>
+            <td class="py-2 pr-3" id="raweakness-cell-${r.id}">${renderRaWeaknesses(r)}</td>
             <td class="py-2 pr-3" id="raskill-cell-${r.id}">${renderRaSkillsPills(r)}</td>
             <td class="py-2 pr-3">${renderAlignmentSelect(r)}</td>
             <td class="py-2">
