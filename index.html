@@ -303,7 +303,7 @@
                     class="text-sm font-semibold bg-[#F7AC08] text-gray-900 px-4 py-2 rounded-md hover:bg-[#e09a06] transition-colors whitespace-nowrap">
                     Email me a PDF and a link to this form
                 </button>
-                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.23</span>
+                <span class="text-xs text-blue-300 font-mono bg-blue-900 bg-opacity-50 px-2 py-1 rounded">v2.24</span>
             </div>
         </div>
     </header>
@@ -3664,21 +3664,29 @@ function generateReport() {
 
     const rolesHtml = !STATE.roleAssessments.length ? `<p class="empty-val">No roles assessed yet.</p>` : `
         <table><thead><tr>
-            <th style="width:12%">Role</th>
-            <th style="width:13%">Person</th>
-            <th style="width:18%">Responsibilities</th>
-            <th style="width:18%">Strengths &amp; Weaknesses</th>
-            <th style="width:20%">Skills Required</th>
+            <th style="width:20%">Role</th>
+            <th style="width:18%">Outline Responsibilities</th>
+            <th style="width:13%">Strengths</th>
+            <th style="width:13%">Weaknesses</th>
+            <th style="width:17%">Skills Required for This Role</th>
             <th style="width:19%">Role Alignment</th>
         </tr></thead><tbody>
-        ${STATE.roleAssessments.map(r => `<tr>
-            <td>${e(r.role) || emptyVal()}</td>
-            <td>${personName(r.personId, r.personCustomName)}</td>
+        ${STATE.roleAssessments.map(r => {
+            const strengths  = (r.customSwItems || []).filter(i => i.text && i.type === 'strength');
+            const weaknesses = (r.customSwItems || []).filter(i => i.text && i.type === 'weakness');
+            return `<tr>
+            <td>
+                <div style="font-weight:600">${e(r.role) || emptyVal()}</div>
+                <div style="font-size:11px;color:#374151;margin-top:3px">${personName(r.personId, r.personCustomName)}</div>
+                <div style="font-size:10px;color:#15397F;margin-top:2px">${e(r.roleType || 'Current Role')}</div>
+            </td>
             <td>${respHtml(r.personId)}</td>
-            <td>${swHtml(r)}</td>
+            <td>${strengths.length ? strengths.map(i => `<div class="bullet c-green">&#8226; ${e(i.text)}</div>`).join('') : emptyVal()}</td>
+            <td>${weaknesses.length ? weaknesses.map(i => `<div class="bullet c-red">&#8226; ${e(i.text)}</div>`).join('') : emptyVal()}</td>
             <td>${checklistHtml(r.skillItems)}</td>
             <td style="color:${alignColor[r.alignment]||'inherit'};font-weight:${r.alignment?'600':'400'}">${e(r.alignment) || emptyVal()}</td>
-        </tr>`).join('')}
+        </tr>`;
+        }).join('')}
         </tbody></table>`;
 
     const summaryBoxes = `
@@ -3709,7 +3717,27 @@ function generateReport() {
         </tr>`).join('')}
         </tbody></table>`;
 
+    const { pctOwner, pctDelegate, pctWaste } = (() => {
+        const hrs = STATE.tasks.filter(t => (t.hours || 0) > 0);
+        const total = hrs.reduce((s, t) => s + (t.hours || 0), 0);
+        const pct = type => !total ? '–' : Math.round(hrs.filter(t => t.completedBy === type).reduce((s, t) => s + (t.hours || 0), 0) / total * 100) + '%';
+        return { pctOwner: pct('Owner'), pctDelegate: pct('Delegate'), pctWaste: pct('Waste of Time') };
+    })();
     const delegationHtml = !STATE.tasks.length ? `<p class="empty-val">No tasks recorded yet.</p>` : `
+        <div class="summary-row">
+            <div class="summary-box">
+                <div class="summary-label">% Owner Hours</div>
+                <div class="summary-val">${pctOwner}</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-label">% Delegate Hours</div>
+                <div class="summary-val">${pctDelegate}</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-label">% Waste of Time Hours</div>
+                <div class="summary-val">${pctWaste}</div>
+            </div>
+        </div>
         <table><thead><tr>
             <th style="width:8%;text-align:center">Priority</th>
             <th style="width:52%">Task</th>
@@ -3837,7 +3865,7 @@ tbody tr:nth-child(even) { background: #fafafa; }
 
 @page {
     size: A4 landscape;
-    margin: 14mm 18mm 18mm;
+    margin: 8mm 18mm 14mm;
     @top-left { content: ""; }
     @top-center { content: ""; }
     @top-right { content: ""; }
@@ -4013,7 +4041,10 @@ window.addEventListener('load', function() { setTimeout(doDownload, 1000); });
             reportHtml: cleanHtml
         })
     })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(r => {
+        if (!r.ok) return r.text().then(body => { throw new Error('HTTP ' + r.status + ': ' + body.slice(0, 300)); });
+        return r.json();
+    })
     .then(data => {
         if (reportBtn) { reportBtn.disabled = false; reportBtn.textContent = origBtnText; }
         if (data.pdfBase64) {
@@ -4031,7 +4062,7 @@ window.addEventListener('load', function() { setTimeout(doDownload, 1000); });
     .catch(err => {
         if (reportBtn) { reportBtn.disabled = false; reportBtn.textContent = origBtnText; }
         console.error('[save-doc]', err);
-        alert('PDF generation failed – please try again or check your connection.');
+        alert('PDF generation failed:\n' + err.message);
     });
 }
 
