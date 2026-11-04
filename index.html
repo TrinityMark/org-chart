@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trinity Advisory – Systemisation</title>
+    <link rel="stylesheet" href="trinity.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { font-family: var(--font); }
 
         #rotate-prompt {
             display: none;
             position: fixed; inset: 0; z-index: 9999;
-            background: #15397F; color: #fff;
+            background: var(--trinity-blue); color: #fff;
             flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 2rem;
         }
@@ -29,7 +30,7 @@
             background: white;
             transition: border-color .15s, box-shadow .15s;
         }
-        .tbl-input:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .tbl-input:focus { border-color: var(--trinity-blue); box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
         /* Fixed-width, right-aligned number boxes (Owner Weekly Tasks) */
         .hours-box {
@@ -44,14 +45,14 @@
             background: white;
             transition: border-color .15s, box-shadow .15s;
         }
-        .hours-box:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .hours-box:focus { border-color: var(--trinity-blue); box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
         .hours-box[type=number] { -moz-appearance: textfield; }
         .hours-box[type=number]::-webkit-inner-spin-button,
         .hours-box[type=number]::-webkit-outer-spin-button { display: none; }
         .hours-box-diff { font-weight: 700; background: #f9fafb; }
         .hours-box-diff-highlight { background: #fef2f2; border-color: #f87171; color: #b91c1c; }
         .hours-box-diff-match { background: #f0fdf4; border-color: #4ade80; color: #166534; }
-        .hours-box-total { font-weight: 700; background: #eef2f6; border-color: #94a3b8; color: #15397F; }
+        .hours-box-total { font-weight: 700; background: #eef2f6; border-color: #94a3b8; color: var(--trinity-blue); }
 
         tr.owt-summary-row td { background: #f9fafb; padding-top: 8px; padding-bottom: 8px; }
         tr.owt-summary-row .owt-summary-label {
@@ -71,7 +72,7 @@
             cursor: pointer;
             transition: border-color .15s, box-shadow .15s;
         }
-        .tbl-select:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .tbl-select:focus { border-color: var(--trinity-blue); box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
         /* Multi-select dropdown */
         .ms-btn {
@@ -102,7 +103,7 @@
             border-top: 5px solid #6b7280;
             pointer-events: none;
         }
-        .ms-btn:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .ms-btn:focus { border-color: var(--trinity-blue); box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
         .ms-dropdown {
             position: fixed;
@@ -126,7 +127,7 @@
         .ms-option input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
         .ms-empty { padding: 10px 14px; font-size: 13px; color: #9ca3af; }
 
-        input[type="checkbox"] { accent-color: #15397F; cursor: pointer; }
+        input[type="checkbox"] { accent-color: var(--trinity-blue); cursor: pointer; }
 
         /* Strengths & Weaknesses pills */
         .sw-stack { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
@@ -152,7 +153,7 @@
             font-size: 15px; line-height: 1; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .sw-add-btn:hover { border-color: #15397F; color: #15397F; }
+        .sw-add-btn:hover { border-color: var(--trinity-blue); color: var(--trinity-blue); }
         .sw-menu {
             position: fixed; z-index: 9999; background: white; border: 1px solid #d1d5db;
             border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); overflow: hidden; min-width: 160px;
@@ -182,13 +183,13 @@
 
         /* Tabs */
         .tab-btn {
-            padding: 9px 18px; font-size: 14px; font-weight: 700; color: #15397F;
+            padding: 9px 18px; font-size: 14px; font-weight: 700; color: var(--trinity-blue);
             border: none; background: transparent;
             cursor: pointer; transition: color .15s, background .15s;
             border-radius: 6px; white-space: nowrap;
         }
         .tab-btn:hover { background: rgba(21,57,127,0.12); }
-        .tab-btn-active { background: #15397F; color: #F7AC08; }
+        .tab-btn-active { background: var(--trinity-blue); color: #F7AC08; }
 
         /* Task row expand/collapse */
         .expand-btn {
@@ -196,8 +197,8 @@
             color: #9ca3af; display: flex; align-items: center; justify-content: center;
             transition: color .15s, transform .15s;
         }
-        .expand-btn:hover { color: #15397F; }
-        .expand-btn.expanded { transform: rotate(90deg); color: #15397F; }
+        .expand-btn:hover { color: var(--trinity-blue); }
+        .expand-btn.expanded { transform: rotate(90deg); color: var(--trinity-blue); }
         tr.task-detail-row { background: #f9fafb; }
         .task-textarea {
             width: 100%; min-height: 56px; resize: none; overflow: hidden;
@@ -205,7 +206,7 @@
             font-size: 14px; font-family: inherit; outline: none;
             transition: border-color .15s, box-shadow .15s;
         }
-        .task-textarea:focus { border-color: #15397F; box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
+        .task-textarea:focus { border-color: var(--trinity-blue); box-shadow: 0 0 0 3px rgba(21,57,127,.15); }
 
         /* Skills / Abilities / Qualities pills (neutral) */
         .tskill-pill {
@@ -266,8 +267,8 @@
         .drag-handle { color: #d1d5db; cursor: grab; padding: 4px 6px; display: flex; align-items: center; user-select: none; }
         .drag-handle:hover { color: #9ca3af; }
         tr.dragging { opacity: 0.35; }
-        tr.drag-over-top    { box-shadow: inset 0  3px 0 #15397F; }
-        tr.drag-over-bottom { box-shadow: inset 0 -3px 0 #15397F; }
+        tr.drag-over-top    { box-shadow: inset 0  3px 0 var(--trinity-blue); }
+        tr.drag-over-bottom { box-shadow: inset 0 -3px 0 var(--trinity-blue); }
 
         #systemise-tbody td, #ra-tbody td { vertical-align: top; }
 
@@ -292,7 +293,7 @@
 <div class="min-h-screen">
 
     <!-- Header -->
-    <header class="bg-[#15397F] text-white shadow-lg">
+    <header class="bg-[var(--trinity-blue)] text-white shadow-lg">
         <div class="max-w-full px-5 sm:px-8 py-7 sm:py-8 flex justify-between items-start">
             <div class="flex-1">
                 <h1 class="text-3xl sm:text-4xl font-bold">Trinity Advisory – Systemisation</h1>
@@ -333,25 +334,25 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Your name <span class="text-red-500">*</span></label>
                         <input id="your-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--trinity-blue)]"
                             placeholder="Your full name">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Your email <span class="text-red-500">*</span></label>
                         <input id="your-email" type="email" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--trinity-blue)]"
                             placeholder="you@example.com">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Business name <span class="text-red-500">*</span></label>
                         <input id="company-name" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--trinity-blue)]"
                             placeholder="Your business name">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Advisor name <span class="text-red-500">*</span></label>
                         <select id="advisor-name" onchange="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F] bg-white cursor-pointer">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--trinity-blue)] bg-white cursor-pointer">
                             <option value="">Select your advisor...</option>
                             <!-- Update this list with Trinity Advisory advisor names -->
                             <option value="Mark Nixey">Mark Nixey</option>
@@ -363,7 +364,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Date <span class="text-red-500">*</span></label>
                         <input id="chart-date" type="text" oninput="saveToStorage(); checkClearBtn(); clearFieldError(this)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#15397F]"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--trinity-blue)]"
                             placeholder="Eg. June 2025">
                     </div>
                 </div>
